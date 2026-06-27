@@ -128,6 +128,16 @@ const getLatestAudit = createServerFn({ method: "GET" }).handler(async () => {
   return data;
 });
 
+const pingSite = createServerFn({ method: "GET" }).handler(async () => {
+  const start = Date.now();
+  try {
+    const res = await fetch("https://jalalnasser.com", { method: "HEAD" });
+    return { ok: res.ok, status: res.status, ms: Date.now() - start };
+  } catch {
+    return { ok: false, status: 0, ms: Date.now() - start };
+  }
+});
+
 // ── Route ─────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/seo-dashboard")({
@@ -159,6 +169,8 @@ function SeoDashboard() {
   const [runningCycle, setRunningCycle] = useState(false);
   const [addingKw, setAddingKw] = useState(false);
   const [auditRunning, setAuditRunning] = useState(false);
+  const [lastEvent, setLastEvent] = useState<{ type: string; status: string; time: string } | null>(null);
+  const [pinging, setPinging] = useState(false);
   const [cycleLog, setCycleLog] = useState<string[]>([]);
   const [selectedKwId, setSelectedKwId] = useState<number | null>(null);
   const [filterText, setFilterText] = useState("");
@@ -238,6 +250,7 @@ function SeoDashboard() {
       setRankings(prev => [row as Ranking, ...prev.filter(r => r.keyword_id !== kw.id)]);
       setCheckingId(null);
     }
+    setLastEvent({ type: "check_all_rankings", status: `Checked ${keywords.length} keywords`, time: new Date().toLocaleString() });
   }
 
   async function handleRunCycle() {
@@ -254,6 +267,7 @@ function SeoDashboard() {
     const aud = await runSiteAudit();
     setAudit(aud as Audit);
     log("✅ SEO cycle complete!");
+    setLastEvent({ type: "full_seo_cycle", status: `${keywords.length} keywords + audit complete`, time: new Date().toLocaleString() });
     setRunningCycle(false);
   }
 
@@ -261,7 +275,15 @@ function SeoDashboard() {
     setAuditRunning(true);
     const aud = await runSiteAudit();
     setAudit(aud as Audit);
+    setLastEvent({ type: "site_audit", status: `Score: ${(aud as Audit).score}/100`, time: new Date().toLocaleString() });
     setAuditRunning(false);
+  }
+
+  async function handlePingSite() {
+    setPinging(true);
+    const result = await pingSite();
+    setLastEvent({ type: "site_ping", status: `HTTP: ${result.status} · ${result.ms}ms`, time: new Date().toLocaleString() });
+    setPinging(false);
   }
 
   // Suppress unused warnings for imports kept for future use
@@ -457,7 +479,49 @@ function SeoDashboard() {
 
           {/* ── OVERVIEW (default) ── keyword management two-panel */}
           {navSection === "overview" && (
-            <>
+            <div className="flex flex-col flex-1 overflow-hidden">
+              {/* Operations panel */}
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Operations</h3>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={handlePingSite} disabled={pinging} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 transition-colors">
+                    {pinging ? <Loader2 className="size-3.5 animate-spin" /> : <Globe className="size-3.5" />}
+                    Ping Site
+                  </button>
+                  <button onClick={handleCheckAll} disabled={runningCycle || keywords.length === 0} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 transition-colors">
+                    {checkingId !== null ? <Loader2 className="size-3.5 animate-spin" /> : <TrendingUp className="size-3.5" />}
+                    Check All Rankings
+                  </button>
+                  <button onClick={handleRunAudit} disabled={auditRunning} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 transition-colors">
+                    {auditRunning ? <Loader2 className="size-3.5 animate-spin" /> : <Shield className="size-3.5" />}
+                    Run Site Audit
+                  </button>
+                  <button onClick={handleRunCycle} disabled={runningCycle || keywords.length === 0} className="flex items-center gap-1.5 bg-slate-900 text-white rounded px-3 py-2 text-xs font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors">
+                    {runningCycle ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
+                    Run Full SEO Cycle
+                  </button>
+                  <button onClick={loadData} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    <RefreshCw className="size-3.5" />
+                    Refresh Data
+                  </button>
+                </div>
+                {cycleLog.length > 0 && (
+                  <div className="mt-3 bg-gray-50 rounded text-xs font-mono px-3 py-2 max-h-24 overflow-y-auto space-y-0.5 text-gray-600">
+                    {cycleLog.map((l, i) => <p key={i}>{l}</p>)}
+                  </div>
+                )}
+                {lastEvent && (
+                  <div className="mt-3 flex items-center gap-3 text-xs text-gray-500 border-t border-gray-100 pt-3">
+                    <span className="font-medium text-gray-700">Last event:</span>
+                    <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-600">{lastEvent.type}</span>
+                    <span>{lastEvent.status}</span>
+                    <span className="ml-auto text-gray-400">{lastEvent.time}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Two-panel */}
+              <div className="flex flex-1 overflow-hidden">
               {/* LEFT PANEL */}
               <div className="w-80 flex-shrink-0 flex flex-col border-r border-gray-200 bg-white overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
@@ -624,7 +688,8 @@ function SeoDashboard() {
                   </div>
                 )}
               </div>
-            </>
+              </div>
+            </div>
           )}
 
           {/* ── RANKINGS section ── */}
