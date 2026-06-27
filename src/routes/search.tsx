@@ -11,6 +11,19 @@ const schema = z.object({ q: fallback(z.string(), "").default("") });
 
 export const Route = createFileRoute("/search")({
   validateSearch: zodValidator(schema),
+  head: () => ({
+    meta: [
+      { title: "Search — BlogiFy" },
+      { name: "description", content: "Search BlogiFy tutorials on Linux, cybersecurity, WordPress, crypto, and more." },
+      { property: "og:title", content: "Search BlogiFy" },
+      { property: "og:description", content: "Find tutorials and articles across Linux, security, WordPress, crypto, and digital marketing." },
+      { property: "og:url", content: "https://jalalnasser.com/search" },
+      { name: "twitter:title", content: "Search BlogiFy" },
+      { name: "twitter:description", content: "Find tutorials and articles across all BlogiFy topics." },
+      { name: "robots", content: "noindex,follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://jalalnasser.com/search" }],
+  }),
   component: SearchPage,
 });
 

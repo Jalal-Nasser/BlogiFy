@@ -76,7 +76,15 @@ export const Route = createFileRoute("/contact")({
     meta: [
       { title: "Contact — BlogiFy" },
       { name: "description", content: "Get in touch with Jalal Nasser — questions, project inquiries, or just to say hi." },
+      { property: "og:title", content: "Contact Jalal Nasser — BlogiFy" },
+      { property: "og:description", content: "Reach out about projects, freelance work, or BlogiFy content. Usually responds within 24 hours." },
+      { property: "og:url", content: "https://jalalnasser.com/contact" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5a66d952-8ed6-481a-8519-01913766574e" },
+      { name: "twitter:title", content: "Contact Jalal Nasser — BlogiFy" },
+      { name: "twitter:description", content: "Reach out about projects, freelance work, or BlogiFy content." },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5a66d952-8ed6-481a-8519-01913766574e" },
     ],
+    links: [{ rel: "canonical", href: "https://jalalnasser.com/contact" }],
   }),
   component: Contact,
 });

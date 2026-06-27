@@ -6,7 +6,15 @@ export const Route = createFileRoute("/about")({
     meta: [
       { title: "About Jalal Nasser — BlogiFy" },
       { name: "description", content: "Full-Stack & AI Developer, sysadmin, and blogger. Founder of BlogiFy — hands-on tutorials on Linux, security, WordPress, and the modern tech stack." },
+      { property: "og:title", content: "About Jalal Nasser — Founder of BlogiFy" },
+      { property: "og:description", content: "Meet Jalal Nasser — Full-Stack & AI Developer behind BlogiFy. Skills, services, and the story behind the blog." },
+      { property: "og:url", content: "https://jalalnasser.com/about" },
+      { property: "og:image", content: "https://jalalnasser.com/jalal-nasser.jpg" },
+      { name: "twitter:title", content: "About Jalal Nasser — Founder of BlogiFy" },
+      { name: "twitter:description", content: "Meet Jalal Nasser — Full-Stack & AI Developer behind BlogiFy." },
+      { name: "twitter:image", content: "https://jalalnasser.com/jalal-nasser.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://jalalnasser.com/about" }],
   }),
   component: About,
 });
