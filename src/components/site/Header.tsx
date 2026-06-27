@@ -41,7 +41,7 @@ export function Header() {
           <Link to="/" className="flex items-center gap-2 shrink-0 group">
             <img src="https://kejgjwvesmlaorviofyl.supabase.co/storage/v1/object/public/media/2023/09/cropped-Jblogify-1.png" alt="BlogiFy" className="h-10 w-10 object-contain drop-shadow-[0_0_12px_rgba(0,212,255,0.6)]" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             <div className="leading-none">
-              <span className="font-display text-lg font-bold tracking-tight text-glow">Blogi<span className="text-gradient">Fy</span></span>
+              <span className="font-display text-lg font-bold tracking-tight text-white text-glow">Blogi<span className="text-gradient">Fy</span></span>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">jalalnasser.com</div>
             </div>
           </Link>
