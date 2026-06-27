@@ -57,8 +57,8 @@ export function Header() {
           </form>
 
           <nav className="ml-auto hidden lg:flex items-center gap-1">
-            <Link to="/about" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
-            <Link to="/contact" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            <Link to="/about" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
+            <Link to="/contact" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           </nav>
 
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
