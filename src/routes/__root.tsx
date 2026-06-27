@@ -94,18 +94,34 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const ADMIN_PATHS = [
+  "/login",
+  "/dashboard",
+  "/posts",
+  "/categories",
+  "/tags",
+  "/authors",
+  "/media",
+  "/seo",
+  "/drafts",
+  "/published",
+  "/featured",
+  "/reports",
+  "/settings",
+];
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAdmin = pathname.startsWith("/seo-dashboard");
+  const isAdmin = ADMIN_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
+      <div className={isAdmin ? "min-h-screen" : "flex min-h-screen flex-col"}>
         {!isAdmin && <Header />}
-        <main className="flex-1"><Outlet /></main>
+        {isAdmin ? <Outlet /> : <main className="flex-1"><Outlet /></main>}
         {!isAdmin && <Footer />}
       </div>
-      <Toaster theme="dark" position="top-right" richColors />
+      <Toaster theme={isAdmin ? "light" : "dark"} position="top-right" richColors />
       {!isAdmin && <CookieConsent />}
     </QueryClientProvider>
   );
