@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, X, Terminal } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/lib/queries";
@@ -35,9 +35,7 @@ export function Header() {
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="flex h-16 items-center gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0 group">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-accent text-brand-foreground shadow-[0_0_20px_rgb(0_212_255/0.45)] group-hover:shadow-[0_0_28px_rgb(0_212_255/0.7)] transition-shadow">
-              <Terminal className="size-4" />
-            </div>
+            <img src="/logo.png" alt="BlogiFy" className="h-10 w-10 object-contain drop-shadow-[0_0_12px_rgba(0,212,255,0.6)]" />
             <div className="leading-none">
               <span className="font-display text-lg font-bold tracking-tight text-glow">Blogi<span className="text-gradient">Fy</span></span>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">jalalnasser.com</div>
