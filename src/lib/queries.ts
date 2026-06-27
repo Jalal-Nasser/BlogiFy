@@ -121,7 +121,7 @@ export async function subscribeEmail(email: string) {
 
 export async function submitContact(name: string, email: string, message: string) {
   const { error } = await supabase
-    .from("contact_submissions")
+    .from("contact_messages")
     .insert({ name, email, message });
   if (error) throw new Error(error.message);
 }
