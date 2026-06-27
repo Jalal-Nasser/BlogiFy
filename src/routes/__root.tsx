@@ -91,6 +91,14 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en" className="dark">
       <head><HeadContent /></head>
       <body>
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-KTL9JBSX"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         {children}
         <Scripts />
       </body>
