@@ -120,9 +120,11 @@ export type Database = {
           id: string
           name: string
           parent_id: string | null
+          parent_slug: string | null
           slug: string
           status: string
           updated_at: string
+          wp_id: number | null
         }
         Insert: {
           color?: string
@@ -131,9 +133,11 @@ export type Database = {
           id?: string
           name: string
           parent_id?: string | null
+          parent_slug?: string | null
           slug: string
           status?: string
           updated_at?: string
+          wp_id?: number | null
         }
         Update: {
           color?: string
@@ -142,9 +146,11 @@ export type Database = {
           id?: string
           name?: string
           parent_id?: string | null
+          parent_slug?: string | null
           slug?: string
           status?: string
           updated_at?: string
+          wp_id?: number | null
         }
         Relationships: [
           {
@@ -343,6 +349,7 @@ export type Database = {
           author_id: string | null
           canonical_url: string | null
           category_id: string | null
+          category_slug: string | null
           content: string
           created_at: string
           excerpt: string | null
@@ -365,6 +372,7 @@ export type Database = {
           author_id?: string | null
           canonical_url?: string | null
           category_id?: string | null
+          category_slug?: string | null
           content: string
           created_at?: string
           excerpt?: string | null
@@ -387,6 +395,7 @@ export type Database = {
           author_id?: string | null
           canonical_url?: string | null
           category_id?: string | null
+          category_slug?: string | null
           content?: string
           created_at?: string
           excerpt?: string | null
@@ -539,7 +548,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string | null
+          message: string | null
+          name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          message?: string | null
+          name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          message?: string | null
+          name?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
