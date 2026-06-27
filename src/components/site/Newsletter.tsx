@@ -18,8 +18,7 @@ export function Newsletter({ variant = "card" }: { variant?: "card" | "inline" }
       toast.success("Subscribed! Check your inbox soon.");
       setEmail("");
     } catch (err: any) {
-      if (err?.code === "23505") toast.success("You're already subscribed.");
-      else toast.error("Subscription failed. Try again.");
+      toast.error("Subscription failed. Try again.");
     } finally {
       setLoading(false);
     }

@@ -114,7 +114,7 @@ export async function fetchPageBySlug(_slug: string): Promise<Page | null> {
 }
 
 export async function subscribeEmail(email: string) {
-  const { error } = await supabase.from("newsletter_subscribers").insert({ email });
+  const { error } = await supabase.rpc("newsletter_subscribe", { subscriber_email: email });
   if (error) throw error;
 }
 
