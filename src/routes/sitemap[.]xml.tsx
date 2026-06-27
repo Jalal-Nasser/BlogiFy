@@ -38,20 +38,20 @@ export const Route = createFileRoute("/sitemap.xml")({
           .from("categories")
           .select("slug");
 
-        const postUrls = (posts || []).map((p) => ({
+        const postUrls: SitemapUrl[] = (posts || []).map((p) => ({
           url: `${BASE}/blog/${p.slug}`,
           lastmod: p.published_at ? new Date(p.published_at).toISOString().split("T")[0] : undefined,
           priority: "0.8",
           changefreq: "weekly",
         }));
 
-        const categoryUrls = (categories || []).map((c) => ({
+        const categoryUrls: SitemapUrl[] = (categories || []).map((c) => ({
           url: `${BASE}/category/${c.slug}`,
           priority: "0.6",
           changefreq: "weekly",
         }));
 
-        const allUrls = [...STATIC_PAGES, ...postUrls, ...categoryUrls];
+        const allUrls: SitemapUrl[] = [...STATIC_PAGES, ...postUrls, ...categoryUrls];
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
