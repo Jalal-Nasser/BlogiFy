@@ -1,64 +1,102 @@
-# Blog CMS Dashboard — Implementation Plan
 
-This is a large rebuild (15 routes, 8 tables, full CRUD on 5 entities). I want to confirm a few things before writing thousands of lines of code, because a few decisions materially change the approach.
+# Consolidate BlogiFy → Lovable Cloud
 
-## Scope assumptions I need confirmed
+## Findings
 
-1. **Existing public blog (`/`, `/blog/$slug`, `/category/$slug`, etc.) stays intact.** Your spec says "/ redirects authenticated users to /dashboard, unauthenticated to /login" — but you already have a public marketing site + blog on `/`. I assume you mean: the *admin* surface is the new dashboard, and the public site keeps working. The redirect rule should only apply if we're replacing the homepage, which would break SEO. **My recommendation:** keep `/` as the public homepage, make the admin live at `/admin/*` (or keep `/dashboard`, `/posts`, etc. as protected admin routes alongside the public site). Confirm which you want.
+### Two databases today
+- **Public client** (`src/lib/supabase.ts`) is hardcoded to BlogiFy (`kejgjwvesmlaorviofyl.supabase.co`). All public reads in `src/lib/queries.ts` go there.
+- **Lovable Cloud** holds auth, admin CMS (`cms.functions.ts`), `page_views`, and an existing copy of the posts.
 
-2. **Existing schema conflict.** Your project already has `posts`, `categories` tables with a different shape (posts has `author TEXT`, `tags TEXT[]`, `featured_image_url`, `views`, etc.; categories has `color`, `parent_id`). Your new spec changes column names (`featured_image` vs `featured_image_url`, `author_id` FK vs `author` text, separate `post_tags` join vs `tags[]` array). **Two options:**
-   - **(a) Migrate in place** — alter existing tables, migrate data, update public site queries (`src/lib/queries.ts`, blog route, etc.) to new shape. Higher risk, touches public site.
-   - **(b) Additive** — keep existing tables as-is for public site, add only the new tables (`tags`, `post_tags`, `authors`, `media_assets`, `activity_events`, `blog_settings`) and extend `posts`/`categories` with the missing columns. Lower risk. Recommended.
+### Schema diff — `posts`
 
-3. **Remove existing `seo-dashboard` route?** The current `src/routes/seo-dashboard.tsx` (SEO Engine Console with rankings/audits/Firecrawl) — delete entirely, or keep as `/seo` content? Your new `/seo` spec is content-SEO issues (missing meta, missing alt), not keyword ranking. I assume: delete the seo-dashboard route and its tables (`seo_keywords`, `seo_rankings`, `seo_audits`) are kept untouched but unused.
+| Column | BlogiFy | Lovable Cloud |
+|---|---|---|
+| `id` | **integer** | **uuid** |
+| `category_id` | absent | `uuid` (FK categories.id) |
+| `category_slug` | `text` | **absent** |
+| `featured_image` | `text` | **absent** |
+| Everything else (title, slug, content, excerpt, featured_image_url, author, author_id, tags, status, published_at, read_time_minutes, views, featured, seo_title, meta_description, canonical_url, updated_at, created_at) | present | present |
 
-4. **Auth.** Current admin uses a hardcoded password check in `seo-dashboard.tsx`, not Supabase Auth. Your spec says "keep existing email+password Supabase auth" — but it doesn't exist yet. I'll need to **enable Supabase Auth, create `/login`, create the `_authenticated` layout gate, and create one admin user**. Confirm OK.
+### Schema diff — `categories`
 
-5. **Rich text editor:** spec says plain textarea is fine for v1 — I'll do that.
+| Column | BlogiFy | Lovable Cloud |
+|---|---|---|
+| `id` | int | `uuid` |
+| `wp_id` | present | absent |
+| `parent_slug` | `text` | absent (LC uses `parent_id uuid`) |
+| name, slug, color, description, status, updated_at | present | present |
 
-## Proposed structure
+### Row counts
 
-```text
-src/routes/
-  _authenticated/
-    route.tsx              gate → /login if no session
-    dashboard.tsx          KPIs + recent posts/drafts/SEO/activity
-    posts.index.tsx        list + filters
-    posts.new.tsx          editor (create)
-    posts.$id.edit.tsx     editor (edit)
-    categories.tsx
-    tags.tsx
-    authors.tsx
-    media.tsx
-    seo.tsx
-    drafts.tsx
-    published.tsx
-    featured.tsx
-    reports.tsx
-    settings.tsx
-  login.tsx                public
-  (existing public routes untouched)
-```
+| | BlogiFy | Lovable Cloud |
+|---|---|---|
+| posts (total) | 40 | 46 |
+| posts (published) | 40 | 46 |
+| categories | 22 | 22 (slugs match) |
+| pages / tags / post_tags / media_assets / authors / contact_submissions / newsletter_subscribers | empty/absent in BlogiFy | pages=4, rest empty |
 
-Shared `<AdminShell>` with sidebar + top header, used by every `_authenticated` route.
+LC's 46 posts are a **superset**: all 40 BlogiFy slugs are present, plus 6 newer ones (`cloudflare-tunnels-home-server`, `crypto-self-custody-hardware-vs-multisig`, `hardening-linux-server-2026`, `nas-storage-truenas-scale-40tb-build`, `self-hosting-mail-server-2026`, `wordpress-rest-api-headless-frontend`). Categories overlap 1:1 by slug.
 
-## Technical details
+### Tables actually used by the public site
+From `src/lib/queries.ts`: `posts`, `categories`, `contact_submissions`, plus newsletter via `cms.functions` (already LC). `pages`, `tags`, `post_tags`, `media_assets`, `authors` are not read by the public site.
 
-- **DB:** One migration adding 6 new tables (`tags`, `post_tags`, `authors`, `media_assets`, `activity_events`, `blog_settings`) + ALTERs on `posts` (`author_id`, `status`, `featured`, `seo_title`, `meta_description`, `canonical_url`, `updated_at`) and `categories` (`status`, `updated_at`). RLS: `authenticated` full CRUD, no anon. GRANTs included. `updated_at` triggers.
-- **Data layer:** `createServerFn` + `requireSupabaseAuth` for all mutations and reads. TanStack Query for caching. Loader-prime + `useSuspenseQuery` per project convention.
-- **Activity log:** helper `logActivity(type, description, entity_type, entity_id)` called from each mutation handler.
-- **Auth:** enable email/password, create `/login` (Supabase signInWithPassword), `_authenticated/route.tsx` integration-managed gate, `attachSupabaseAuth` middleware in `src/start.ts`.
-- **Design tokens:** use existing semantic tokens; map your green/amber/red to badge variants. Buttons use `bg-primary` (already navy-ish). No new hex literals in components.
+### Media references in BlogiFy posts
+- `featured_image_url` hosts: BlogiFy storage **37**, dropskey.net 2, unsplash 1.
+- Inline `<img>` URLs in `content`: BlogiFy storage **61**, plus 8 external hosts (mango-wp, androidcure, technuovo, jeumobi, spca, logosdownload, wikimedia, worldvectorlogo, jalalnasser) at 1 each.
+- ~100 unique media URLs total; ~98 unique BlogiFy-hosted files (already-migrated featured images overlap; inline images mostly NOT yet migrated).
 
-## Estimated size
+### Critical mismatches that would break the public site if we just repointed today
+1. LC `posts` has **no `category_slug`** — every `queries.ts` call (list, by-slug, by-category, related) filters/selects on it → all queries 500.
+2. LC `posts.category_id` is set on only 6 of 46 rows — even after adding `category_slug`, most posts would have no category.
+3. LC `categories` lacks `wp_id` and `parent_slug` — `fetchCategories`/`fetchCategoryBySlug` select these columns → 400.
+4. `media_assets` table is empty on LC; `contact_submissions` table doesn't exist on LC (LC has `contact_messages` instead) — `submitContact` would 404.
+5. Inline images in `content` still point to BlogiFy storage on the 40 imported LC rows (only `featured_image_url` was rewritten in the prior media migration).
 
-~25 new files, 1 migration, ~3500 lines. I'll batch parallel writes per route group.
+## Proposed migration plan (safe, staged, reversible)
 
-## Before I start — please confirm
+### Phase 1 — Reconcile LC schema (additive, no breakage)
+Migration:
+- `ALTER TABLE posts ADD COLUMN category_slug text` (computed/backfilled, then keep in sync).
+- `ALTER TABLE posts ADD COLUMN featured_image text` (optional — only if we want parity; queries.ts doesn't read it, can skip).
+- `ALTER TABLE categories ADD COLUMN wp_id int`, `ADD COLUMN parent_slug text`.
+- Backfill `categories.parent_slug` from existing `parent_id` join; backfill `wp_id` from BlogiFy export.
+- Backfill `posts.category_slug` for the 6 already-linked rows from `categories.slug`.
+- Add a `contact_submissions` view or table mirroring `contact_messages` (or change `queries.ts` to use `contact_messages` in a separate frontend-only edit).
 
-1. Keep public site intact, admin lives alongside as protected routes (don't hijack `/`)? **(Y/N)**
-2. Additive schema migration (keep existing `posts`/`categories` shape, add columns + new tables)? **(Y/N)**
-3. Delete `src/routes/seo-dashboard.tsx` and replace with new `/seo` content-audit page? **(Y/N)**
-4. Enable Supabase Auth + I'll tell you to create an admin user after? **(Y/N)**
+### Phase 2 — Import the 40 BlogiFy posts into LC (data only)
+- For each BlogiFy slug **not already in LC**: skip (LC is the source of truth — it's the superset; we only need missing rows). After diff: every BlogiFy slug is already present in LC, so nothing to insert. Verify each LC row against BlogiFy for `content`, `excerpt`, `featured_image_url`, `seo_title`, `meta_description`, `category_slug`, `tags`, `published_at`. Where LC values are empty/null and BlogiFy has them, backfill via `UPDATE … FROM (VALUES …)`. This protects the 6 newer LC-only posts and any admin edits.
+- Resolve `category_id` from `category_slug` for all rows (set FK).
 
-Once you confirm I'll ship it in one pass.
+### Phase 3 — Media consolidation (inline images)
+- Script (service role) scans LC `posts.content` for every `kejgjwvesmlaorviofyl.supabase.co/storage/v1/object/public/media/<path>` occurrence (~61 references, fewer unique paths).
+- For each unique path not already in this project's `media` bucket: download from BlogiFy public URL, upload to LC `media` with `x-upsert: true`.
+- Rewrite `content` in LC: replace `kejgjwvesmlaorviofyl.supabase.co` with `gwynqitgepkfzzenlfyu.supabase.co`, keeping the `/storage/v1/object/public/media/...` path identical. Do **not** touch the 8 external hosts.
+- Verify HTTP 200 on a sample of new URLs.
+
+### Phase 4 — Repoint the public client
+- Replace `SUPABASE_URL`/`SUPABASE_ANON_KEY` in `src/lib/supabase.ts` with the LC project (`gwynqitgepkfzzenlfyu`) values. Better: switch to `import { supabase } from "@/integrations/supabase/client"` (the managed LC client) and delete `src/lib/supabase.ts` — single client across the app.
+- Fix `queries.ts` `contact_submissions` → `contact_messages` (or add the view in Phase 1).
+- Build + typecheck.
+
+### Phase 5 — Verify parity, then pause BlogiFy
+- Diff homepage post list, a sample post page, a category page, and search results between current published site (BlogiFy-backed) and the preview (LC-backed). Confirm titles, slugs, images, categories, related posts all render.
+- Only after parity: pause BlogiFy.
+
+## Risks & flags
+- **ID type change**: BlogiFy `posts.id` is `int`, LC is `uuid`. The public site uses `id` only as `excludeId` in related posts — no external links break. Bookmarks/analytics keyed on slug, which is preserved.
+- **Existing media migration was DB-rewrite only on LC**: rewriting hosts in `content` will succeed only after Phase 3 actually copies the inline-referenced files (the prior turn copied 37 files; inline images may reference different paths).
+- **6 newer LC posts** must be preserved — Phase 2 only backfills NULL columns, never overwrites.
+- **`contact_messages` vs `contact_submissions`**: silently broken today on the LC schema; flagged for fix in Phase 1/4.
+- **Drafts**: none in BlogiFy (all 40 published), no risk.
+- **Duplicate slugs**: none between BlogiFy and LC after the superset check.
+- **`category_id` NULL on 40 LC posts** is the most invasive backfill — must run after `categories.wp_id`/`parent_slug` exist and slug→uuid mapping is verified.
+- `src/lib/queries.ts` references `wp_id` and `parent_slug` on categories — those columns must exist before repointing or fetchCategories returns 400.
+
+## Deliverables when you say "go"
+1. One SQL migration for Phase 1 schema additions + category backfill.
+2. One data migration (insert tool) for Phase 2 post backfills + category_id resolution.
+3. One Node/Python script (service role) for Phase 3 inline-image copy + content rewrite, run once.
+4. Code edits for Phase 4 (`src/lib/supabase.ts` switch + `contact_submissions` fix).
+5. Verification report (counts, sample URLs HTTP 200, parity screenshots).
+
+No edits will happen until you approve.
