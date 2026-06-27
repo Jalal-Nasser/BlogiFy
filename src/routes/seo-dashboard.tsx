@@ -129,7 +129,7 @@ const runSiteAudit = createServerFn({ method: "POST" }).handler(async () => {
 const getLatestAudit = createServerFn({ method: "GET" }).handler(async () => {
   const { createClient } = await import("@supabase/supabase-js");
   const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-  const { data } = await sb.from("seo_audits").select("*").order("checked_at", { ascending: false }).limit(1).single();
+  const { data } = await sb.from("seo_audits").select("*").order("checked_at", { ascending: false }).limit(1).maybeSingle();
   return data;
 });
 
