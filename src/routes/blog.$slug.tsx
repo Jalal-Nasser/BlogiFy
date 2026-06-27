@@ -80,7 +80,7 @@ function PostPage() {
       "@context": "https://schema.org",
       "@type": "Article",
       "headline": post.title,
-      "description": post.excerpt || "",
+      "description": post.excerpt || fallbackDescription,
       "image": post.featured_image_url || "",
       "datePublished": post.published_at,
       "author": { "@type": "Person", "name": post.author, "url": base },
