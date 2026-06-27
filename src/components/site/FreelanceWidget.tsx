@@ -5,7 +5,7 @@ export function FreelanceWidget() {
     const script = document.createElement("script");
     script.type = "text/javascript";
     script.src =
-      "https://www.peopleperhour.com/hire/1648438511/2784711.js?width=300&height=400&orientation=vertical&theme=dark&hourlies=1113922%2C1118452&rnd=" +
+      "https://www.peopleperhour.com/hire/1648438511/2784711.js?width=300&height=320&orientation=vertical&theme=dark&hourlies=1113922%2C1118452&rnd=" +
       parseInt((Math.random() * 10000).toString(), 10);
     document.body.appendChild(script);
 
