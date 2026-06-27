@@ -221,8 +221,9 @@ function SeoDashboard() {
 
   // Analytics: fire GA4 page_view on nav section change
   useEffect(() => {
-    if (typeof window !== "undefined" && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag) {
-      (window as Window & { gtag: (...args: unknown[]) => void }).gtag("event", "page_view", {
+    const w = window as unknown as { gtag?: (...args: unknown[]) => void };
+    if (typeof window !== "undefined" && w.gtag) {
+      w.gtag("event", "page_view", {
         page_title: `SEO Dashboard – ${navSection}`,
         page_location: `/seo-dashboard#${navSection}`,
       });
