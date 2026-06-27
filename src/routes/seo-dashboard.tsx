@@ -280,44 +280,161 @@ function SeoDashboard() {
 
   if (!authed) {
     return (
-      <div className="min-h-screen grid place-items-center bg-background px-4">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 text-center">
-            <div className="size-12 rounded-xl bg-gradient-to-br from-brand to-accent grid place-items-center mx-auto mb-4">
-              <BarChart3 className="size-6 text-white" />
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Main split */}
+        <div className="flex-1 grid lg:grid-cols-2">
+
+          {/* ── Left panel ── */}
+          <div className="relative flex flex-col justify-between p-10 lg:p-14 overflow-hidden">
+            {/* Background glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-accent/5 pointer-events-none" />
+            <div className="absolute -top-40 -left-40 size-96 rounded-full bg-brand/5 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-40 right-0 size-80 rounded-full bg-accent/5 blur-3xl pointer-events-none" />
+
+            {/* Brand */}
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="size-9 rounded-lg bg-gradient-to-br from-brand to-accent grid place-items-center">
+                  <BarChart3 className="size-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-display font-bold text-base">BlogiFy</p>
+                  <p className="text-[10px] font-mono tracking-widest text-brand uppercase">SEO Intelligence · Admin</p>
+                </div>
+              </div>
             </div>
-            <h1 className="font-display text-2xl font-bold">SEO Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">BlogiFy Admin</p>
-          </div>
-          <form onSubmit={handleLogin} className="surface-card rounded-2xl border border-border p-6 space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
-              <input
-                type="email" required value={loginForm.email}
-                onChange={e => setLoginForm(p => ({ ...p, email: e.target.value }))}
-                className="w-full rounded-lg border border-border bg-background/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Password</label>
-              <input
-                type="password" required value={loginForm.password}
-                onChange={e => setLoginForm(p => ({ ...p, password: e.target.value }))}
-                className="w-full rounded-lg border border-border bg-background/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
-              />
-            </div>
-            {loginError && (
-              <p className="text-xs text-red-400 flex items-center gap-1.5">
-                <XCircle className="size-3.5" /> {loginError}
+
+            {/* Headline */}
+            <div className="relative z-10 my-auto">
+              <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 mb-6">
+                <span className="size-1.5 rounded-full bg-brand animate-pulse" />
+                <span className="text-xs font-mono text-brand tracking-wider">SEO COMMAND CENTER</span>
+              </div>
+              <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-4">
+                SEO control for<br />
+                <span className="text-gradient">jalalnasser.com</span>
+              </h1>
+              <p className="text-muted-foreground max-w-sm leading-relaxed">
+                Monitor keyword rankings, audit your site, and run automated SEO cycles targeting the US market — all from one secure dashboard.
               </p>
-            )}
-            <button
-              type="submit" disabled={loggingIn}
-              className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand/90 disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
-            >
-              {loggingIn ? <><Loader2 className="size-4 animate-spin" /> Signing in…</> : "Sign In"}
-            </button>
-          </form>
+
+              {/* Feature tags */}
+              <div className="flex flex-wrap gap-2 mt-6">
+                {["Keyword Rankings", "Site Audit", "SEO Cycle", "US Market"].map(tag => (
+                  <span key={tag} className="rounded-full border border-border bg-surface/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Stat cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+                {[
+                  { icon: Search, label: "KEYWORDS", color: "text-brand" },
+                  { icon: BarChart3, label: "RANKINGS", color: "text-accent" },
+                  { icon: Globe, label: "SITE AUDIT", color: "text-green-400" },
+                  { icon: TrendingUp, label: "US TRAFFIC", color: "text-yellow-400" },
+                ].map(({ icon: Icon, label, color }) => (
+                  <div key={label} className="surface-card rounded-xl border border-border p-3">
+                    <Icon className={`size-4 ${color} mb-2`} />
+                    <p className="text-[10px] font-mono tracking-widest text-muted-foreground">{label}</p>
+                    <div className="mt-1.5 h-0.5 rounded-full bg-border overflow-hidden">
+                      <div className={`h-full w-2/3 rounded-full bg-gradient-to-r from-brand to-accent`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="relative z-10 flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-green-400" />
+              <span className="font-semibold text-foreground">BlogiFy</span>
+              <span>·</span>
+              <span>Scope: <span className="text-brand font-medium">US SEO Engine</span></span>
+              <span>·</span>
+              <span>Access: <span className="text-foreground font-medium">Admin only</span></span>
+            </div>
+          </div>
+
+          {/* ── Right panel ── */}
+          <div className="flex items-center justify-center p-8 lg:p-14 bg-surface/20">
+            <div className="w-full max-w-md">
+              <div className="surface-card rounded-2xl border border-border p-8 shadow-2xl">
+                {/* Header badge */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 mb-6">
+                  <Shield className="size-3 text-brand" />
+                  <span className="text-xs font-mono text-brand tracking-wider">SECURE ADMIN ACCESS</span>
+                </div>
+
+                <h2 className="font-display text-2xl font-bold mb-1">Sign in to SEO Dashboard</h2>
+                <p className="text-sm text-muted-foreground mb-6">Sign in with your admin email, password, and the verification answer.</p>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Email</label>
+                    <input
+                      type="email" required value={loginForm.email}
+                      onChange={e => setLoginForm(p => ({ ...p, email: e.target.value }))}
+                      placeholder="you@example.com"
+                      className="w-full rounded-lg border border-border bg-background/50 px-4 py-3 text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Password</label>
+                    <input
+                      type="password" required value={loginForm.password}
+                      onChange={e => setLoginForm(p => ({ ...p, password: e.target.value }))}
+                      placeholder="••••••••"
+                      className="w-full rounded-lg border border-border bg-background/50 px-4 py-3 text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
+                    />
+                  </div>
+
+                  {/* Math CAPTCHA */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Simple verification</label>
+                      <button type="button" onClick={() => { const a = Math.floor(Math.random()*9)+1; const b = Math.floor(Math.random()*9)+1; setMathChallenge({a,b,answer:String(a+b)}); setMathAnswer(""); }} className="text-xs text-brand hover:underline flex items-center gap-1">
+                        <RefreshCw className="size-3" /> New question
+                      </button>
+                    </div>
+                    <div className="rounded-lg border border-border bg-background/30 px-4 py-2.5 text-sm font-mono text-muted-foreground">
+                      What is {mathChallenge.a} + {mathChallenge.b}?
+                    </div>
+                    <input
+                      type="text" value={mathAnswer} onChange={e => setMathAnswer(e.target.value)}
+                      placeholder="Your answer" inputMode="numeric"
+                      className="w-full rounded-lg border border-border bg-background/50 px-4 py-3 text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
+                    />
+                  </div>
+
+                  {loginError && (
+                    <div className="flex items-center gap-2 text-xs text-red-400">
+                      <XCircle className="size-3.5 shrink-0" /> {loginError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit" disabled={loggingIn}
+                    className="w-full rounded-lg bg-brand py-3 text-sm font-semibold text-white hover:bg-brand/90 disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {loggingIn ? <><Loader2 className="size-4 animate-spin" /> Signing in…</> : "Sign in"}
+                  </button>
+                </form>
+
+                {/* Security note */}
+                <div className="mt-4 flex items-start gap-2 rounded-lg border border-border/50 bg-background/20 p-3 text-xs text-muted-foreground">
+                  <Shield className="size-3.5 shrink-0 mt-0.5 text-brand" />
+                  Admin data and ranking reports are protected. All access is logged and restricted to authorised admins.
+                </div>
+              </div>
+
+              {/* Footer */}
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                BlogiFy · Internal platform · Access restricted to authorised admins
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
