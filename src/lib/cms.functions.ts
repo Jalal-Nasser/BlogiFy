@@ -241,7 +241,6 @@ export const saveAuthor = createServerFn({ method: "POST" })
     z.object({
       id: z.string().optional(),
       name: z.string().min(1),
-      email: z.string().email().nullable().optional(),
       bio: z.string().nullable().optional(),
       avatar_url: z.string().nullable().optional(),
       role: z.string(),
@@ -454,7 +453,6 @@ export const saveSettings = createServerFn({ method: "POST" })
       blog_description: z.string().nullable().optional(),
       default_author_id: z.string().nullable().optional(),
       seo_title_pattern: z.string().min(1),
-      admin_email: z.string().email().nullable().optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {

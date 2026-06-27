@@ -17,7 +17,7 @@ function SettingsPage() {
   const qc = useQueryClient();
   const settings = useQuery({ queryKey: ["settings"], queryFn: () => getSettings() });
   const authors = useQuery({ queryKey: ["authors"], queryFn: () => listAuthors() });
-  const [form, setForm] = useState<any>({ blog_name: "", blog_description: "", default_author_id: "", seo_title_pattern: "%title% | %blog_name%", admin_email: "" });
+  const [form, setForm] = useState<any>({ blog_name: "", blog_description: "", default_author_id: "", seo_title_pattern: "%title% | %blog_name%" });
 
   useEffect(() => {
     if (settings.data) setForm({
@@ -26,7 +26,6 @@ function SettingsPage() {
       blog_description: settings.data.blog_description ?? "",
       default_author_id: settings.data.default_author_id ?? "",
       seo_title_pattern: settings.data.seo_title_pattern ?? "%title% | %blog_name%",
-      admin_email: settings.data.admin_email ?? "",
     });
   }, [settings.data]);
 
@@ -37,7 +36,6 @@ function SettingsPage() {
       blog_description: form.blog_description || null,
       default_author_id: form.default_author_id || null,
       seo_title_pattern: form.seo_title_pattern,
-      admin_email: form.admin_email || null,
     } }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["settings"] }); toast.success("Settings saved"); },
     onError: (e: any) => toast.error(e.message),
@@ -55,7 +53,6 @@ function SettingsPage() {
           </select>
         </F>
         <F label="SEO Title Pattern"><input className={inp} value={form.seo_title_pattern} onChange={(e) => setForm({ ...form, seo_title_pattern: e.target.value })} /><p className="text-xs text-slate-500 mt-1">Use %title% and %blog_name% placeholders.</p></F>
-        <F label="Admin Email"><input type="email" className={inp} value={form.admin_email} onChange={(e) => setForm({ ...form, admin_email: e.target.value })} /></F>
         <button disabled={mut.isPending} onClick={() => mut.mutate()} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-60">
           {mut.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Save settings
         </button>
