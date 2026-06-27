@@ -219,6 +219,16 @@ function SeoDashboard() {
 
   useEffect(() => { if (authed) loadData(); }, [authed]);
 
+  // Analytics: fire GA4 page_view on nav section change
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag) {
+      (window as Window & { gtag: (...args: unknown[]) => void }).gtag("event", "page_view", {
+        page_title: `SEO Dashboard – ${navSection}`,
+        page_location: `/seo-dashboard#${navSection}`,
+      });
+    }
+  }, [navSection]);
+
   async function handleAddKeyword(e: React.FormEvent) {
     e.preventDefault();
     if (!newKw.keyword) return;
