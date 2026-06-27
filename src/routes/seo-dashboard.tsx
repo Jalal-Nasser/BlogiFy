@@ -457,31 +457,44 @@ function SeoDashboard() {
         </div>
 
         {/* Status Cards */}
-        <div className="px-6 py-4 flex gap-4 flex-shrink-0 border-b border-gray-100 bg-white">
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Firecrawl</p>
+        <div className="px-6 py-4 flex gap-3 flex-shrink-0 border-b border-gray-100 bg-white overflow-x-auto">
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Firecrawl</p>
             <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">Connected</span>
-            <p className="text-sm text-gray-500 mt-1">Last checked: {lastChecked}</p>
+            <p className="text-xs text-gray-400 mt-1">API active</p>
           </div>
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Keywords</p>
-            <p className="text-2xl font-bold text-gray-900">{keywords.length}</p>
-            <p className="text-sm text-gray-500">{keywords.length} active</p>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Supabase</p>
+            <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">Connected</span>
+            <p className="text-xs text-gray-400 mt-1">3 tables active</p>
           </div>
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Last Ranking</p>
-            <p className="text-lg font-semibold text-gray-900">{lastChecked}</p>
-            <p className="text-sm text-gray-500">Top10: {top10Count} · Top20: {top20Count} · Not ranked: {notRankedCount}</p>
-          </div>
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Site Score</p>
-            {audit ? (
-              <>
-                <p className={`text-2xl font-bold ${audit.score >= 70 ? "text-green-600" : audit.score >= 50 ? "text-amber-600" : "text-red-600"}`}>{audit.score}<span className="text-sm font-normal text-gray-400">/100</span></p>
-                <p className="text-sm text-gray-500">{(audit.issues as unknown[]).length} issues · {new Date(audit.checked_at).toLocaleDateString()}</p>
-              </>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Daily Sync</p>
+            {lastEvent?.type === "check_all_rankings" ? (
+              <><span className="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">Run</span><p className="text-xs text-gray-400 mt-1 truncate">{lastEvent.time}</p></>
             ) : (
-              <><p className="text-2xl font-bold text-gray-300">—</p><p className="text-sm text-gray-400">No audit yet</p></>
+              <><span className="inline-block bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">not run yet</span><p className="text-xs text-gray-400 mt-1">—</p></>
+            )}
+          </div>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Weekly Ranking</p>
+            {lastEvent?.type === "full_seo_cycle" ? (
+              <><span className="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">Run</span><p className="text-xs text-gray-400 mt-1 truncate">{lastEvent.time}</p></>
+            ) : (
+              <><span className="inline-block bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">not run yet</span><p className="text-xs text-gray-400 mt-1">—</p></>
+            )}
+          </div>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Last Ranking</p>
+            <p className="text-base font-semibold text-gray-900">{lastChecked}</p>
+            <p className="text-xs text-gray-400">Top10: {top10Count} · Top20: {top20Count}</p>
+          </div>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Site Score</p>
+            {audit ? (
+              <><p className={`text-xl font-bold ${audit.score >= 70 ? "text-green-600" : audit.score >= 50 ? "text-amber-600" : "text-red-600"}`}>{audit.score}<span className="text-xs font-normal text-gray-400">/100</span></p><p className="text-xs text-gray-400">{(audit.issues as unknown[]).length} issues</p></>
+            ) : (
+              <><p className="text-xl font-bold text-gray-300">—</p><p className="text-xs text-gray-400">No audit yet</p></>
             )}
           </div>
         </div>
