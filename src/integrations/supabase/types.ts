@@ -46,7 +46,6 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
-          email: string | null
           id: string
           name: string
           role: string
@@ -57,7 +56,6 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          email?: string | null
           id?: string
           name: string
           role?: string
@@ -68,7 +66,6 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          email?: string | null
           id?: string
           name?: string
           role?: string
@@ -79,7 +76,6 @@ export type Database = {
       }
       blog_settings: {
         Row: {
-          admin_email: string | null
           blog_description: string | null
           blog_name: string
           created_at: string
@@ -89,7 +85,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          admin_email?: string | null
           blog_description?: string | null
           blog_name?: string
           created_at?: string
@@ -99,7 +94,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          admin_email?: string | null
           blog_description?: string | null
           blog_name?: string
           created_at?: string

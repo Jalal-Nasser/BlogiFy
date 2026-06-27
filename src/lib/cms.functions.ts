@@ -433,8 +433,9 @@ export const reportsStats = createServerFn({ method: "GET" })
 // ============ SETTINGS ============
 export const getSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("blog_settings")
       .select("*")
       .order("created_at", { ascending: true })
@@ -455,13 +456,14 @@ export const saveSettings = createServerFn({ method: "POST" })
       seo_title_pattern: z.string().min(1),
     }).parse(d),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { id, ...row } = data;
     if (id) {
-      const { error } = await context.supabase.from("blog_settings").update(row).eq("id", id);
+      const { error } = await supabaseAdmin.from("blog_settings").update(row).eq("id", id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await context.supabase.from("blog_settings").insert(row);
+      const { error } = await supabaseAdmin.from("blog_settings").insert(row);
       if (error) throw new Error(error.message);
     }
     return { ok: true };
