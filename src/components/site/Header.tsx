@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/lib/queries";
 
-const TOP_CATEGORIES = ["ai-tech", "security", "linux", "wordpress", "crypto", "virtual-servers", "marketing", "games"];
+
 
 export function Header() {
   const navigate = useNavigate();
