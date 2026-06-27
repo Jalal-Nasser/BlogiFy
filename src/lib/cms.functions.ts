@@ -374,9 +374,7 @@ export const seoIssues = createServerFn({ method: "GET" })
     const sb = context.supabase;
     const { data: posts } = await sb
       .from("posts")
-      .select("id, title, slug, seo_title, meta_description, featured_image_url, category_id, canonical_url");
-    const { data: pt } = await sb.from("post_tags").select("post_id");
-    const tagged = new Set((pt ?? []).map((r: any) => r.post_id));
+      .select("id, title, slug, seo_title, meta_description, featured_image_url, category_slug, canonical_url, tags");
     const list = posts ?? [];
     const slugCount = new Map<string, number>();
     list.forEach((p: any) => slugCount.set(p.slug, (slugCount.get(p.slug) ?? 0) + 1));
@@ -384,8 +382,8 @@ export const seoIssues = createServerFn({ method: "GET" })
       missingSeoTitle: list.filter((p: any) => !p.seo_title),
       missingMeta: list.filter((p: any) => !p.meta_description),
       missingFeaturedImage: list.filter((p: any) => !p.featured_image_url),
-      missingCategory: list.filter((p: any) => !p.category_id),
-      missingTags: list.filter((p: any) => !tagged.has(p.id)),
+      missingCategory: list.filter((p: any) => !p.category_slug),
+      missingTags: list.filter((p: any) => !p.tags || p.tags.length === 0),
       missingCanonical: list.filter((p: any) => !p.canonical_url),
       duplicateSlugs: list.filter((p: any) => (slugCount.get(p.slug) ?? 0) > 1),
     };
