@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Authenticated read media" ON storage.objects;
