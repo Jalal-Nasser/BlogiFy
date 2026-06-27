@@ -5,6 +5,8 @@ import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
 import { Sparkles, TrendingUp } from "lucide-react";
 
+const BASE = "https://jalalnasser.com";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -19,6 +21,47 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5a66d952-8ed6-481a-8519-01913766574e" },
     ],
     links: [{ rel: "canonical", href: "https://jalalnasser.com/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "name": "BlogiFy",
+              "url": `${BASE}/`,
+              "description": "Hands-on tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing.",
+              "publisher": {
+                "@type": "Organization",
+                "name": "BlogiFy",
+                "url": BASE,
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": { "@type": "EntryPoint", "urlTemplate": `${BASE}/search?q={search_term_string}` },
+                "query-input": "required name=search_term_string",
+              },
+            },
+            {
+              "@type": "Organization",
+              "name": "BlogiFy",
+              "url": BASE,
+              "logo": {
+                "@type": "ImageObject",
+                "url": `${BASE}/logo.png`,
+              },
+              "sameAs": [
+                "https://x.com/jalalnasser",
+                "https://github.com/Jalal-Nasser",
+                "https://www.linkedin.com/in/jalalnasser",
+                "https://www.behance.net/jalalnasser",
+              ],
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: Home,
 });

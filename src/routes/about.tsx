@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Terminal, Code2, Shield, Server, Globe, TrendingUp, ExternalLink } from "lucide-react";
 
+const BASE = "https://jalalnasser.com";
+
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
@@ -15,6 +17,31 @@ export const Route = createFileRoute("/about")({
       { name: "twitter:image", content: "https://jalalnasser.com/jalal-nasser.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://jalalnasser.com/about" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": "Jalal Nasser",
+          "url": `${BASE}/about`,
+          "image": `${BASE}/jalal-nasser.jpg`,
+          "jobTitle": "Full-Stack & AI Developer, Sysadmin, Blogger",
+          "worksFor": {
+            "@type": "Organization",
+            "name": "BlogiFy",
+            "url": BASE,
+          },
+          "sameAs": [
+            "https://x.com/jalalnasser",
+            "https://github.com/Jalal-Nasser",
+            "https://www.linkedin.com/in/jalalnasser",
+            "https://www.behance.net/jalalnasser",
+            "https://www.peopleperhour.com/hire/1648438511/2784711",
+          ],
+        }),
+      },
+    ],
   }),
   component: About,
 });
