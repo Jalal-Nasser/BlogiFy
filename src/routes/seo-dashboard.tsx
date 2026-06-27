@@ -855,6 +855,83 @@ function SeoDashboard() {
             </div>
           )}
 
+          {/* ── CONNECTION GUIDE section ── */}
+          {navSection === "connection-guide" && (
+            <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
+              <div className="space-y-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">Connection Guide</h2>
+                  <p className="text-sm text-gray-500 mb-6">How the SEO Engine Console connects to external services.</p>
+
+                  <div className="border border-gray-200 rounded-lg p-5 mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-9 rounded-lg bg-orange-100 grid place-items-center"><Globe className="size-5 text-orange-600" /></div>
+                        <div>
+                          <p className="font-semibold text-gray-900">Firecrawl API</p>
+                          <p className="text-xs text-gray-500">SERP ranking checks + site crawl audits</p>
+                        </div>
+                      </div>
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">Connected</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Env variable</span><span className="font-mono text-gray-800">FIRECRAWL_API_KEY</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">API endpoint</span><span className="font-mono text-gray-600 text-xs">api.firecrawl.dev/v1</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Used for</span><span className="text-gray-600">SERP search + crawl jobs</span></div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-3">Get your key at <a href="https://firecrawl.dev" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">firecrawl.dev</a> → Dashboard → API Keys</p>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-5 mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-9 rounded-lg bg-green-100 grid place-items-center"><Database className="size-5 text-green-600" /></div>
+                        <div>
+                          <p className="font-semibold text-gray-900">Supabase</p>
+                          <p className="text-xs text-gray-500">Database + authentication</p>
+                        </div>
+                      </div>
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">Connected</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Auth method</span><span className="text-gray-700">Email + Password (Supabase Auth)</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">RLS policy</span><span className="text-gray-700">jnasser1983@gmail.com only</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Service role</span><span className="font-mono text-gray-600 text-xs">SUPABASE_SERVICE_ROLE_KEY</span></div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {["seo_keywords", "seo_rankings", "seo_audits"].map(tbl => (
+                        <div key={tbl} className="border border-gray-200 rounded p-2 text-center">
+                          <p className="text-xs font-mono text-gray-700">{tbl}</p>
+                          <span className="text-xs text-green-600">active</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><Info className="size-4 text-blue-500" /> Required Environment Variables</h3>
+                    <div className="space-y-2">
+                      {[
+                        { key: "FIRECRAWL_API_KEY", desc: "Firecrawl API key for SERP + crawl" },
+                        { key: "SUPABASE_URL", desc: "Supabase project URL" },
+                        { key: "SUPABASE_SERVICE_ROLE_KEY", desc: "Service role key (bypasses RLS)" },
+                        { key: "VITE_SUPABASE_URL", desc: "Supabase URL (client-side)" },
+                        { key: "VITE_SUPABASE_ANON_KEY", desc: "Supabase anon key (client-side)" },
+                      ].map(v => (
+                        <div key={v.key} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                          <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
+                          <span className="font-mono text-sm text-gray-800 w-56 flex-shrink-0">{v.key}</span>
+                          <span className="text-xs text-gray-500">{v.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-4">Set these in Lovable → Project Settings → Environment Variables</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── SETTINGS section ── */}
           {navSection === "settings" && (
             <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
