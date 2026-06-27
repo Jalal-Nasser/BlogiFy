@@ -172,10 +172,15 @@ function PostPage() {
 
           {/* Author */}
           <div className="mt-10 surface-card p-6 flex items-start gap-4">
-            <div className="size-14 shrink-0 rounded-full bg-gradient-to-br from-brand to-accent grid place-items-center text-brand-foreground font-display text-xl font-bold">JN</div>
+            <img
+              src="/jalal-nasser.jpg"
+              alt="Jalal Nasser"
+              className="size-14 shrink-0 rounded-full object-cover object-top ring-2 ring-brand/30"
+            />
             <div>
               <h4 className="font-display text-base font-semibold">{post.author}</h4>
-              <p className="text-sm text-muted-foreground mt-1">Sysadmin, security researcher, and founder of BlogiFy. Writes about Linux, self-hosting, and the practical side of running internet infrastructure.</p>
+              <p className="text-xs text-brand font-mono uppercase tracking-widest mt-0.5">Full-Stack &amp; AI Developer · Sysadmin · Blogger</p>
+              <p className="text-sm text-muted-foreground mt-2">Full-stack web developer and AI builder with a passion for Linux, cybersecurity, and the open web. Founder of BlogiFy — writing practical tutorials on server hardening, self-hosting, WordPress, and building SaaS products with the modern AI stack.</p>
             </div>
           </div>
 

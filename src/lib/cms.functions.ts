@@ -331,8 +331,9 @@ export const listActivity = createServerFn({ method: "GET" })
 // ============ DASHBOARD ============
 export const dashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const sb = context.supabase;
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sb = supabaseAdmin;
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
     const [posts, cats, tags, authors] = await Promise.all([
       sb.from("posts").select("id, status, featured, seo_title, meta_description, featured_image_url, updated_at, title, published_at"),
@@ -342,12 +343,14 @@ export const dashboardStats = createServerFn({ method: "GET" })
     ]);
     const list = posts.data ?? [];
     const recentUpdated = list.filter((p: any) => p.updated_at && p.updated_at >= sevenDaysAgo).length;
+    const statusMatch = (p: any, val: string) =>
+      (p.status ?? "").toLowerCase() === val.toLowerCase();
     return {
       totalPosts: list.length,
-      published: list.filter((p: any) => p.status === "Published").length,
-      drafts: list.filter((p: any) => p.status === "Draft").length,
-      scheduled: list.filter((p: any) => p.status === "Scheduled").length,
-      inReview: list.filter((p: any) => p.status === "In review").length,
+      published: list.filter((p: any) => statusMatch(p, "published")).length,
+      drafts: list.filter((p: any) => statusMatch(p, "draft")).length,
+      scheduled: list.filter((p: any) => statusMatch(p, "scheduled")).length,
+      inReview: list.filter((p: any) => statusMatch(p, "in review")).length,
       featured: list.filter((p: any) => p.featured).length,
       categories: cats.count ?? 0,
       tags: tags.count ?? 0,
@@ -360,7 +363,7 @@ export const dashboardStats = createServerFn({ method: "GET" })
         .slice()
         .sort((a: any, b: any) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""))
         .slice(0, 5),
-      needReview: list.filter((p: any) => p.status === "In review").slice(0, 5),
+      needReview: list.filter((p: any) => statusMatch(p, "in review")).slice(0, 5),
       seoIssues: list.filter((p: any) => !p.seo_title || !p.meta_description).slice(0, 5),
     };
   });
