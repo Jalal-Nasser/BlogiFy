@@ -134,7 +134,7 @@ const getLatestAudit = createServerFn({ method: "GET" }).handler(async () => {
 
 // ── Route ─────────────────────────────────────────────────────────
 
-export const Route = createFileRoute("/seo")({
+export const Route = createFileRoute("/seo-dashboard")({
   head: () => ({ meta: [{ title: "SEO Dashboard — BlogiFy Admin" }] }),
   component: SeoDashboard,
 });

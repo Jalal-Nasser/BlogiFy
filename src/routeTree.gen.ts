@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SeoRouteImport } from './routes/seo'
+import { Route as SeoDashboardRouteImport } from './routes/seo-dashboard'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -30,9 +30,9 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SeoRoute = SeoRouteImport.update({
-  id: '/seo',
-  path: '/seo',
+const SeoDashboardRoute = SeoDashboardRouteImport.update({
+  id: '/seo-dashboard',
+  path: '/seo-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -77,7 +77,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/search': typeof SearchRoute
-  '/seo': typeof SeoRoute
+  '/seo-dashboard': typeof SeoDashboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -89,7 +89,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/search': typeof SearchRoute
-  '/seo': typeof SeoRoute
+  '/seo-dashboard': typeof SeoDashboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -102,7 +102,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/search': typeof SearchRoute
-  '/seo': typeof SeoRoute
+  '/seo-dashboard': typeof SeoDashboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -116,7 +116,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy-policy'
     | '/search'
-    | '/seo'
+    | '/seo-dashboard'
     | '/sitemap.xml'
     | '/terms'
     | '/blog/$slug'
@@ -128,7 +128,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy-policy'
     | '/search'
-    | '/seo'
+    | '/seo-dashboard'
     | '/sitemap.xml'
     | '/terms'
     | '/blog/$slug'
@@ -140,7 +140,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy-policy'
     | '/search'
-    | '/seo'
+    | '/seo-dashboard'
     | '/sitemap.xml'
     | '/terms'
     | '/blog/$slug'
@@ -153,7 +153,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SearchRoute: typeof SearchRoute
-  SeoRoute: typeof SeoRoute
+  SeoDashboardRoute: typeof SeoDashboardRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -176,11 +176,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/seo': {
-      id: '/seo'
-      path: '/seo'
-      fullPath: '/seo'
-      preLoaderRoute: typeof SeoRouteImport
+    '/seo-dashboard': {
+      id: '/seo-dashboard'
+      path: '/seo-dashboard'
+      fullPath: '/seo-dashboard'
+      preLoaderRoute: typeof SeoDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -241,7 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   SearchRoute: SearchRoute,
-  SeoRoute: SeoRoute,
+  SeoDashboardRoute: SeoDashboardRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
