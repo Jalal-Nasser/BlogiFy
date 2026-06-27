@@ -128,6 +128,16 @@ const getLatestAudit = createServerFn({ method: "GET" }).handler(async () => {
   return data;
 });
 
+const pingSite = createServerFn({ method: "GET" }).handler(async () => {
+  const start = Date.now();
+  try {
+    const res = await fetch("https://jalalnasser.com", { method: "HEAD" });
+    return { ok: res.ok, status: res.status, ms: Date.now() - start };
+  } catch {
+    return { ok: false, status: 0, ms: Date.now() - start };
+  }
+});
+
 // ── Route ─────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/seo-dashboard")({
