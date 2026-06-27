@@ -63,7 +63,7 @@ export function Header() {
             <Link to="/contact" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           </nav>
 
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
+          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Toggle menu" onClick={() => setOpen(!open)}>
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
         </div>

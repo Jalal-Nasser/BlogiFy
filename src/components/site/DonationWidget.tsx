@@ -46,6 +46,7 @@ export function DonationWidget() {
           onClick={copy}
           className="shrink-0 text-yellow-400 hover:text-yellow-300 transition-colors"
           title="Copy address"
+          aria-label="Copy wallet address"
         >
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </button>
