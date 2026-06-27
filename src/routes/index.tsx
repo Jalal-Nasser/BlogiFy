@@ -20,12 +20,12 @@ function Home() {
   const { data: posts = [], isLoading } = useQuery({ queryKey: ["posts", "home"], queryFn: () => fetchPosts(20) });
 
   const [hero, ...rest] = posts;
-  const secondary = rest.slice(0, 2);
-  const grid = rest.slice(2);
+  const secondary = rest.slice(0, 3);
+  const grid = rest.slice(3);
 
   return (
     <div className="mx-auto max-w-7xl px-4 lg:px-6 pt-6">
-      {/* Hero */}
+      {/* Hero intro */}
       <section className="mb-6">
         <div className="flex items-center gap-2 text-brand">
           <Sparkles className="size-4" />
@@ -39,16 +39,25 @@ function Home() {
         </p>
       </section>
 
-      {/* Featured */}
-      {isLoading && <div className="h-96 animate-pulse rounded-2xl bg-surface" />}
+      {/* Full-width featured hero */}
+      {isLoading && <div className="h-96 animate-pulse rounded-2xl bg-surface mb-6" />}
       {hero && (
-        <section className="grid gap-6 lg:grid-cols-3 mb-6">
-          <div className="lg:col-span-2"><PostCard post={hero} variant="featured" /></div>
-          <div className="grid gap-6 content-start">
-            {secondary.map((p) => <PostCard key={p.id} post={p} />)}
-          </div>
+        <section className="mb-6">
+          <PostCard post={hero} variant="featured" />
         </section>
       )}
+
+      {/* 3-column secondary row — fills the gap, no height mismatch */}
+      {secondary.length > 0 && (
+        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+          {secondary.map((p) => <PostCard key={p.id} post={p} />)}
+        </section>
+      )}
+
+      {/* Mid-page ad */}
+      <div className="mb-6">
+        <AdSlot size="leaderboard" label="Mid-Page Ad" />
+      </div>
 
       <div className="border-b border-border/30" />
 
