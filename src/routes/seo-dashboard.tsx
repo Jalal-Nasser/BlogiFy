@@ -165,6 +165,8 @@ function SeoDashboard() {
   const [addingKw, setAddingKw] = useState(false);
   const [cycleLog, setCycleLog] = useState<string[]>([]);
   const [selectedKw, setSelectedKw] = useState<Keyword | null>(null);
+  const [mathChallenge, setMathChallenge] = useState(() => { const a = Math.floor(Math.random()*9)+1; const b = Math.floor(Math.random()*9)+1; return {a,b,answer:String(a+b)}; });
+  const [mathAnswer, setMathAnswer] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
