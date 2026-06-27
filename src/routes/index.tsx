@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPosts } from "@/lib/queries";
 import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
-import { AdSlot } from "@/components/site/AdSlot";
 import { Sparkles, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -54,11 +53,6 @@ function Home() {
         </section>
       )}
 
-      {/* Mid-page ad */}
-      <div className="mb-6">
-        <AdSlot size="leaderboard" label="Mid-Page Ad" />
-      </div>
-
       <div className="border-b border-border/30" />
 
       {/* Grid + Sidebar */}
@@ -70,9 +64,6 @@ function Home() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             {grid.map((p) => <PostCard key={p.id} post={p} />)}
-          </div>
-          <div className="mt-8">
-            <AdSlot size="leaderboard" label="Below-Grid Ad" />
           </div>
         </div>
         <Sidebar />
