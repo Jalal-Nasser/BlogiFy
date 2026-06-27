@@ -180,6 +180,101 @@ export type Database = {
           },
         ]
       }
+      seo_audits: {
+        Row: {
+          checked_at: string
+          id: number
+          issues: Json
+          metadata: Json
+          score: number
+          url: string
+        }
+        Insert: {
+          checked_at?: string
+          id?: number
+          issues?: Json
+          metadata?: Json
+          score?: number
+          url: string
+        }
+        Update: {
+          checked_at?: string
+          id?: number
+          issues?: Json
+          metadata?: Json
+          score?: number
+          url?: string
+        }
+        Relationships: []
+      }
+      seo_keywords: {
+        Row: {
+          country: string
+          created_at: string
+          id: number
+          keyword: string
+          status: string
+          target_url: string | null
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          id?: number
+          keyword: string
+          status?: string
+          target_url?: string | null
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: number
+          keyword?: string
+          status?: string
+          target_url?: string | null
+        }
+        Relationships: []
+      }
+      seo_rankings: {
+        Row: {
+          checked_at: string
+          id: number
+          keyword: string
+          keyword_id: number
+          position: number | null
+          source: string
+          title: string | null
+          url: string | null
+        }
+        Insert: {
+          checked_at?: string
+          id?: number
+          keyword: string
+          keyword_id: number
+          position?: number | null
+          source?: string
+          title?: string | null
+          url?: string | null
+        }
+        Update: {
+          checked_at?: string
+          id?: number
+          keyword?: string
+          keyword_id?: number
+          position?: number | null
+          source?: string
+          title?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_rankings_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "seo_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
