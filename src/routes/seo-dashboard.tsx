@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Search, Plus, Trash2, RefreshCw, BarChart3, Shield,
   CheckCircle, XCircle, AlertTriangle, LogOut, Loader2,
-  Globe, TrendingUp, ChevronUp, ChevronDown, Minus
+  Globe, TrendingUp, ChevronUp, ChevronDown, Minus,
+  LayoutDashboard, Settings2, ListFilter, Play, ExternalLink
 } from "lucide-react";
 
 // ── Server Functions ──────────────────────────────────────────────
