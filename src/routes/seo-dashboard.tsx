@@ -298,8 +298,6 @@ function SeoDashboard() {
     setPinging(false);
   }
 
-  // Suppress unused warnings for imports kept for future use
-  void Search; void BarChart3; void Globe;
 
   if (authed === null) {
     return (
