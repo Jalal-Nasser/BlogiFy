@@ -391,6 +391,136 @@ export const seoIssues = createServerFn({ method: "GET" })
     };
   });
 
+// ============ TRAFFIC ============
+export const trafficStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ days: z.number().int().min(1).max(90).optional() }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase;
+    const days = data.days ?? 30;
+    // Pull enough history to cover current + previous window comparisons.
+    const windowDays = Math.max(days * 2, 14);
+    const since = new Date(Date.now() - windowDays * 86400000).toISOString();
+
+    const { data: rows, error } = await sb
+      .from("page_views")
+      .select("path, post_id, visitor_id, referrer, created_at")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(50000);
+    if (error) throw new Error(error.message);
+    const views = rows ?? [];
+
+    const postIds = Array.from(new Set(views.map((v: any) => v.post_id).filter(Boolean))) as string[];
+    let postsById: Record<string, { title: string; slug: string }> = {};
+    if (postIds.length > 0) {
+      const { data: ps } = await sb.from("posts").select("id, title, slug").in("id", postIds);
+      (ps ?? []).forEach((p: any) => { postsById[p.id] = { title: p.title, slug: p.slug }; });
+    }
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const todayMs = startOfToday.getTime();
+
+    const todayRows = views.filter((v: any) => new Date(v.created_at).getTime() >= todayMs);
+    const todayViews = todayRows.length;
+    const todayVisitors = new Set(todayRows.map((v: any) => v.visitor_id)).size;
+
+    // Build per-day buckets for last (windowDays) days, oldest -> newest
+    type Day = { date: string; label: string; views: number; visitors: Set<string> };
+    const buckets: Day[] = [];
+    const byKey = new Map<string, Day>();
+    for (let i = windowDays - 1; i >= 0; i--) {
+      const d = new Date(todayMs - i * 86400000);
+      const key = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      const day: Day = { date: key, label, views: 0, visitors: new Set() };
+      buckets.push(day);
+      byKey.set(key, day);
+    }
+    for (const v of views) {
+      const key = new Date(v.created_at).toISOString().slice(0, 10);
+      const b = byKey.get(key);
+      if (b) { b.views++; b.visitors.add(v.visitor_id); }
+    }
+    const daily = buckets.map((b) => ({ date: b.date, label: b.label, views: b.views, visitors: b.visitors.size }));
+
+    // Last 7 vs previous 7
+    const last7 = daily.slice(-7);
+    const prev7 = daily.slice(-14, -7);
+    const sum = (arr: { views: number }[]) => arr.reduce((a, b) => a + b.views, 0);
+    const last7Views = sum(last7);
+    const prev7Views = sum(prev7);
+    const pctChange7 = prev7Views === 0 ? (last7Views > 0 ? 100 : 0) : ((last7Views - prev7Views) / prev7Views) * 100;
+
+    // Period window (last N days) for trend + tables
+    const period = daily.slice(-days);
+    const prevPeriod = daily.slice(-(days * 2), -days);
+    const periodViews = sum(period);
+    const prevPeriodViews = sum(prevPeriod);
+    const pctChangePeriod = prevPeriodViews === 0 ? (periodViews > 0 ? 100 : 0) : ((periodViews - prevPeriodViews) / prevPeriodViews) * 100;
+    const periodVisitors = new Set(
+      views.filter((v: any) => new Date(v.created_at).getTime() >= todayMs - (days - 1) * 86400000).map((v: any) => v.visitor_id)
+    ).size;
+
+    // Overlay trend: current vs previous (aligned indexes)
+    const trend = period.map((d, i) => ({
+      label: d.label,
+      current: d.views,
+      currentVisitors: d.visitors,
+      previous: prevPeriod[i]?.views ?? 0,
+      previousVisitors: prevPeriod[i]?.visitors ?? 0,
+    }));
+
+    // Top posts in the period
+    const periodRows = views.filter((v: any) => new Date(v.created_at).getTime() >= todayMs - (days - 1) * 86400000);
+    const postCounts = new Map<string, number>();
+    const pathCounts = new Map<string, number>();
+    for (const v of periodRows) {
+      if (v.post_id) postCounts.set(v.post_id, (postCounts.get(v.post_id) ?? 0) + 1);
+      else pathCounts.set(v.path, (pathCounts.get(v.path) ?? 0) + 1);
+    }
+    const topPosts = Array.from(postCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([id, count]) => ({
+        id,
+        title: postsById[id]?.title ?? "(unknown)",
+        slug: postsById[id]?.slug ?? null,
+        count,
+      }));
+    const topPaths = Array.from(pathCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([path, count]) => ({ path, count }));
+
+    // Top referrers
+    const refCounts = new Map<string, number>();
+    for (const v of periodRows) {
+      let key = "Direct";
+      if (v.referrer) {
+        try { key = new URL(v.referrer).hostname.replace(/^www\./, ""); } catch { key = v.referrer; }
+      }
+      refCounts.set(key, (refCounts.get(key) ?? 0) + 1);
+    }
+    const topReferrers = Array.from(refCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([referrer, count]) => ({ referrer, count }));
+
+    return {
+      todayViews,
+      todayVisitors,
+      last7: { views: last7Views, pctChange: pctChange7, daily: last7 },
+      period: { days, views: periodViews, visitors: periodVisitors, pctChange: pctChangePeriod, trend },
+      topPosts,
+      topPaths,
+      topReferrers,
+      hasData: views.length > 0,
+    };
+  });
+
+
 // ============ REPORTS ============
 export const reportsStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
