@@ -44,7 +44,7 @@ function Home() {
       {hero && (
         <section className="grid gap-6 lg:grid-cols-3 mb-6">
           <div className="lg:col-span-2"><PostCard post={hero} variant="featured" /></div>
-          <div className="grid gap-6">
+          <div className="grid gap-6 content-start">
             {secondary.map((p) => <PostCard key={p.id} post={p} />)}
           </div>
         </section>
