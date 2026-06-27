@@ -331,9 +331,8 @@ export const listActivity = createServerFn({ method: "GET" })
 // ============ DASHBOARD ============
 export const dashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const sb = supabaseAdmin;
+  .handler(async ({ context }) => {
+    const sb = context.supabase;
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
     const [posts, cats, tags, authors] = await Promise.all([
       sb.from("posts").select("id, status, featured, seo_title, meta_description, featured_image_url, updated_at, title, published_at"),
