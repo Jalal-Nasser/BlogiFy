@@ -298,15 +298,18 @@ function SeoDashboard() {
 
             {/* Brand */}
             <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="size-9 rounded-lg bg-gradient-to-br from-brand to-accent grid place-items-center">
-                  <BarChart3 className="size-5 text-white" />
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src="https://kejgjwvesmlaorviofyl.supabase.co/storage/v1/object/public/media/2023/09/cropped-Jblogify-1.png"
+                    alt="BlogiFy"
+                    className="h-10 w-10 object-contain drop-shadow-[0_0_12px_rgba(0,212,255,0.6)]"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                  <div>
+                    <p className="font-display font-bold text-base text-white">Blogi<span className="text-gradient">Fy</span></p>
+                    <p className="text-[10px] font-mono tracking-widest text-brand uppercase">SEO Intelligence · Admin</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-display font-bold text-base">BlogiFy</p>
-                  <p className="text-[10px] font-mono tracking-widest text-brand uppercase">SEO Intelligence · Admin</p>
-                </div>
-              </div>
             </div>
 
             {/* Headline */}
