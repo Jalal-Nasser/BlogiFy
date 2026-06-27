@@ -688,7 +688,8 @@ function SeoDashboard() {
                   </div>
                 )}
               </div>
-            </>
+              </div>
+            </div>
           )}
 
           {/* ── RANKINGS section ── */}
