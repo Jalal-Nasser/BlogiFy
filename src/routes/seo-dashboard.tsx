@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Search, Plus, Trash2, RefreshCw, BarChart3, Shield,
   CheckCircle, XCircle, AlertTriangle, LogOut, Loader2,
-  Globe, TrendingUp, ChevronUp, ChevronDown, Minus
+  Globe, TrendingUp, ChevronUp, ChevronDown, Minus,
+  LayoutDashboard, Settings2, ListFilter, Play, ExternalLink
 } from "lucide-react";
 
 // ── Server Functions ──────────────────────────────────────────────
@@ -449,324 +450,451 @@ function SeoDashboard() {
   }
 
   function RankBadge({ pos }: { pos: number | null }) {
-    if (pos === null) return <span className="text-xs text-muted-foreground font-mono">—</span>;
-    const color = pos <= 3 ? "text-green-400" : pos <= 10 ? "text-yellow-400" : "text-red-400";
-    return <span className={`font-mono font-bold text-sm ${color}`}>#{pos}</span>;
+    if (pos === null) return <span className="text-xs text-gray-400 font-mono">—</span>;
+    const cls = pos <= 3
+      ? "bg-green-100 text-green-700"
+      : pos <= 10
+      ? "bg-amber-100 text-amber-700"
+      : "bg-red-100 text-red-700";
+    return <span className={`font-mono font-semibold text-xs rounded px-2 py-0.5 ${cls}`}>#{pos}</span>;
   }
 
+  type NavKey = "overview" | "rankings" | "audit" | "settings";
+  type DetailTab = "rankings" | "audit" | "recs";
+
+  // Local UI state for redesigned dashboard
+  const [navKey, setNavKey] = useState<NavKey>("overview");
+  const [detailTab, setDetailTab] = useState<DetailTab>("rankings");
+  const [filter, setFilter] = useState("");
+
+  const activeKeywords = keywords.filter(k => k.status !== "archived");
+  const latestRankingDate = rankings[0]?.checked_at ?? null;
+  const top10 = latestRankings.filter(r => r.rank?.position && r.rank.position <= 10).length;
+  const top20 = latestRankings.filter(r => r.rank?.position && r.rank.position <= 20).length;
+  const notRanking = latestRankings.filter(r => !r.rank?.position).length;
+  const auditScore = audit?.score ?? null;
+  const auditIssuesCount = audit ? (audit.issues as Array<unknown>).length : 0;
+
+  const filteredKeywords = keywords.filter(k =>
+    !filter || k.keyword.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const navItems: Array<{ key: NavKey; label: string; icon: typeof LayoutDashboard }> = [
+    { key: "overview", label: "Overview", icon: LayoutDashboard },
+    { key: "rankings", label: "Rankings", icon: TrendingUp },
+    { key: "audit", label: "Site Audit", icon: Shield },
+    { key: "settings", label: "Settings", icon: Settings2 },
+  ];
+
+  void tab; void setTab; void filteredRankings;
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <header className="border-b border-border bg-surface/50 backdrop-blur-sm sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 lg:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="size-8 rounded-lg bg-gradient-to-br from-brand to-accent grid place-items-center">
-              <BarChart3 className="size-4 text-white" />
-            </div>
-            <span className="font-display font-bold">SEO Engine</span>
-            <span className="text-xs bg-brand/10 text-brand rounded-full px-2 py-0.5 font-mono">US Market</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleRunCycle}
-              disabled={runningCycle || keywords.length === 0}
-              className="flex items-center gap-2 rounded-lg bg-brand px-4 py-1.5 text-sm font-semibold text-white hover:bg-brand/90 disabled:opacity-50 transition-colors"
-            >
-              {runningCycle ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-              Run Full SEO Cycle
-            </button>
-            <button onClick={handleLogout} className="size-8 grid place-items-center rounded-lg border border-border hover:border-brand hover:text-brand transition-colors">
-              <LogOut className="size-4" />
-            </button>
+    <div className="min-h-screen flex bg-gray-50 text-gray-900">
+      {/* ── Sidebar ── */}
+      <aside className="w-[210px] shrink-0 bg-[#0f172a] text-slate-200 flex flex-col border-r border-slate-800">
+        <div className="px-4 py-5 flex items-center gap-2.5 border-b border-slate-800">
+          <img
+            src="https://kejgjwvesmlaorviofyl.supabase.co/storage/v1/object/public/media/2023/09/cropped-Jblogify-1.png"
+            alt="BlogiFy"
+            className="h-8 w-8 object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          <div className="min-w-0">
+            <p className="font-bold text-white text-sm leading-tight">BlogiFy</p>
+            <p className="text-[10px] text-slate-400 leading-tight">SEO Dashboard</p>
           </div>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-6 grid lg:grid-cols-4 gap-6">
-        {/* Left: Keyword list */}
-        <aside className="lg:col-span-1 space-y-4">
-          <div className="surface-card rounded-xl border border-border p-4">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-              <Search className="size-3.5" /> Target Keywords
-            </h2>
-            <form onSubmit={handleAddKeyword} className="space-y-2 mb-3">
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          {navItems.map(({ key, label, icon: Icon }) => {
+            const active = navKey === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setNavKey(key)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
+                  active ? "bg-[#1e3a5f] text-white" : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                }`}
+              >
+                <Icon className="size-4" />
+                {label}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="px-2 py-3 border-t border-slate-800">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-red-400 hover:text-red-300 hover:bg-slate-800/50 transition-colors"
+          >
+            <LogOut className="size-4" /> Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main ── */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header bar */}
+        <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">SEO Engine Console</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Target keyword workflow · jalalnasser.com · US Market</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-400">Status as of {new Date().toLocaleString()}</span>
+            <button
+              onClick={loadData}
+              className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <RefreshCw className="size-3.5" /> Refresh
+            </button>
+          </div>
+        </header>
+
+        {/* Status cards */}
+        <div className="px-6 py-4 flex gap-4 bg-gray-50">
+          {/* FIRECRAWL */}
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
+            <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">Firecrawl</p>
+            <div className="mt-2">
+              <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">Connected</span>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Last checked: {latestRankingDate ? new Date(latestRankingDate).toLocaleString() : "Never"}
+            </p>
+          </div>
+
+          {/* KEYWORDS */}
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
+            <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">Keywords</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{keywords.length}</p>
+            <p className="text-sm text-gray-500 mt-1">{activeKeywords.length} active keywords</p>
+          </div>
+
+          {/* LAST RANKING */}
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
+            <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">Last Ranking</p>
+            <p className="text-sm font-semibold text-gray-900 mt-2">
+              {latestRankingDate ? new Date(latestRankingDate).toLocaleDateString() : "Never"}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">Top10: {top10} · Top20: {top20} · Not ranking: {notRanking}</p>
+          </div>
+
+          {/* SITE SCORE */}
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
+            <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">Site Score</p>
+            <p className={`text-2xl font-bold mt-1 ${
+              auditScore === null ? "text-gray-400"
+                : auditScore >= 70 ? "text-green-600"
+                : auditScore >= 50 ? "text-amber-600" : "text-red-600"
+            }`}>
+              {auditScore !== null ? `${auditScore}/100` : "—"}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              {auditIssuesCount} issues found · Last: {audit ? new Date(audit.checked_at).toLocaleDateString() : "Never"}
+            </p>
+          </div>
+        </div>
+
+        {/* Two-panel content */}
+        <div className="flex flex-1 overflow-hidden border-t border-gray-200">
+          {/* LEFT PANEL */}
+          <div className="w-80 shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2 font-semibold text-sm text-gray-800">
+              <ListFilter className="size-4 text-gray-500" /> Target Keywords
+            </div>
+
+            <form onSubmit={handleAddKeyword} className="px-4 py-3 border-b border-gray-100 space-y-2">
               <input
                 value={newKw.keyword}
                 onChange={e => setNewKw(p => ({ ...p, keyword: e.target.value }))}
                 placeholder="Keyword"
-                className="w-full rounded-lg border border-border bg-background/50 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand/40 transition-colors"
+                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
               <input
                 value={newKw.target_url}
                 onChange={e => setNewKw(p => ({ ...p, target_url: e.target.value }))}
-                placeholder="Page URL (optional)"
-                className="w-full rounded-lg border border-border bg-background/50 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand/40 transition-colors"
+                placeholder="Target URL (optional)"
+                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
               <button
                 type="submit" disabled={addingKw || !newKw.keyword}
-                className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-brand/40 bg-brand/10 text-brand text-xs font-semibold py-2 hover:bg-brand/20 disabled:opacity-50 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 bg-slate-900 text-white rounded py-2 text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors"
               >
-                {addingKw ? <Loader2 className="size-3 animate-spin" /> : <Plus className="size-3" />}
+                {addingKw ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
                 Add Keyword
               </button>
             </form>
 
-            <div className="space-y-1">
-              {keywords.map(kw => {
-                const rank = rankings.find(r => r.keyword_id === kw.id);
-                return (
-                  <div
-                    key={kw.id}
-                    onClick={() => setSelectedKw(selectedKw?.id === kw.id ? null : kw)}
-                    className={`group flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer transition-colors ${selectedKw?.id === kw.id ? "bg-brand/10 border border-brand/30" : "hover:bg-white/5 border border-transparent"}`}
-                  >
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium truncate">{kw.keyword}</p>
-                      {kw.target_url && <p className="text-[10px] text-muted-foreground truncate">{kw.target_url}</p>}
+            <div className="px-4 py-3 border-b border-gray-100 grid grid-cols-2 gap-2">
+              <button
+                onClick={async () => { for (const kw of keywords) { await handleCheckRanking(kw); } }}
+                disabled={checkingId !== null || runningCycle || keywords.length === 0}
+                className="flex items-center justify-center gap-1 border border-gray-200 rounded text-xs py-2 px-3 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                <RefreshCw className="size-3" /> Check All
+              </button>
+              <button
+                onClick={handleRunCycle}
+                disabled={runningCycle || keywords.length === 0}
+                className="flex items-center justify-center gap-1 border border-gray-200 rounded text-xs py-2 px-3 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                {runningCycle ? <Loader2 className="size-3 animate-spin" /> : <Play className="size-3" />}
+                Run Full Cycle
+              </button>
+            </div>
+
+            {runningCycle && cycleLog.length > 0 && (
+              <div className="mx-4 my-2 bg-gray-50 rounded text-xs font-mono px-3 py-2 max-h-32 overflow-y-auto text-gray-700 space-y-0.5">
+                {cycleLog.map((l, i) => <p key={i}>{l}</p>)}
+              </div>
+            )}
+
+            <div className="px-4 py-2">
+              <input
+                value={filter}
+                onChange={e => setFilter(e.target.value)}
+                placeholder="Filter keywords..."
+                className="w-full bg-transparent border-0 border-b border-gray-100 py-2 text-sm focus:outline-none focus:border-gray-300"
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {filteredKeywords.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-8">No keywords {filter ? "match" : "yet"}</p>
+              ) : (
+                filteredKeywords.map(kw => {
+                  const rank = rankings.find(r => r.keyword_id === kw.id);
+                  const selected = selectedKw?.id === kw.id;
+                  return (
+                    <div
+                      key={kw.id}
+                      onClick={() => setSelectedKw(kw)}
+                      className={`group px-4 py-3 border-b border-gray-50 cursor-pointer transition-colors ${
+                        selected ? "bg-slate-50" : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-gray-800 truncate">{kw.keyword}</p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <RankBadge pos={rank?.position ?? null} />
+                          <button
+                            onClick={e => { e.stopPropagation(); handleDeleteKeyword(kw.id); }}
+                            className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      {kw.target_url && (
+                        <p className="text-xs text-gray-400 truncate mt-0.5">{kw.target_url}</p>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <RankBadge pos={rank?.position ?? null} />
-                      <button
-                        onClick={e => { e.stopPropagation(); handleDeleteKeyword(kw.id); }}
-                        className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all"
-                      >
-                        <Trash2 className="size-3" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-              {keywords.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-4">No keywords yet</p>
+                  );
+                })
               )}
             </div>
           </div>
-        </aside>
 
-        {/* Right: main panel */}
-        <main className="lg:col-span-3 space-y-4">
-          {/* Cycle log */}
-          {cycleLog.length > 0 && (
-            <div className="surface-card rounded-xl border border-brand/20 p-4">
-              <p className="text-xs font-semibold text-brand mb-2">SEO Cycle Running…</p>
-              <div className="font-mono text-xs space-y-0.5 text-muted-foreground">
-                {cycleLog.map((l, i) => <p key={i}>{l}</p>)}
+          {/* RIGHT PANEL */}
+          <div className="flex-1 overflow-y-auto bg-gray-50">
+            {!selectedKw ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-400 text-sm">Select a keyword from the left panel to begin.</p>
               </div>
-            </div>
-          )}
-
-          {/* Selected keyword detail */}
-          {selectedKw && (
-            <div className="surface-card rounded-xl border border-border p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="font-display font-semibold">{selectedKw.keyword}</h3>
-                  {selectedKw.target_url && <p className="text-xs text-muted-foreground mt-0.5">{selectedKw.target_url}</p>}
+            ) : (
+              <>
+                {/* Keyword detail header */}
+                <div className="bg-white px-6 py-4 border-b border-gray-200 flex items-start justify-between">
+                  <div className="min-w-0">
+                    <h2 className="text-lg font-bold text-gray-900">{selectedKw.keyword}</h2>
+                    {selectedKw.target_url && (
+                      <a
+                        href={selectedKw.target_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+                      >
+                        <ExternalLink className="size-3" /> {selectedKw.target_url}
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                    <button
+                      onClick={() => handleCheckRanking(selectedKw)}
+                      disabled={checkingId === selectedKw.id}
+                      className="flex items-center gap-1 border border-gray-200 rounded text-xs px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    >
+                      {checkingId === selectedKw.id ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />}
+                      Check Ranking
+                    </button>
+                    <button
+                      onClick={() => { handleDeleteKeyword(selectedKw.id); setSelectedKw(null); }}
+                      className="flex items-center gap-1 border border-gray-200 rounded text-xs px-3 py-1.5 text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 className="size-3" /> Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs bg-blue-500/10 text-blue-400 rounded-full px-2 py-0.5">🇺🇸 US</span>
-                  <button
-                    onClick={() => handleCheckRanking(selectedKw)}
-                    disabled={checkingId === selectedKw.id}
-                    className="flex items-center gap-1.5 rounded-lg bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-3 py-1.5 hover:bg-brand/20 disabled:opacity-50 transition-colors"
-                  >
-                    {checkingId === selectedKw.id ? <Loader2 className="size-3 animate-spin" /> : <Shield className="size-3" />}
-                    Check Ranking
-                  </button>
+
+                {/* Summary cards */}
+                <div className="px-6 py-4 grid grid-cols-2 gap-4">
+                  {(() => {
+                    const latest = rankings.find(r => r.keyword_id === selectedKw.id);
+                    return (
+                      <>
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                          <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">Current Ranking</p>
+                          <p className={`text-2xl font-bold mt-1 ${
+                            !latest?.position ? "text-gray-400"
+                              : latest.position <= 3 ? "text-green-600"
+                              : latest.position <= 10 ? "text-amber-600" : "text-red-600"
+                          }`}>
+                            {latest?.position ? `#${latest.position}` : "Not in Top 20"}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            Last checked: {latest ? new Date(latest.checked_at).toLocaleString() : "Never"}
+                          </p>
+                        </div>
+                        <div className="bg-white border border-gray-200 rounded-lg p-4">
+                          <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">Target Page</p>
+                          <p className="text-sm font-medium text-gray-800 mt-1 truncate">
+                            {selectedKw.target_url || "—"}
+                          </p>
+                          {selectedKw.target_url && (
+                            <a
+                              href={selectedKw.target_url}
+                              target="_blank" rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:underline mt-1 inline-flex items-center gap-1"
+                            >
+                              <ExternalLink className="size-3" /> View page
+                            </a>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {(() => {
-                  const latest = rankings.find(r => r.keyword_id === selectedKw.id);
-                  return (
-                    <>
-                      <div className="surface-card rounded-lg border border-border p-4">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Top 3 Ranking</p>
-                        {latest ? (
-                          latest.position && latest.position <= 3
-                            ? <p className="text-2xl font-bold text-green-400">#{latest.position}</p>
-                            : <p className="text-sm text-muted-foreground">Not in top 3</p>
-                        ) : <p className="text-sm text-muted-foreground">No data yet</p>}
-                      </div>
-                      <div className="surface-card rounded-lg border border-border p-4">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Current Position</p>
-                        {latest
-                          ? <RankBadge pos={latest.position} />
-                          : <p className="text-sm text-muted-foreground">—</p>}
-                        {latest && <p className="text-[10px] text-muted-foreground mt-1">{latest.source}</p>}
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
+                {/* Tabs */}
+                <div className="px-6 border-b border-gray-200 flex gap-4 bg-gray-50">
+                  {([
+                    { key: "rankings", label: "Rankings" },
+                    { key: "audit", label: "Site Audit" },
+                    { key: "recs", label: "Recommendations" },
+                  ] as Array<{ key: DetailTab; label: string }>).map(t => (
+                    <button
+                      key={t.key}
+                      onClick={() => setDetailTab(t.key)}
+                      className={`py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                        detailTab === t.key
+                          ? "border-slate-900 text-slate-900"
+                          : "border-transparent text-gray-500 hover:text-gray-800"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
 
-              {/* Ranking history */}
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Ranking History</h4>
-              <div className="space-y-1">
-                {allRankingsForSelected.length === 0
-                  ? <p className="text-xs text-muted-foreground">No rankings checked yet. Click "Check Ranking" above.</p>
-                  : allRankingsForSelected.slice(0, 10).map(r => (
-                    <div key={r.id} className="flex items-center gap-3 text-xs py-1.5 border-b border-border/40">
-                      <RankBadge pos={r.position} />
-                      <span className="text-muted-foreground truncate flex-1">{r.url || "Not ranked"}</span>
-                      <span className="text-muted-foreground shrink-0">{new Date(r.checked_at).toLocaleDateString()}</span>
-                      <span className="text-[10px] text-muted-foreground shrink-0">{r.source}</span>
-                    </div>
-                  ))
-                }
-              </div>
-            </div>
-          )}
-
-          {/* Tabs */}
-          <div className="flex gap-1 border-b border-border">
-            {(["rankings", "audit", "keywords"] as Tab[]).map(t => (
-              <button key={t} onClick={() => setTab(t)}
-                className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${tab === t ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-                {t === "rankings" ? "Rankings" : t === "audit" ? "Site Audit" : "All Keywords"}
-              </button>
-            ))}
-          </div>
-
-          {/* Rankings tab */}
-          {tab === "rankings" && (
-            <div className="surface-card rounded-xl border border-border overflow-hidden">
-              <div className="p-4 border-b border-border flex items-center justify-between">
-                <h3 className="font-display text-sm font-semibold">Keyword Rankings — 🇺🇸 USA (Google)</h3>
-                <p className="text-xs text-muted-foreground">Click a keyword on the left to check ranking</p>
-              </div>
-              <div className="divide-y divide-border">
-                {filteredRankings.length === 0
-                  ? <p className="text-sm text-muted-foreground p-6 text-center">No keywords added yet</p>
-                  : filteredRankings.map(({ kw, rank }) => (
-                    <div key={kw.id} className="flex items-center gap-4 px-4 py-3 hover:bg-white/3 transition-colors">
-                      <div className="w-8 text-center">
-                        <RankBadge pos={rank?.position ?? null} />
+                {/* Tab content */}
+                <div className="px-6 py-4">
+                  {detailTab === "rankings" && (
+                    allRankingsForSelected.length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-8">No rankings data yet. Run "Check All Rankings" to start.</p>
+                    ) : (
+                      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                              <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Date</th>
+                              <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Position</th>
+                              <th className="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">URL found at</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {allRankingsForSelected.map(r => (
+                              <tr key={r.id}>
+                                <td className="px-4 py-2.5 text-gray-700">{new Date(r.checked_at).toLocaleString()}</td>
+                                <td className="px-4 py-2.5"><RankBadge pos={r.position} /></td>
+                                <td className="px-4 py-2.5 text-gray-500 truncate max-w-xs">{r.url || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{kw.keyword}</p>
-                        {rank?.url && <p className="text-xs text-muted-foreground truncate">{rank.url}</p>}
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {rank && (
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(rank.checked_at).toLocaleDateString()}
-                          </span>
-                        )}
+                    )
+                  )}
+
+                  {detailTab === "audit" && (
+                    !audit ? (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-gray-400 mb-3">No audit data yet. Run Full SEO Cycle.</p>
                         <button
-                          onClick={() => handleCheckRanking(kw)}
-                          disabled={checkingId === kw.id}
-                          className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-brand hover:text-brand disabled:opacity-50 transition-colors"
+                          onClick={handleRunAudit}
+                          disabled={auditRunning}
+                          className="inline-flex items-center gap-1.5 border border-gray-200 rounded text-xs px-3 py-2 hover:bg-gray-50 disabled:opacity-50"
                         >
-                          {checkingId === kw.id ? <Loader2 className="size-3 animate-spin" /> : <Shield className="size-3" />}
-                          Check
+                          {auditRunning ? <Loader2 className="size-3 animate-spin" /> : <Globe className="size-3" />}
+                          Run Site Audit
                         </button>
                       </div>
-                    </div>
-                  ))
-                }
-              </div>
-            </div>
-          )}
-
-          {/* Audit tab */}
-          {tab === "audit" && (
-            <div className="space-y-4">
-              <div className="surface-card rounded-xl border border-border p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-display font-semibold">Site Audit — jalalnasser.com</h3>
-                    {audit && <p className="text-xs text-muted-foreground mt-0.5">Last run: {new Date(audit.checked_at).toLocaleString()} · {audit.metadata?.pages_crawled ?? 0} pages crawled</p>}
-                  </div>
-                  <button
-                    onClick={handleRunAudit}
-                    disabled={auditRunning}
-                    className="flex items-center gap-2 rounded-lg bg-brand/10 border border-brand/30 text-brand text-sm font-semibold px-4 py-2 hover:bg-brand/20 disabled:opacity-50 transition-colors"
-                  >
-                    {auditRunning ? <><Loader2 className="size-4 animate-spin" /> Running…</> : <><Globe className="size-4" /> Run Audit</>}
-                  </button>
-                </div>
-
-                {audit ? (
-                  <>
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className={`size-20 rounded-full border-4 grid place-items-center text-2xl font-bold ${audit.score >= 80 ? "border-green-400 text-green-400" : audit.score >= 50 ? "border-yellow-400 text-yellow-400" : "border-red-400 text-red-400"}`}>
-                        {audit.score}
-                      </div>
-                      <div>
-                        <p className="font-semibold">{audit.score >= 80 ? "Good" : audit.score >= 50 ? "Needs Work" : "Critical Issues"}</p>
-                        <p className="text-sm text-muted-foreground">{(audit.issues as Array<unknown>).length} issues found</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      {(audit.issues as Array<{ type: string; severity: string; url: string; detail: string }>).map((issue, i) => (
-                        <div key={i} className={`flex items-start gap-3 rounded-lg p-3 border ${issue.severity === "high" ? "border-red-500/20 bg-red-500/5" : "border-yellow-500/20 bg-yellow-500/5"}`}>
-                          <AlertTriangle className={`size-4 mt-0.5 shrink-0 ${issue.severity === "high" ? "text-red-400" : "text-yellow-400"}`} />
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium">{issue.type}</p>
-                            <p className="text-xs text-muted-foreground truncate">{issue.url}</p>
-                            <p className="text-xs text-muted-foreground">{issue.detail}</p>
+                    ) : (
+                      <div className="bg-white border border-gray-200 rounded-lg p-5">
+                        <div className="flex items-center gap-4 mb-5">
+                          <div className={`size-16 rounded-full border-4 grid place-items-center text-xl font-bold ${
+                            audit.score >= 70 ? "border-green-500 text-green-600"
+                              : audit.score >= 50 ? "border-amber-500 text-amber-600" : "border-red-500 text-red-600"
+                          }`}>
+                            {audit.score}
                           </div>
-                          <span className={`text-xs shrink-0 rounded-full px-2 py-0.5 ${issue.severity === "high" ? "bg-red-500/10 text-red-400" : "bg-yellow-500/10 text-yellow-400"}`}>
-                            {issue.severity}
-                          </span>
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {audit.score >= 70 ? "Healthy" : audit.score >= 50 ? "Needs Work" : "Critical"}
+                            </p>
+                            <p className="text-sm text-gray-500">{(audit.issues as Array<unknown>).length} issues · {audit.metadata?.pages_crawled ?? 0} pages crawled</p>
+                          </div>
                         </div>
-                      ))}
-                      {(audit.issues as Array<unknown>).length === 0 && (
-                        <div className="flex items-center gap-2 text-green-400 text-sm">
-                          <CheckCircle className="size-4" /> No issues found — site looks healthy!
+                        <div className="space-y-2">
+                          {(audit.issues as Array<{ type: string; severity: string; url: string; detail: string }>).length === 0 ? (
+                            <div className="flex items-center gap-2 text-green-600 text-sm">
+                              <CheckCircle className="size-4" /> No issues found — site looks healthy!
+                            </div>
+                          ) : (
+                            (audit.issues as Array<{ type: string; severity: string; url: string; detail: string }>).map((issue, i) => (
+                              <div key={i} className={`flex items-start gap-3 rounded-lg p-3 border ${
+                                issue.severity === "high" ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
+                              }`}>
+                                <AlertTriangle className={`size-4 mt-0.5 shrink-0 ${issue.severity === "high" ? "text-red-500" : "text-amber-500"}`} />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-medium text-gray-900">{issue.type}</p>
+                                  <p className="text-xs text-gray-500 truncate">{issue.url}</p>
+                                  <p className="text-xs text-gray-600 mt-0.5">{issue.detail}</p>
+                                </div>
+                                <span className={`text-xs shrink-0 rounded-full px-2 py-0.5 font-medium ${
+                                  issue.severity === "high" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
+                                }`}>
+                                  {issue.severity}
+                                </span>
+                              </div>
+                            ))
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">No audit data yet. Click "Run Audit" to crawl your site.</p>
-                )}
-              </div>
-            </div>
-          )}
+                      </div>
+                    )
+                  )}
 
-          {/* All keywords tab */}
-          {tab === "keywords" && (
-            <div className="surface-card rounded-xl border border-border overflow-hidden">
-              <div className="p-4 border-b border-border">
-                <h3 className="font-display text-sm font-semibold">All Target Keywords</h3>
-              </div>
-              <table className="w-full text-sm">
-                <thead className="border-b border-border bg-white/3">
-                  <tr>
-                    <th className="text-left px-4 py-2 text-xs text-muted-foreground font-medium">Keyword</th>
-                    <th className="text-left px-4 py-2 text-xs text-muted-foreground font-medium">Target URL</th>
-                    <th className="text-left px-4 py-2 text-xs text-muted-foreground font-medium">Country</th>
-                    <th className="text-left px-4 py-2 text-xs text-muted-foreground font-medium">Rank</th>
-                    <th className="px-4 py-2" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {keywords.map(kw => {
-                    const rank = rankings.find(r => r.keyword_id === kw.id);
-                    return (
-                      <tr key={kw.id} className="hover:bg-white/3 transition-colors">
-                        <td className="px-4 py-2.5 font-medium">{kw.keyword}</td>
-                        <td className="px-4 py-2.5 text-muted-foreground text-xs">{kw.target_url || "—"}</td>
-                        <td className="px-4 py-2.5 text-xs">🇺🇸 US</td>
-                        <td className="px-4 py-2.5"><RankBadge pos={rank?.position ?? null} /></td>
-                        <td className="px-4 py-2.5">
-                          <button onClick={() => handleDeleteKeyword(kw.id)} className="text-red-400 hover:text-red-300 transition-colors">
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </main>
+                  {detailTab === "recs" && (
+                    <p className="text-sm text-gray-400 text-center py-8">No recommendations yet.</p>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
