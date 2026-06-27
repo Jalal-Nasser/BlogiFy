@@ -545,6 +545,41 @@ function SeoDashboard() {
                 )}
               </div>
 
+              {/* Schedules */}
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Schedules</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="size-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-800">Daily Ranking Check</span>
+                      </div>
+                      <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">10 6 * * *</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">Runs every day at 06:10 UTC — checks all keyword rankings</p>
+                    <button onClick={handleCheckAll} disabled={runningCycle || keywords.length === 0} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                      {checkingId !== null ? <Loader2 className="size-3 animate-spin" /> : <Activity className="size-3" />}
+                      Run daily now
+                    </button>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Zap className="size-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-800">Weekly Full Cycle</span>
+                      </div>
+                      <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">20 6 * * 1</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">Runs every Monday at 06:20 UTC — rankings + full site audit</p>
+                    <button onClick={handleRunCycle} disabled={runningCycle || keywords.length === 0} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                      {runningCycle ? <Loader2 className="size-3 animate-spin" /> : <Zap className="size-3" />}
+                      Run weekly now
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Two-panel */}
               <div className="flex flex-1 overflow-hidden">
               {/* LEFT PANEL */}
