@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/lib/queries";
 
-const TOP_CATEGORIES = ["ai-tech", "security", "linux", "wordpress", "crypto", "virtual-servers", "marketing", "games"];
+
 
 export function Header() {
   const navigate = useNavigate();
@@ -21,7 +21,11 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const topCats = categories.filter((c) => TOP_CATEGORIES.includes(c.slug));
+  const topCats = categories
+    .filter((c) => !c.parent_slug)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 12);
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
