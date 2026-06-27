@@ -39,7 +39,7 @@ function SearchPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 lg:px-6 pt-10">
-      <h1 className="font-display text-3xl lg:text-4xl font-bold tracking-tight">Search</h1>
+      <h1 className="font-display text-3xl lg:text-4xl font-bold tracking-tight">Search Articles</h1>
       <form
         className="mt-6 relative"
         onSubmit={(e) => { e.preventDefault(); navigate({ search: { q: input.trim() } }); }}
