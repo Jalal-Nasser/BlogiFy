@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CookieConsent } from "@/components/site/CookieConsent";
+import { PageViewTracker } from "@/components/site/PageViewTracker";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -135,6 +136,7 @@ function RootComponent() {
       </div>
       <Toaster theme={isAdmin ? "light" : "dark"} position="top-right" richColors />
       {!isAdmin && <CookieConsent />}
+      {!isAdmin && <PageViewTracker />}
     </QueryClientProvider>
   );
 }
