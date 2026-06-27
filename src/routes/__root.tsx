@@ -106,7 +106,7 @@ function RootComponent() {
         {!isAdmin && <Footer />}
       </div>
       <Toaster theme="dark" position="top-right" richColors />
-      <CookieConsent />
+      {!isAdmin && <CookieConsent />}
     </QueryClientProvider>
   );
 }
