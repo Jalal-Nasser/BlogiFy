@@ -38,6 +38,66 @@ function PostPage() {
 
   useEffect(() => { window.scrollTo(0, 0); }, [slug]);
 
+  // Inject per-post SEO tags
+  useEffect(() => {
+    if (!post) return;
+    const base = "https://jalalnasser.com";
+    const url = `${base}/blog/${post.slug}`;
+
+    // Canonical
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = url;
+
+    // OG tags
+    const setMeta = (prop: string, val: string, attr = "property") => {
+      let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${prop}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, prop); document.head.appendChild(el); }
+      el.setAttribute("content", val);
+    };
+    setMeta("og:url", url);
+    setMeta("og:title", post.title);
+    setMeta("og:description", post.excerpt || "");
+    if (post.featured_image_url) setMeta("og:image", post.featured_image_url);
+    setMeta("twitter:title", post.title, "name");
+    setMeta("twitter:description", post.excerpt || "", "name");
+    if (post.featured_image_url) setMeta("twitter:image", post.featured_image_url, "name");
+    document.title = `${post.title} — BlogiFy`;
+
+    // JSON-LD Article
+    const existingLd = document.getElementById("ld-article");
+    if (existingLd) existingLd.remove();
+    const ld = document.createElement("script");
+    ld.id = "ld-article";
+    ld.type = "application/ld+json";
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": post.title,
+      "description": post.excerpt || "",
+      "image": post.featured_image_url || "",
+      "datePublished": post.published_at,
+      "author": { "@type": "Person", "name": post.author, "url": base },
+      "publisher": {
+        "@type": "Organization",
+        "name": "BlogiFy",
+        "url": base,
+        "logo": { "@type": "ImageObject", "url": `${base}/logo.png` }
+      },
+      "url": url,
+      "mainEntityOfPage": { "@type": "WebPage", "@id": url }
+    });
+    document.head.appendChild(ld);
+
+    return () => {
+      document.getElementById("ld-article")?.remove();
+    };
+  }, [post]);
+
   if (isLoading) return <div className="mx-auto max-w-4xl px-4 py-20"><div className="h-96 animate-pulse rounded-2xl bg-surface" /></div>;
   if (!post) return <div className="p-20 text-center">Post not found.</div>;
 
