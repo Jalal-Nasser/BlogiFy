@@ -44,6 +44,9 @@ export function Sidebar() {
         </div>
       </div>
 
+      <FreelanceWidget />
+      <DonationWidget />
+
     </aside>
   );
 }
