@@ -548,30 +548,7 @@ export type Database = {
       }
     }
     Views: {
-      contact_submissions: {
-        Row: {
-          created_at: string | null
-          email: string | null
-          id: string | null
-          message: string | null
-          name: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          message?: string | null
-          name?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          message?: string | null
-          name?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
