@@ -30,12 +30,34 @@ export function PageViewTracker() {
 
     const run = async () => {
       try {
+        // Skip preview/editor/local environments
+        const host = window.location.hostname;
+        if (
+          host.includes("id-preview--") ||
+          host.includes("lovableproject.com") ||
+          host === "localhost" ||
+          host === "127.0.0.1"
+        ) {
+          return;
+        }
+
+        // Skip bots/crawlers/headless
+        if (/bot|crawl|spider|headless|preview/i.test(navigator.userAgent)) {
+          return;
+        }
+
+        // Skip logged-in users (admins/editors browsing the public site)
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session) return;
+
         const visitor_id = getVisitorId();
         let referrer: string | null = null;
         try {
           const r = document.referrer;
           if (r && !r.startsWith(window.location.origin)) referrer = r;
         } catch {}
+
+
 
         let post_id: string | null = null;
         const m = pathname.match(/^\/blog\/([^/]+)$/);
