@@ -169,6 +169,8 @@ function SeoDashboard() {
   const [runningCycle, setRunningCycle] = useState(false);
   const [addingKw, setAddingKw] = useState(false);
   const [auditRunning, setAuditRunning] = useState(false);
+  const [lastEvent, setLastEvent] = useState<{ type: string; status: string; time: string } | null>(null);
+  const [pinging, setPinging] = useState(false);
   const [cycleLog, setCycleLog] = useState<string[]>([]);
   const [selectedKwId, setSelectedKwId] = useState<number | null>(null);
   const [filterText, setFilterText] = useState("");
