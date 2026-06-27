@@ -250,6 +250,7 @@ function SeoDashboard() {
       setRankings(prev => [row as Ranking, ...prev.filter(r => r.keyword_id !== kw.id)]);
       setCheckingId(null);
     }
+    setLastEvent({ type: "check_all_rankings", status: `Checked ${keywords.length} keywords`, time: new Date().toLocaleString() });
   }
 
   async function handleRunCycle() {
@@ -266,6 +267,7 @@ function SeoDashboard() {
     const aud = await runSiteAudit();
     setAudit(aud as Audit);
     log("✅ SEO cycle complete!");
+    setLastEvent({ type: "full_seo_cycle", status: `${keywords.length} keywords + audit complete`, time: new Date().toLocaleString() });
     setRunningCycle(false);
   }
 
@@ -273,7 +275,15 @@ function SeoDashboard() {
     setAuditRunning(true);
     const aud = await runSiteAudit();
     setAudit(aud as Audit);
+    setLastEvent({ type: "site_audit", status: `Score: ${(aud as Audit).score}/100`, time: new Date().toLocaleString() });
     setAuditRunning(false);
+  }
+
+  async function handlePingSite() {
+    setPinging(true);
+    const result = await pingSite();
+    setLastEvent({ type: "site_ping", status: `HTTP: ${result.status} · ${result.ms}ms`, time: new Date().toLocaleString() });
+    setPinging(false);
   }
 
   // Suppress unused warnings for imports kept for future use
