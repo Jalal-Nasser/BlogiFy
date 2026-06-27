@@ -31,8 +31,12 @@ export default function About() {
 
       {/* Hero */}
       <section className="flex flex-col sm:flex-row items-start gap-8 mb-16">
-        <div className="size-24 shrink-0 rounded-2xl bg-gradient-to-br from-brand via-accent to-violet-700 grid place-items-center text-white font-display text-4xl font-black shadow-[0_0_40px_rgba(0,212,255,0.3)]">
-          JN
+        <div className="size-24 shrink-0 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(109,31,204,0.4)] ring-2 ring-brand/30">
+          <img
+            src="/jalal-nasser.jpg"
+            alt="Jalal Nasser"
+            className="size-full object-cover object-top"
+          />
         </div>
         <div>
           <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight">
