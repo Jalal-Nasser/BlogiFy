@@ -12,9 +12,8 @@ function CategoryPage() {
   const { slug } = Route.useParams();
   const { data: category } = useQuery({ queryKey: ["category", slug], queryFn: () => fetchCategoryBySlug(slug) });
   const { data: posts = [], isLoading } = useQuery({
-    queryKey: ["category-posts", category?.id],
-    queryFn: () => fetchPostsByCategory(category!.id),
-    enabled: !!category,
+    queryKey: ["category-posts", slug],
+    queryFn: () => fetchPostsByCategory(slug),
   });
 
   return (
