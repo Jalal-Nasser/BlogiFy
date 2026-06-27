@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Plus, Trash2, RefreshCw, BarChart3, Shield, CheckCircle, XCircle, AlertTriangle, LogOut, Loader2, Globe, TrendingUp, LayoutDashboard, Settings2, ListFilter, Play, ExternalLink } from "lucide-react";
+import { Search, Plus, Trash2, RefreshCw, BarChart3, Shield, CheckCircle, XCircle, AlertTriangle, LogOut, Loader2, Globe, TrendingUp, LayoutDashboard, Settings2, ListFilter, Play, ExternalLink, Info, Activity, Calendar, Zap, Database } from "lucide-react";
+void Search; void XCircle;
 
 // ── Server Functions ──────────────────────────────────────────────
 
@@ -175,7 +176,7 @@ function SeoDashboard() {
   const [selectedKwId, setSelectedKwId] = useState<number | null>(null);
   const [filterText, setFilterText] = useState("");
   const [activeTab, setActiveTab] = useState<"rankings" | "audit" | "recommendations">("rankings");
-  const [navSection, setNavSection] = useState<"overview" | "rankings" | "audit" | "settings">("overview");
+  const [navSection, setNavSection] = useState<"overview" | "seo-summary" | "rankings" | "audit" | "connection-guide" | "settings">("overview");
   const [hoveredKwId, setHoveredKwId] = useState<number | null>(null);
   const [mathChallenge, setMathChallenge] = useState(() => {
     const a = Math.floor(Math.random() * 9) + 1;
@@ -217,6 +218,17 @@ function SeoDashboard() {
   }
 
   useEffect(() => { if (authed) loadData(); }, [authed]);
+
+  // Analytics: fire GA4 page_view on nav section change
+  useEffect(() => {
+    const w = window as unknown as { gtag?: (...args: unknown[]) => void };
+    if (typeof window !== "undefined" && w.gtag) {
+      w.gtag("event", "page_view", {
+        page_title: `SEO Dashboard – ${navSection}`,
+        page_location: `/seo-dashboard#${navSection}`,
+      });
+    }
+  }, [navSection]);
 
   async function handleAddKeyword(e: React.FormEvent) {
     e.preventDefault();
@@ -286,8 +298,6 @@ function SeoDashboard() {
     setPinging(false);
   }
 
-  // Suppress unused warnings for imports kept for future use
-  void Search; void BarChart3; void Globe;
 
   if (authed === null) {
     return (
@@ -392,8 +402,10 @@ function SeoDashboard() {
 
   const navItems = [
     { id: "overview" as const, label: "Overview", icon: LayoutDashboard },
+    { id: "seo-summary" as const, label: "SEO Summary", icon: BarChart3 },
     { id: "rankings" as const, label: "Rankings", icon: TrendingUp },
     { id: "audit" as const, label: "Site Audit", icon: Shield },
+    { id: "connection-guide" as const, label: "Connection Guide", icon: Info },
     { id: "settings" as const, label: "Settings", icon: Settings2 },
   ];
 
@@ -445,31 +457,44 @@ function SeoDashboard() {
         </div>
 
         {/* Status Cards */}
-        <div className="px-6 py-4 flex gap-4 flex-shrink-0 border-b border-gray-100 bg-white">
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Firecrawl</p>
+        <div className="px-6 py-4 flex gap-3 flex-shrink-0 border-b border-gray-100 bg-white overflow-x-auto">
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Firecrawl</p>
             <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">Connected</span>
-            <p className="text-sm text-gray-500 mt-1">Last checked: {lastChecked}</p>
+            <p className="text-xs text-gray-400 mt-1">API active</p>
           </div>
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Keywords</p>
-            <p className="text-2xl font-bold text-gray-900">{keywords.length}</p>
-            <p className="text-sm text-gray-500">{keywords.length} active</p>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Supabase</p>
+            <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">Connected</span>
+            <p className="text-xs text-gray-400 mt-1">3 tables active</p>
           </div>
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Last Ranking</p>
-            <p className="text-lg font-semibold text-gray-900">{lastChecked}</p>
-            <p className="text-sm text-gray-500">Top10: {top10Count} · Top20: {top20Count} · Not ranked: {notRankedCount}</p>
-          </div>
-          <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Site Score</p>
-            {audit ? (
-              <>
-                <p className={`text-2xl font-bold ${audit.score >= 70 ? "text-green-600" : audit.score >= 50 ? "text-amber-600" : "text-red-600"}`}>{audit.score}<span className="text-sm font-normal text-gray-400">/100</span></p>
-                <p className="text-sm text-gray-500">{(audit.issues as unknown[]).length} issues · {new Date(audit.checked_at).toLocaleDateString()}</p>
-              </>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Daily Sync</p>
+            {lastEvent?.type === "check_all_rankings" ? (
+              <><span className="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">Run</span><p className="text-xs text-gray-400 mt-1 truncate">{lastEvent.time}</p></>
             ) : (
-              <><p className="text-2xl font-bold text-gray-300">—</p><p className="text-sm text-gray-400">No audit yet</p></>
+              <><span className="inline-block bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">not run yet</span><p className="text-xs text-gray-400 mt-1">—</p></>
+            )}
+          </div>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Weekly Ranking</p>
+            {lastEvent?.type === "full_seo_cycle" ? (
+              <><span className="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">Run</span><p className="text-xs text-gray-400 mt-1 truncate">{lastEvent.time}</p></>
+            ) : (
+              <><span className="inline-block bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">not run yet</span><p className="text-xs text-gray-400 mt-1">—</p></>
+            )}
+          </div>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Last Ranking</p>
+            <p className="text-base font-semibold text-gray-900">{lastChecked}</p>
+            <p className="text-xs text-gray-400">Top10: {top10Count} · Top20: {top20Count}</p>
+          </div>
+          <div className="flex-1 min-w-[120px] border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Site Score</p>
+            {audit ? (
+              <><p className={`text-xl font-bold ${audit.score >= 70 ? "text-green-600" : audit.score >= 50 ? "text-amber-600" : "text-red-600"}`}>{audit.score}<span className="text-xs font-normal text-gray-400">/100</span></p><p className="text-xs text-gray-400">{(audit.issues as unknown[]).length} issues</p></>
+            ) : (
+              <><p className="text-xl font-bold text-gray-300">—</p><p className="text-xs text-gray-400">No audit yet</p></>
             )}
           </div>
         </div>
@@ -518,6 +543,41 @@ function SeoDashboard() {
                     <span className="ml-auto text-gray-400">{lastEvent.time}</span>
                   </div>
                 )}
+              </div>
+
+              {/* Schedules */}
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Schedules</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="size-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-800">Daily Ranking Check</span>
+                      </div>
+                      <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">10 6 * * *</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">Runs every day at 06:10 UTC — checks all keyword rankings</p>
+                    <button onClick={handleCheckAll} disabled={runningCycle || keywords.length === 0} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                      {checkingId !== null ? <Loader2 className="size-3 animate-spin" /> : <Activity className="size-3" />}
+                      Run daily now
+                    </button>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Zap className="size-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-800">Weekly Full Cycle</span>
+                      </div>
+                      <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">20 6 * * 1</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">Runs every Monday at 06:20 UTC — rankings + full site audit</p>
+                    <button onClick={handleRunCycle} disabled={runningCycle || keywords.length === 0} className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                      {runningCycle ? <Loader2 className="size-3 animate-spin" /> : <Zap className="size-3" />}
+                      Run weekly now
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Two-panel */}
@@ -743,6 +803,102 @@ function SeoDashboard() {
             </div>
           )}
 
+          {/* ── SEO SUMMARY section ── */}
+          {navSection === "seo-summary" && (
+            <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Total Keywords</p>
+                    <p className="text-3xl font-bold text-gray-900">{keywords.length}</p>
+                    <p className="text-xs text-gray-400 mt-1">US Market · jalalnasser.com</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Ranked Top 10</p>
+                    <p className="text-3xl font-bold text-green-600">{top10Count}</p>
+                    <p className="text-xs text-gray-400 mt-1">{keywords.length > 0 ? Math.round((top10Count / keywords.length) * 100) : 0}% of keywords</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Ranked Top 20</p>
+                    <p className="text-3xl font-bold text-amber-600">{top20Count}</p>
+                    <p className="text-xs text-gray-400 mt-1">{keywords.length > 0 ? Math.round((top20Count / keywords.length) * 100) : 0}% of keywords</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Not Ranked</p>
+                    <p className="text-3xl font-bold text-red-500">{notRankedCount}</p>
+                    <p className="text-xs text-gray-400 mt-1">{keywords.length > 0 ? Math.round((notRankedCount / keywords.length) * 100) : 0}% of keywords</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><TrendingUp className="size-4 text-green-500" /> Best Performers</h3>
+                    {Array.from(latestRankMap.entries())
+                      .filter(([, r]) => r?.position != null)
+                      .sort(([, a], [, b]) => (a!.position! - b!.position!))
+                      .slice(0, 5)
+                      .map(([kwId, r]) => {
+                        const kw = keywords.find(k => k.id === kwId);
+                        if (!kw || !r) return null;
+                        return (
+                          <div key={kwId} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                            <span className="text-sm text-gray-700 truncate flex-1">{kw.keyword}</span>
+                            <span className={`ml-2 rounded px-2 py-0.5 text-xs font-mono font-bold flex-shrink-0 ${r.position! <= 3 ? "bg-green-100 text-green-700" : r.position! <= 10 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>#{r.position}</span>
+                          </div>
+                        );
+                      })}
+                    {Array.from(latestRankMap.values()).filter(r => r?.position != null).length === 0 && (
+                      <p className="text-sm text-gray-400 py-4 text-center">No ranking data yet. Run ranking checks first.</p>
+                    )}
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><AlertTriangle className="size-4 text-amber-500" /> Needs Attention</h3>
+                    {keywords
+                      .filter(kw => {
+                        const r = latestRankMap.get(kw.id);
+                        return !r?.position || r.position > 20;
+                      })
+                      .slice(0, 5)
+                      .map(kw => {
+                        const r = latestRankMap.get(kw.id);
+                        return (
+                          <div key={kw.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                            <span className="text-sm text-gray-700 truncate flex-1">{kw.keyword}</span>
+                            <span className="ml-2 rounded px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-500 flex-shrink-0">{r?.position ? `#${r.position}` : "—"}</span>
+                          </div>
+                        );
+                      })}
+                    {keywords.filter(kw => { const r = latestRankMap.get(kw.id); return !r?.position || r.position > 20; }).length === 0 && keywords.length > 0 && (
+                      <p className="text-sm text-green-600 py-4 text-center flex items-center justify-center gap-2"><CheckCircle className="size-4" /> All keywords ranked in top 20!</p>
+                    )}
+                    {keywords.length === 0 && <p className="text-sm text-gray-400 py-4 text-center">No keywords yet.</p>}
+                  </div>
+                </div>
+
+                {audit && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Shield className="size-4 text-blue-500" /> Latest Audit Summary</h3>
+                    <div className="flex items-center gap-6">
+                      <div className={`size-20 rounded-full border-4 grid place-items-center text-2xl font-bold flex-shrink-0 ${audit.score >= 70 ? "border-green-400 text-green-600" : audit.score >= 50 ? "border-amber-400 text-amber-600" : "border-red-400 text-red-600"}`}>{audit.score}</div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">{audit.score >= 70 ? "Site health: Good" : audit.score >= 50 ? "Site health: Needs Work" : "Site health: Critical"}</p>
+                        <p className="text-sm text-gray-500">{(audit.issues as unknown[]).length} issues · {audit.metadata?.pages_crawled ?? 0} pages crawled</p>
+                        <p className="text-xs text-gray-400 mt-0.5">Last run: {new Date(audit.checked_at).toLocaleString()}</p>
+                      </div>
+                      <button onClick={() => setNavSection("audit")} className="border border-gray-200 rounded px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors">View Full Audit →</button>
+                    </div>
+                  </div>
+                )}
+                {!audit && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-5 text-center text-gray-400">
+                    <p className="text-sm">No audit yet. Go to Site Audit to run one.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ── SITE AUDIT section ── */}
           {navSection === "audit" && (
             <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
@@ -791,6 +947,83 @@ function SeoDashboard() {
                     <p className="text-xs mt-1">Click "Run Site Audit" above to crawl jalalnasser.com</p>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ── CONNECTION GUIDE section ── */}
+          {navSection === "connection-guide" && (
+            <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
+              <div className="space-y-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">Connection Guide</h2>
+                  <p className="text-sm text-gray-500 mb-6">How the SEO Engine Console connects to external services.</p>
+
+                  <div className="border border-gray-200 rounded-lg p-5 mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-9 rounded-lg bg-orange-100 grid place-items-center"><Globe className="size-5 text-orange-600" /></div>
+                        <div>
+                          <p className="font-semibold text-gray-900">Firecrawl API</p>
+                          <p className="text-xs text-gray-500">SERP ranking checks + site crawl audits</p>
+                        </div>
+                      </div>
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">Connected</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Env variable</span><span className="font-mono text-gray-800">FIRECRAWL_API_KEY</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">API endpoint</span><span className="font-mono text-gray-600 text-xs">api.firecrawl.dev/v1</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Used for</span><span className="text-gray-600">SERP search + crawl jobs</span></div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-3">Get your key at <a href="https://firecrawl.dev" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">firecrawl.dev</a> → Dashboard → API Keys</p>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-5 mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-9 rounded-lg bg-green-100 grid place-items-center"><Database className="size-5 text-green-600" /></div>
+                        <div>
+                          <p className="font-semibold text-gray-900">Supabase</p>
+                          <p className="text-xs text-gray-500">Database + authentication</p>
+                        </div>
+                      </div>
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">Connected</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Auth method</span><span className="text-gray-700">Email + Password (Supabase Auth)</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">RLS policy</span><span className="text-gray-700">jnasser1983@gmail.com only</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Service role</span><span className="font-mono text-gray-600 text-xs">SUPABASE_SERVICE_ROLE_KEY</span></div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {["seo_keywords", "seo_rankings", "seo_audits"].map(tbl => (
+                        <div key={tbl} className="border border-gray-200 rounded p-2 text-center">
+                          <p className="text-xs font-mono text-gray-700">{tbl}</p>
+                          <span className="text-xs text-green-600">active</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><Info className="size-4 text-blue-500" /> Required Environment Variables</h3>
+                    <div className="space-y-2">
+                      {[
+                        { key: "FIRECRAWL_API_KEY", desc: "Firecrawl API key for SERP + crawl" },
+                        { key: "SUPABASE_URL", desc: "Supabase project URL" },
+                        { key: "SUPABASE_SERVICE_ROLE_KEY", desc: "Service role key (bypasses RLS)" },
+                        { key: "VITE_SUPABASE_URL", desc: "Supabase URL (client-side)" },
+                        { key: "VITE_SUPABASE_ANON_KEY", desc: "Supabase anon key (client-side)" },
+                      ].map(v => (
+                        <div key={v.key} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                          <CheckCircle className="size-4 text-green-500 flex-shrink-0" />
+                          <span className="font-mono text-sm text-gray-800 w-56 flex-shrink-0">{v.key}</span>
+                          <span className="text-xs text-gray-500">{v.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-4">Set these in Lovable → Project Settings → Environment Variables</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
