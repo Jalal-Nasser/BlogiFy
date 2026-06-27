@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_events: {
+        Row: {
+          created_at: string
+          description: string
+          entity_id: string | null
+          entity_type: string | null
+          event_type: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      authors: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_settings: {
+        Row: {
+          admin_email: string | null
+          blog_description: string | null
+          blog_name: string
+          created_at: string
+          default_author_id: string | null
+          id: string
+          seo_title_pattern: string
+          updated_at: string
+        }
+        Insert: {
+          admin_email?: string | null
+          blog_description?: string | null
+          blog_name?: string
+          created_at?: string
+          default_author_id?: string | null
+          id?: string
+          seo_title_pattern?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string | null
+          blog_description?: string | null
+          blog_name?: string
+          created_at?: string
+          default_author_id?: string | null
+          id?: string
+          seo_title_pattern?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_settings_default_author_id_fkey"
+            columns: ["default_author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           color: string
@@ -23,6 +127,8 @@ export type Database = {
           name: string
           parent_id: string | null
           slug: string
+          status: string
+          updated_at: string
         }
         Insert: {
           color?: string
@@ -32,6 +138,8 @@ export type Database = {
           name: string
           parent_id?: string | null
           slug: string
+          status?: string
+          updated_at?: string
         }
         Update: {
           color?: string
@@ -41,6 +149,8 @@ export type Database = {
           name?: string
           parent_id?: string | null
           slug?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -75,6 +185,50 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      media_assets: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          post_id: string | null
+          title: string | null
+          uploaded_at: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          post_id?: string | null
+          title?: string | null
+          uploaded_at?: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          post_id?: string | null
+          title?: string | null
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscribers: {
         Row: {
@@ -121,56 +275,111 @@ export type Database = {
         }
         Relationships: []
       }
+      post_tags: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author: string
+          author_id: string | null
+          canonical_url: string | null
           category_id: string | null
           content: string
           created_at: string
           excerpt: string | null
+          featured: boolean
           featured_image_url: string | null
           id: string
+          meta_description: string | null
           published_at: string
           read_time_minutes: number
+          seo_title: string | null
           slug: string
           status: string
           tags: string[]
           title: string
+          updated_at: string
           views: number
         }
         Insert: {
           author?: string
+          author_id?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content: string
           created_at?: string
           excerpt?: string | null
+          featured?: boolean
           featured_image_url?: string | null
           id?: string
+          meta_description?: string | null
           published_at?: string
           read_time_minutes?: number
+          seo_title?: string | null
           slug: string
           status?: string
           tags?: string[]
           title: string
+          updated_at?: string
           views?: number
         }
         Update: {
           author?: string
+          author_id?: string | null
+          canonical_url?: string | null
           category_id?: string | null
           content?: string
           created_at?: string
           excerpt?: string | null
+          featured?: boolean
           featured_image_url?: string | null
           id?: string
+          meta_description?: string | null
           published_at?: string
           read_time_minutes?: number
+          seo_title?: string | null
           slug?: string
           status?: string
           tags?: string[]
           title?: string
+          updated_at?: string
           views?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "posts_category_id_fkey"
             columns: ["category_id"]
@@ -274,6 +483,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
       }
     }
     Views: {
