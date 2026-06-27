@@ -59,12 +59,14 @@ function PostPage() {
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, prop); document.head.appendChild(el); }
       el.setAttribute("content", val);
     };
+    const fallbackDescription = "A hands-on tech tutorial from BlogiFy covering Linux, security, WordPress, self-hosting, and modern infrastructure.";
     setMeta("og:url", url);
+    setMeta("og:type", "article");
     setMeta("og:title", post.title);
-    setMeta("og:description", post.excerpt || "");
+    setMeta("og:description", post.excerpt || fallbackDescription);
     if (post.featured_image_url) setMeta("og:image", post.featured_image_url);
     setMeta("twitter:title", post.title, "name");
-    setMeta("twitter:description", post.excerpt || "", "name");
+    setMeta("twitter:description", post.excerpt || fallbackDescription, "name");
     if (post.featured_image_url) setMeta("twitter:image", post.featured_image_url, "name");
     document.title = `${post.title} — BlogiFy`;
 
@@ -78,7 +80,7 @@ function PostPage() {
       "@context": "https://schema.org",
       "@type": "Article",
       "headline": post.title,
-      "description": post.excerpt || "",
+      "description": post.excerpt || fallbackDescription,
       "image": post.featured_image_url || "",
       "datePublished": post.published_at,
       "author": { "@type": "Person", "name": post.author, "url": base },
