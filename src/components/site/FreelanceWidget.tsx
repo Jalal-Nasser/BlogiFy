@@ -21,7 +21,7 @@ export function FreelanceWidget() {
       <h3 className="font-display text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-3">
         Hire Me on PeoplePerHour
       </h3>
-      <div id="pph-hireme" className="w-full min-h-[200px]" />
+      <div id="pph-hireme" className="w-full" />
     </div>
   );
 }
