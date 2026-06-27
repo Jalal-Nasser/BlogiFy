@@ -50,6 +50,7 @@ export function PostCard({ post, variant = "default" }: { post: Post; variant?: 
   return (
     <Link to="/blog/$slug" params={{ slug: post.slug }} className="group relative flex flex-col overflow-hidden rounded-xl border border-border surface-card transition-all duration-300 hover:border-brand/60 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgb(0_212_255/0.35),0_18px_50px_-18px_rgb(0_212_255/0.45)]">
       <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "radial-gradient(600px circle at var(--mx,50%) 0%, rgb(139 92 246 / 0.08), transparent 40%)" }} />
+      {post.featured_image_url && (
         <div className="aspect-[16/9] overflow-hidden">
           <img src={post.featured_image_url} alt={post.title} className="size-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
         </div>
