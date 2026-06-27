@@ -114,9 +114,10 @@ export async function fetchPageBySlug(_slug: string): Promise<Page | null> {
 }
 
 export async function subscribeEmail(email: string) {
-  const { error } = await supabase.rpc("newsletter_subscribe", { subscriber_email: email });
-  if (error) throw error;
+  const { subscribeNewsletter } = await import("./cms.functions");
+  await subscribeNewsletter({ data: { email } });
 }
+
 
 export async function submitContact(name: string, email: string, message: string) {
   const { error } = await supabase

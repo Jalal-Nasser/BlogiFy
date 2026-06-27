@@ -468,3 +468,15 @@ export const saveSettings = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// ============ NEWSLETTER ============
+export const subscribeNewsletter = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ email: z.string().email() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("newsletter_subscribers")
+      .upsert({ email: data.email }, { onConflict: "email", ignoreDuplicates: true });
+    return { ok: true };
+  });
+
