@@ -4,7 +4,6 @@ import { Newsletter } from "./Newsletter";
 import { PostCard } from "./PostCard";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { AdSlot } from "./AdSlot";
 
 export function Sidebar() {
   const { data: recent = [] } = useQuery({ queryKey: ["posts", "recent"], queryFn: () => fetchPosts(8) });
@@ -43,7 +42,6 @@ export function Sidebar() {
         </div>
       </div>
 
-      <AdSlot size="rectangle" label="Sidebar Ad" />
     </aside>
   );
 }
