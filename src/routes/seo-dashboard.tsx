@@ -402,8 +402,10 @@ function SeoDashboard() {
 
   const navItems = [
     { id: "overview" as const, label: "Overview", icon: LayoutDashboard },
+    { id: "seo-summary" as const, label: "SEO Summary", icon: BarChart3 },
     { id: "rankings" as const, label: "Rankings", icon: TrendingUp },
     { id: "audit" as const, label: "Site Audit", icon: Shield },
+    { id: "connection-guide" as const, label: "Connection Guide", icon: Info },
     { id: "settings" as const, label: "Settings", icon: Settings2 },
   ];
 
