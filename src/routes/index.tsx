@@ -102,8 +102,14 @@ function Home() {
 
       {/* 3-column secondary row — fills the gap, no height mismatch */}
       {secondary.length > 0 && (
-        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-          {secondary.map((p) => <PostCard key={p.id} post={p} />)}
+        <section className="mb-6">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="size-4 text-brand" />
+            <h2 className="font-display text-xl font-semibold">Trending now</h2>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {secondary.map((p) => <PostCard key={p.id} post={p} />)}
+          </div>
         </section>
       )}
 
