@@ -176,6 +176,10 @@ function SeoDashboard() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    if (mathAnswer.trim() !== mathChallenge.answer) {
+      setLoginError("Incorrect verification answer — please try again.");
+      return;
+    }
     setLoggingIn(true); setLoginError("");
     const { error } = await supabase.auth.signInWithPassword({ email: loginForm.email, password: loginForm.password });
     setLoggingIn(false);
