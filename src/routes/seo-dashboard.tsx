@@ -803,6 +803,102 @@ function SeoDashboard() {
             </div>
           )}
 
+          {/* ── SEO SUMMARY section ── */}
+          {navSection === "seo-summary" && (
+            <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Total Keywords</p>
+                    <p className="text-3xl font-bold text-gray-900">{keywords.length}</p>
+                    <p className="text-xs text-gray-400 mt-1">US Market · jalalnasser.com</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Ranked Top 10</p>
+                    <p className="text-3xl font-bold text-green-600">{top10Count}</p>
+                    <p className="text-xs text-gray-400 mt-1">{keywords.length > 0 ? Math.round((top10Count / keywords.length) * 100) : 0}% of keywords</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Ranked Top 20</p>
+                    <p className="text-3xl font-bold text-amber-600">{top20Count}</p>
+                    <p className="text-xs text-gray-400 mt-1">{keywords.length > 0 ? Math.round((top20Count / keywords.length) * 100) : 0}% of keywords</p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Not Ranked</p>
+                    <p className="text-3xl font-bold text-red-500">{notRankedCount}</p>
+                    <p className="text-xs text-gray-400 mt-1">{keywords.length > 0 ? Math.round((notRankedCount / keywords.length) * 100) : 0}% of keywords</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><TrendingUp className="size-4 text-green-500" /> Best Performers</h3>
+                    {Array.from(latestRankMap.entries())
+                      .filter(([, r]) => r?.position != null)
+                      .sort(([, a], [, b]) => (a!.position! - b!.position!))
+                      .slice(0, 5)
+                      .map(([kwId, r]) => {
+                        const kw = keywords.find(k => k.id === kwId);
+                        if (!kw || !r) return null;
+                        return (
+                          <div key={kwId} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                            <span className="text-sm text-gray-700 truncate flex-1">{kw.keyword}</span>
+                            <span className={`ml-2 rounded px-2 py-0.5 text-xs font-mono font-bold flex-shrink-0 ${r.position! <= 3 ? "bg-green-100 text-green-700" : r.position! <= 10 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>#{r.position}</span>
+                          </div>
+                        );
+                      })}
+                    {Array.from(latestRankMap.values()).filter(r => r?.position != null).length === 0 && (
+                      <p className="text-sm text-gray-400 py-4 text-center">No ranking data yet. Run ranking checks first.</p>
+                    )}
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><AlertTriangle className="size-4 text-amber-500" /> Needs Attention</h3>
+                    {keywords
+                      .filter(kw => {
+                        const r = latestRankMap.get(kw.id);
+                        return !r?.position || r.position > 20;
+                      })
+                      .slice(0, 5)
+                      .map(kw => {
+                        const r = latestRankMap.get(kw.id);
+                        return (
+                          <div key={kw.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                            <span className="text-sm text-gray-700 truncate flex-1">{kw.keyword}</span>
+                            <span className="ml-2 rounded px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-500 flex-shrink-0">{r?.position ? `#${r.position}` : "—"}</span>
+                          </div>
+                        );
+                      })}
+                    {keywords.filter(kw => { const r = latestRankMap.get(kw.id); return !r?.position || r.position > 20; }).length === 0 && keywords.length > 0 && (
+                      <p className="text-sm text-green-600 py-4 text-center flex items-center justify-center gap-2"><CheckCircle className="size-4" /> All keywords ranked in top 20!</p>
+                    )}
+                    {keywords.length === 0 && <p className="text-sm text-gray-400 py-4 text-center">No keywords yet.</p>}
+                  </div>
+                </div>
+
+                {audit && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Shield className="size-4 text-blue-500" /> Latest Audit Summary</h3>
+                    <div className="flex items-center gap-6">
+                      <div className={`size-20 rounded-full border-4 grid place-items-center text-2xl font-bold flex-shrink-0 ${audit.score >= 70 ? "border-green-400 text-green-600" : audit.score >= 50 ? "border-amber-400 text-amber-600" : "border-red-400 text-red-600"}`}>{audit.score}</div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">{audit.score >= 70 ? "Site health: Good" : audit.score >= 50 ? "Site health: Needs Work" : "Site health: Critical"}</p>
+                        <p className="text-sm text-gray-500">{(audit.issues as unknown[]).length} issues · {audit.metadata?.pages_crawled ?? 0} pages crawled</p>
+                        <p className="text-xs text-gray-400 mt-0.5">Last run: {new Date(audit.checked_at).toLocaleString()}</p>
+                      </div>
+                      <button onClick={() => setNavSection("audit")} className="border border-gray-200 rounded px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors">View Full Audit →</button>
+                    </div>
+                  </div>
+                )}
+                {!audit && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-5 text-center text-gray-400">
+                    <p className="text-sm">No audit yet. Go to Site Audit to run one.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ── SITE AUDIT section ── */}
           {navSection === "audit" && (
             <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#f8fafc" }}>
