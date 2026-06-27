@@ -13,8 +13,8 @@ export const Route = createFileRoute("/search")({
   validateSearch: zodValidator(schema),
   head: () => ({
     meta: [
-      { title: "Search — BlogiFy" },
-      { name: "description", content: "Search BlogiFy tutorials on Linux, cybersecurity, WordPress, crypto, and more." },
+      { title: "Search Articles — BlogiFy" },
+      { name: "description", content: "Search all BlogiFy articles on Linux, security, WordPress, self-hosting, crypto, and digital marketing." },
       { property: "og:title", content: "Search BlogiFy" },
       { property: "og:description", content: "Find tutorials and articles across Linux, security, WordPress, crypto, and digital marketing." },
       { property: "og:url", content: "https://jalalnasser.com/search" },
