@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { fetchPostBySlug, fetchRelatedPosts } from "@/lib/queries";
 import { CategoryBadge } from "@/components/site/CategoryBadge";
-import { AdSlot } from "@/components/site/AdSlot";
+
 import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
 import { Clock, Eye, User, Calendar, Twitter, Linkedin, Link2, ArrowLeft } from "lucide-react";
@@ -130,11 +130,6 @@ function PostPage() {
         </div>
       )}
 
-      {/* Below-hero AdSense */}
-      <div className="mt-8 max-w-4xl">
-        {/* Google AdSense — below hero */}
-        <AdSlot size="leaderboard" label="Below-Hero Ad" />
-      </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
@@ -157,11 +152,6 @@ function PostPage() {
           {/* Article */}
           <div className="prose-article max-w-none" dangerouslySetInnerHTML={{ __html: contentWithIds }} />
 
-          {/* Mid-article AdSense */}
-          <div className="my-10">
-            {/* Google AdSense — mid-article */}
-            <AdSlot size="rectangle" label="Mid-Article Ad" />
-          </div>
 
           {/* Tags */}
           {post.tags.length > 0 && (
@@ -189,11 +179,6 @@ function PostPage() {
             </div>
           </div>
 
-          {/* After-content AdSense */}
-          <div className="mt-10">
-            {/* Google AdSense — after content */}
-            <AdSlot size="leaderboard" label="After-Content Ad" />
-          </div>
 
           {/* Related */}
           {related.length > 0 && (
