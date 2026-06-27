@@ -151,8 +151,8 @@ function Contact() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Email</p>
-                  <a href="mailto:jnasser1983@gmail.com" className="text-sm hover:text-brand transition-colors">
-                    jnasser1983@gmail.com
+                  <a href="mailto:info@jalalnasser.com" className="text-sm hover:text-brand transition-colors">
+                    info@jalalnasser.com
                   </a>
                 </div>
               </div>
