@@ -34,12 +34,12 @@ export function Header() {
     <header className={`sticky top-0 z-40 border-b border-border/50 backdrop-blur-xl transition-colors ${scrolled ? "bg-background/85" : "bg-background/40"}`}>
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="flex h-16 items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-accent text-brand-foreground">
+          <Link to="/" className="flex items-center gap-2 shrink-0 group">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-accent text-brand-foreground shadow-[0_0_20px_rgb(0_212_255/0.45)] group-hover:shadow-[0_0_28px_rgb(0_212_255/0.7)] transition-shadow">
               <Terminal className="size-4" />
             </div>
             <div className="leading-none">
-              <span className="font-display text-lg font-bold tracking-tight">Blogi<span className="text-gradient">Fy</span></span>
+              <span className="font-display text-lg font-bold tracking-tight text-glow">Blogi<span className="text-gradient">Fy</span></span>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">jalalnasser.com</div>
             </div>
           </Link>
