@@ -1,0 +1,15 @@
+# BlogiFy
+
+> Hands-on IT tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing — written by Jalal Nasser.
+
+## Pages
+
+- [/](/): Latest articles, featured posts, and trending topics in IT, security, and tech.
+- [About](/about): About Jalal Nasser — founder, IT professional, and author of BlogiFy.
+- [Contact](/contact): Reach out for collaborations, freelance help, or general inquiries.
+- [Search](/search): Search across all articles and tutorials on the site.
+
+## Content
+
+- [Blog](/blog/linux-server-hardening-guide): Practical tutorials covering Linux, security, WordPress, self-hosting, crypto, and digital marketing.
+- [Categories](/category/linux): Browse articles by topic — Linux, security, WordPress, self-hosting, crypto, marketing, and more.
