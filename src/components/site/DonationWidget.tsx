@@ -15,11 +15,9 @@ export function DonationWidget() {
   return (
     <div className="surface-card p-6 rounded-xl border border-yellow-500/20">
       <div className="flex items-center gap-2 mb-4">
-        <img
-          src="https://cryptologos.cc/logos/binance-coin-bnb-logo.svg"
-          alt="BNB"
-          className="w-6 h-6"
-        />
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#F0B90B" d="M12 0L9.2 2.8 12 5.6l2.8-2.8L12 0zM5.6 6.4L2.8 9.2l2.8 2.8 2.8-2.8-2.8-2.8zM18.4 6.4l-2.8 2.8 2.8 2.8 2.8-2.8-2.8-2.8zM9.2 9.2L6.4 12l2.8 2.8L12 12l-2.8-2.8zM14.8 9.2L12 12l2.8 2.8 2.8-2.8-2.8-2.8zM12 12l-2.8 2.8 2.8 2.8 2.8-2.8L12 12zM5.6 12l-2.8 2.8 2.8 2.8 2.8-2.8L5.6 12zM18.4 12l-2.8 2.8 2.8 2.8 2.8-2.8-2.8-2.8zM9.2 14.8L6.4 17.6l2.8 2.8 2.8-2.8-2.8-2.8zM14.8 14.8L12 17.6l2.8 2.8 2.8-2.8-2.8-2.8zM12 18.4l-2.8 2.8L12 24l2.8-2.8-2.8-2.8z"/>
+        </svg>
         <h3 className="font-display text-sm font-semibold uppercase tracking-widest text-yellow-400">
           Support via Crypto
         </h3>
