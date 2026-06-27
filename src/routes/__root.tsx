@@ -76,20 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
     ],
-    scripts: [
-      {
-        src: "https://www.googletagmanager.com/gtag/js?id=G-4HQ2LPF7ZQ",
-        async: true,
-      },
-      {
-        children: `window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-4HQ2LPF7ZQ');`,
-      },
-      {
-        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4702782931000986",
-        async: true,
-        crossOrigin: "anonymous",
-      },
-    ],
+    scripts: [],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -119,6 +106,7 @@ function RootComponent() {
         <Footer />
       </div>
       <Toaster theme="dark" position="top-right" richColors />
+      <CookieConsent />
     </QueryClientProvider>
   );
 }
