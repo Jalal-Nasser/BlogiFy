@@ -8,8 +8,8 @@ export const Route = createFileRoute("/category/$slug")({
   head: ({ params }) => {
     const name = params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     const url = `https://jalalnasser.com/category/${params.slug}`;
-    const title = `${name} — BlogiFy`;
-    const description = `Articles and tutorials in the ${name} category on BlogiFy.`;
+    const title = `${name} Articles — BlogiFy`;
+    const description = `Browse all BlogiFy articles in the ${name} category — practical tutorials and guides.`;
     return {
       meta: [
         { title },

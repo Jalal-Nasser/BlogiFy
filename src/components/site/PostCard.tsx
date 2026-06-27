@@ -12,7 +12,7 @@ export function PostCard({ post, variant = "default" }: { post: Post; variant?: 
     return (
       <Link to="/blog/$slug" params={{ slug: post.slug }} className="group flex gap-3">
         {post.featured_image_url && (
-          <img src={post.featured_image_url} alt="" className="size-16 shrink-0 rounded-md object-cover" loading="lazy" />
+          <img src={post.featured_image_url} alt={post.title} className="size-16 shrink-0 rounded-md object-cover" loading="lazy" />
         )}
         <div className="min-w-0">
           <h4 className="text-sm font-medium leading-snug group-hover:text-brand transition-colors line-clamp-2">{post.title}</h4>

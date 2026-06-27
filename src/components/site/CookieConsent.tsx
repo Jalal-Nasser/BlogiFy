@@ -71,9 +71,10 @@ export function CookieConsent() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={decline}
+            aria-label="Decline cookies"
             className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
           >
-            <X className="size-3" /> Decline
+            <X className="size-3" aria-hidden="true" /> Decline
           </button>
           <button
             onClick={accept}
