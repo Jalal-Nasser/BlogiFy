@@ -1,13 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Search, Plus, Trash2, RefreshCw, BarChart3, Shield,
-  CheckCircle, XCircle, AlertTriangle, LogOut, Loader2,
-  Globe, TrendingUp, ChevronUp, ChevronDown, Minus,
-  LayoutDashboard, Settings2, ListFilter, Play, ExternalLink
-} from "lucide-react";
+import { Search, Plus, Trash2, RefreshCw, BarChart3, Shield, CheckCircle, XCircle, AlertTriangle, LogOut, Loader2, Globe, TrendingUp, LayoutDashboard, Settings2, ListFilter, Play, ExternalLink } from "lucide-react";
 
 // ── Server Functions ──────────────────────────────────────────────
 
