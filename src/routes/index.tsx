@@ -30,7 +30,7 @@ function Home() {
           <Sparkles className="size-4" />
           <span className="font-mono text-xs uppercase tracking-widest">Latest from BlogiFy</span>
         </div>
-        <h1 className="mt-3 font-display text-3xl lg:text-5xl font-bold tracking-tight leading-tight max-w-3xl">
+        <h1 className="mt-3 font-display text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight leading-none lg:whitespace-nowrap">
           The IT publication for people who actually <span className="text-gradient">ship</span>.
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
