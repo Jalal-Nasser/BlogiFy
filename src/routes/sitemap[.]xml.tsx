@@ -3,7 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 
 const BASE = "https://jalalnasser.com";
 
-const STATIC_PAGES = [
+interface SitemapUrl {
+  url: string;
+  lastmod?: string;
+  priority: string;
+  changefreq: string;
+}
+
+const STATIC_PAGES: SitemapUrl[] = [
   { url: `${BASE}/`, priority: "1.0", changefreq: "daily" },
   { url: `${BASE}/about`, priority: "0.5", changefreq: "monthly" },
   { url: `${BASE}/contact`, priority: "0.5", changefreq: "monthly" },
