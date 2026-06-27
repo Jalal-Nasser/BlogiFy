@@ -118,6 +118,9 @@ export async function subscribeEmail(email: string) {
   if (error) throw error;
 }
 
-export async function submitContact(_name: string, _email: string, _message: string) {
-  throw new Error("Contact form is not configured.");
+export async function submitContact(name: string, email: string, message: string) {
+  const { error } = await supabase
+    .from("contact_messages")
+    .insert({ name, email, message });
+  if (error) throw new Error(error.message);
 }
