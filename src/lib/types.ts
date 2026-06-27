@@ -1,8 +1,9 @@
 export interface Category {
   id: string;
+  wp_id?: number | null;
   name: string;
   slug: string;
-  parent_id: string | null;
+  parent_slug: string | null;
   color: string;
   description: string | null;
 }
@@ -15,13 +16,16 @@ export interface Post {
   excerpt: string | null;
   featured_image_url: string | null;
   author: string;
-  category_id: string | null;
+  category_slug: string | null;
   tags: string[];
   status: string;
   published_at: string;
   read_time_minutes: number;
   views: number;
+  // Convenience: hydrated from categories lookup
   categories?: Category | null;
+  // Back-compat shim — some callers still read category_id
+  category_id?: string | null;
 }
 
 export interface Page {

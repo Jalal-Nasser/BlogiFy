@@ -8,7 +8,7 @@ import { AdSlot } from "./AdSlot";
 export function Sidebar() {
   const { data: recent = [] } = useQuery({ queryKey: ["posts", "recent"], queryFn: () => fetchPosts(5) });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
-  const parents = categories.filter((c) => !c.parent_id).slice(0, 10);
+  const parents = categories.filter((c) => !c.parent_slug).slice(0, 10);
 
   return (
     <aside className="space-y-8">
