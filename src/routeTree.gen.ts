@@ -13,11 +13,17 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedPostsIndexRouteImport } from './routes/_authenticated/posts.index'
+import { Route as AuthenticatedPostsNewRouteImport } from './routes/_authenticated/posts.new'
+import { Route as AuthenticatedPostsIdEditRouteImport } from './routes/_authenticated/posts.$id.edit'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -39,6 +45,11 @@ const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
   path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -47,6 +58,10 @@ const ContactRoute = ContactRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -64,40 +79,77 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPostsIndexRoute = AuthenticatedPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPostsNewRoute = AuthenticatedPostsNewRouteImport.update({
+  id: '/posts/new',
+  path: '/posts/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPostsIdEditRoute =
+  AuthenticatedPostsIdEditRouteImport.update({
+    id: '/posts/$id/edit',
+    path: '/posts/$id/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/posts/new': typeof AuthenticatedPostsNewRoute
+  '/posts/': typeof AuthenticatedPostsIndexRoute
+  '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/posts/new': typeof AuthenticatedPostsNewRoute
+  '/posts': typeof AuthenticatedPostsIndexRoute
+  '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/_authenticated/posts/new': typeof AuthenticatedPostsNewRoute
+  '/_authenticated/posts/': typeof AuthenticatedPostsIndexRoute
+  '/_authenticated/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,40 +157,58 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/login'
     | '/privacy-policy'
     | '/search'
     | '/sitemap.xml'
     | '/terms'
+    | '/dashboard'
     | '/blog/$slug'
     | '/category/$slug'
+    | '/posts/new'
+    | '/posts/'
+    | '/posts/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/contact'
+    | '/login'
     | '/privacy-policy'
     | '/search'
     | '/sitemap.xml'
     | '/terms'
+    | '/dashboard'
     | '/blog/$slug'
     | '/category/$slug'
+    | '/posts/new'
+    | '/posts'
+    | '/posts/$id/edit'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/contact'
+    | '/login'
     | '/privacy-policy'
     | '/search'
     | '/sitemap.xml'
     | '/terms'
+    | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/category/$slug'
+    | '/_authenticated/posts/new'
+    | '/_authenticated/posts/'
+    | '/_authenticated/posts/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  LoginRoute: typeof LoginRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -177,6 +247,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -189,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -212,13 +296,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/posts/': {
+      id: '/_authenticated/posts/'
+      path: '/posts'
+      fullPath: '/posts/'
+      preLoaderRoute: typeof AuthenticatedPostsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/posts/new': {
+      id: '/_authenticated/posts/new'
+      path: '/posts/new'
+      fullPath: '/posts/new'
+      preLoaderRoute: typeof AuthenticatedPostsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/posts/$id/edit': {
+      id: '/_authenticated/posts/$id/edit'
+      path: '/posts/$id/edit'
+      fullPath: '/posts/$id/edit'
+      preLoaderRoute: typeof AuthenticatedPostsIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPostsNewRoute: typeof AuthenticatedPostsNewRoute
+  AuthenticatedPostsIndexRoute: typeof AuthenticatedPostsIndexRoute
+  AuthenticatedPostsIdEditRoute: typeof AuthenticatedPostsIdEditRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPostsNewRoute: AuthenticatedPostsNewRoute,
+  AuthenticatedPostsIndexRoute: AuthenticatedPostsIndexRoute,
+  AuthenticatedPostsIdEditRoute: AuthenticatedPostsIdEditRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  LoginRoute: LoginRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
