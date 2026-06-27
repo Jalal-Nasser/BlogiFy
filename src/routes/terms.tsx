@@ -5,7 +5,14 @@ export const Route = createFileRoute("/terms")({
     meta: [
       { title: "Terms of Service — BlogiFy" },
       { name: "description", content: "Terms of service for BlogiFy by Jalal Nasser." },
+      { property: "og:title", content: "Terms of Service — BlogiFy" },
+      { property: "og:description", content: "The terms that govern your use of BlogiFy and its content." },
+      { property: "og:url", content: "https://jalalnasser.com/terms" },
+      { name: "twitter:title", content: "Terms of Service — BlogiFy" },
+      { name: "twitter:description", content: "The terms that govern your use of BlogiFy." },
+      { name: "robots", content: "noindex,follow" },
     ],
+    links: [{ rel: "canonical", href: "https://jalalnasser.com/terms" }],
   }),
   component: Terms,
 });

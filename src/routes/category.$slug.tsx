@@ -5,6 +5,24 @@ import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
 
 export const Route = createFileRoute("/category/$slug")({
+  head: ({ params }) => {
+    const name = params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const url = `https://jalalnasser.com/category/${params.slug}`;
+    const title = `${name} — BlogiFy`;
+    const description = `Articles and tutorials in the ${name} category on BlogiFy.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: CategoryPage,
 });
 

@@ -5,7 +5,14 @@ export const Route = createFileRoute("/privacy-policy")({
     meta: [
       { title: "Privacy Policy — BlogiFy" },
       { name: "description", content: "Privacy policy for BlogiFy — how we collect and use your data." },
+      { property: "og:title", content: "Privacy Policy — BlogiFy" },
+      { property: "og:description", content: "How BlogiFy handles cookies, analytics, and any personal data you share with us." },
+      { property: "og:url", content: "https://jalalnasser.com/privacy-policy" },
+      { name: "twitter:title", content: "Privacy Policy — BlogiFy" },
+      { name: "twitter:description", content: "How BlogiFy handles cookies, analytics, and personal data." },
+      { name: "robots", content: "noindex,follow" },
     ],
+    links: [{ rel: "canonical", href: "https://jalalnasser.com/privacy-policy" }],
   }),
   component: PrivacyPolicy,
 });

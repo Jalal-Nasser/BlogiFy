@@ -10,7 +10,15 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "BlogiFy — IT, Security & Tech Tutorials" },
       { name: "description", content: "Hands-on tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing." },
+      { property: "og:title", content: "BlogiFy — IT, Security & Tech Tutorials" },
+      { property: "og:description", content: "Hands-on tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing." },
+      { property: "og:url", content: "https://jalalnasser.com/" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5a66d952-8ed6-481a-8519-01913766574e" },
+      { name: "twitter:title", content: "BlogiFy — IT, Security & Tech Tutorials" },
+      { name: "twitter:description", content: "Hands-on tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing." },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5a66d952-8ed6-481a-8519-01913766574e" },
     ],
+    links: [{ rel: "canonical", href: "https://jalalnasser.com/" }],
   }),
   component: Home,
 });
