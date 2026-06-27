@@ -39,17 +39,16 @@ function AuthorsPage() {
     <AdminShell title="Authors">
       <div className="bg-white rounded-lg border border-slate-200">
         <div className="p-3 border-b border-slate-200 flex justify-end">
-          <button onClick={() => { setEditing({ name: "", email: "", bio: "", avatar_url: "", role: "Author", status: "Active" }); setOpen(true); }} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-2 rounded-md hover:bg-blue-700"><Plus className="h-4 w-4" /> Add Author</button>
+          <button onClick={() => { setEditing({ name: "", bio: "", avatar_url: "", role: "Author", status: "Active" }); setOpen(true); }} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-2 rounded-md hover:bg-blue-700"><Plus className="h-4 w-4" /> Add Author</button>
         </div>
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-600"><tr>{["Name", "Email", "Role", "Posts", "Status", "Actions"].map((h) => <th key={h} className="text-left px-4 py-2.5 font-medium">{h}</th>)}</tr></thead>
+          <thead className="bg-slate-50 text-slate-600"><tr>{["Name", "Role", "Posts", "Status", "Actions"].map((h) => <th key={h} className="text-left px-4 py-2.5 font-medium">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-slate-100">
-            {authors.isLoading ? <tr><td colSpan={6} className="px-4 py-6 text-slate-500">Loading…</td></tr>
-            : (authors.data ?? []).length === 0 ? <tr><td colSpan={6} className="px-4 py-6 text-slate-500">No authors yet.</td></tr>
+            {authors.isLoading ? <tr><td colSpan={5} className="px-4 py-6 text-slate-500">Loading…</td></tr>
+            : (authors.data ?? []).length === 0 ? <tr><td colSpan={5} className="px-4 py-6 text-slate-500">No authors yet.</td></tr>
             : (authors.data ?? []).map((a: any) => (
               <tr key={a.id} className="hover:bg-slate-50">
                 <td className="px-4 py-2.5 font-medium">{a.name}</td>
-                <td className="px-4 py-2.5 text-slate-600">{a.email ?? "—"}</td>
                 <td className="px-4 py-2.5">{a.role}</td>
                 <td className="px-4 py-2.5">{counts.get(a.id) ?? 0}</td>
                 <td className="px-4 py-2.5"><StatusBadge status={a.status} /></td>
@@ -65,7 +64,6 @@ function AuthorsPage() {
       {open && editing && (
         <Modal title={editing.id ? "Edit Author" : "Add Author"} onClose={() => setOpen(false)}>
           <F label="Name"><input className={inp} value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></F>
-          <F label="Email"><input className={inp} value={editing.email ?? ""} onChange={(e) => setEditing({ ...editing, email: e.target.value })} /></F>
           <F label="Bio"><textarea rows={3} className={inp} value={editing.bio ?? ""} onChange={(e) => setEditing({ ...editing, bio: e.target.value })} /></F>
           <F label="Avatar URL"><input className={inp} value={editing.avatar_url ?? ""} onChange={(e) => setEditing({ ...editing, avatar_url: e.target.value })} /></F>
           <F label="Role"><select className={inp} value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}><option>Author</option><option>Editor</option><option>Admin</option></select></F>
@@ -73,9 +71,7 @@ function AuthorsPage() {
           <div className="flex justify-end gap-2">
             <button onClick={() => setOpen(false)} className="text-sm px-4 py-2 rounded-md border border-slate-300">Cancel</button>
             <button disabled={saveMut.isPending} onClick={() => {
-              const payload = { ...editing };
-              if (!payload.email) payload.email = null;
-              saveMut.mutate(payload);
+              saveMut.mutate(editing);
             }} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-60">
               {saveMut.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Save
             </button>
