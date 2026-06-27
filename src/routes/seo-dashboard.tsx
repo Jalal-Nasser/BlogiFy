@@ -176,7 +176,7 @@ function SeoDashboard() {
   const [selectedKwId, setSelectedKwId] = useState<number | null>(null);
   const [filterText, setFilterText] = useState("");
   const [activeTab, setActiveTab] = useState<"rankings" | "audit" | "recommendations">("rankings");
-  const [navSection, setNavSection] = useState<"overview" | "rankings" | "audit" | "settings">("overview");
+  const [navSection, setNavSection] = useState<"overview" | "seo-summary" | "rankings" | "audit" | "connection-guide" | "settings">("overview");
   const [hoveredKwId, setHoveredKwId] = useState<number | null>(null);
   const [mathChallenge, setMathChallenge] = useState(() => {
     const a = Math.floor(Math.random() * 9) + 1;
