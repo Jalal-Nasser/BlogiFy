@@ -4,7 +4,7 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms of Service — BlogiFy" },
-      { name: "description", content: "Terms of service for BlogiFy by Jalal Nasser." },
+      { name: "description", content: "Read the Terms of Service for BlogiFy. These terms govern your access to our site, content, and services." },
       { property: "og:title", content: "Terms of Service — BlogiFy" },
       { property: "og:description", content: "The terms that govern your use of BlogiFy and its content." },
       { property: "og:url", content: "https://jalalnasser.com/terms" },
