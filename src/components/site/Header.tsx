@@ -21,7 +21,11 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const topCats = categories.filter((c) => TOP_CATEGORIES.includes(c.slug));
+  const topCats = categories
+    .filter((c) => !c.parent_slug)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 12);
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
