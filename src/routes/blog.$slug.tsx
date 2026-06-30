@@ -125,12 +125,8 @@ function PostPage() {
       </header>
 
       {post.featured_image_url && (
-        <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-[#02050d]">
-          <img
-            src={post.featured_image_url}
-            alt={post.title}
-            className={`w-full ${post.featured_image_url.endsWith(".svg") ? "h-auto object-contain" : "aspect-[21/9] object-cover"}`}
-          />
+        <div className="mt-8 overflow-hidden rounded-2xl border border-border">
+          <img src={post.featured_image_url} alt={post.title} className="w-full aspect-[21/9] object-cover" />
         </div>
       )}
 
