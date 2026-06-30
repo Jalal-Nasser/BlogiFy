@@ -1,0 +1,1 @@
+UPDATE public.posts SET featured_image_url = 'https://gwynqitgepkfzzenlfyu.supabase.co/storage/v1/object/public/media/posts%2Flinux-vps-security-hardening-checklist-2026-infographic.png' WHERE slug = 'linux-vps-security-hardening-checklist-2026' RETURNING slug, featured_image_url;
