@@ -24,6 +24,7 @@ import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ArBlogRouteImport } from './routes/ar.blog'
 import { Route as AuthenticatedTagsRouteImport } from './routes/_authenticated/tags'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSeoRouteImport } from './routes/_authenticated/seo'
@@ -116,6 +117,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ArBlogRoute = ArBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => ArRoute,
 } as any)
 const AuthenticatedTagsRoute = AuthenticatedTagsRouteImport.update({
   id: '/tags',
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tags': typeof AuthenticatedTagsRoute
+  '/ar/blog': typeof ArBlogRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tags': typeof AuthenticatedTagsRoute
+  '/ar/blog': typeof ArBlogRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/_authenticated/seo': typeof AuthenticatedSeoRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/tags': typeof AuthenticatedTagsRoute
+  '/ar/blog': typeof ArBlogRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
@@ -342,6 +351,7 @@ export interface FileRouteTypes {
     | '/seo'
     | '/settings'
     | '/tags'
+    | '/ar/blog'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/seo'
     | '/settings'
     | '/tags'
+    | '/ar/blog'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
@@ -410,6 +421,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seo'
     | '/_authenticated/settings'
     | '/_authenticated/tags'
+    | '/ar/blog'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
@@ -548,6 +560,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ar/blog': {
+      id: '/ar/blog'
+      path: '/blog'
+      fullPath: '/ar/blog'
+      preLoaderRoute: typeof ArBlogRouteImport
+      parentRoute: typeof ArRoute
     }
     '/_authenticated/tags': {
       id: '/_authenticated/tags'
@@ -716,10 +735,12 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface ArRouteChildren {
+  ArBlogRoute: typeof ArBlogRoute
   ArIndexRoute: typeof ArIndexRoute
 }
 
 const ArRouteChildren: ArRouteChildren = {
+  ArBlogRoute: ArBlogRoute,
   ArIndexRoute: ArIndexRoute,
 }
 
