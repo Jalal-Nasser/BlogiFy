@@ -19,6 +19,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedTagsRouteImport } from './routes/_authenticated/tags'
@@ -87,6 +88,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaSplatRoute = MediaSplatRouteImport.update({
+  id: '/media/$',
+  path: '/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/tags': typeof AuthenticatedTagsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/media/$': typeof MediaSplatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/posts/': typeof AuthenticatedPostsIndexRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/tags': typeof AuthenticatedTagsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/media/$': typeof MediaSplatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/posts': typeof AuthenticatedPostsIndexRoute
@@ -284,6 +292,7 @@ export interface FileRoutesById {
   '/_authenticated/tags': typeof AuthenticatedTagsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/media/$': typeof MediaSplatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/posts/new': typeof AuthenticatedPostsNewRoute
   '/_authenticated/posts/': typeof AuthenticatedPostsIndexRoute
@@ -317,6 +326,7 @@ export interface FileRouteTypes {
     | '/tags'
     | '/blog/$slug'
     | '/category/$slug'
+    | '/media/$'
     | '/.mcp/invoke-tool/$tool'
     | '/posts/new'
     | '/posts/'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/tags'
     | '/blog/$slug'
     | '/category/$slug'
+    | '/media/$'
     | '/.mcp/invoke-tool/$tool'
     | '/posts/new'
     | '/posts'
@@ -380,6 +391,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tags'
     | '/blog/$slug'
     | '/category/$slug'
+    | '/media/$'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/posts/new'
     | '/_authenticated/posts/'
@@ -402,6 +414,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  MediaSplatRoute: typeof MediaSplatRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksPublishLinkedinRoute: typeof ApiPublicHooksPublishLinkedinRoute
 }
@@ -476,6 +489,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media/$': {
+      id: '/media/$'
+      path: '/media/$'
+      fullPath: '/media/$'
+      preLoaderRoute: typeof MediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/category/$slug': {
@@ -674,6 +694,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   BlogSlugRoute: BlogSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
+  MediaSplatRoute: MediaSplatRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksPublishLinkedinRoute: ApiPublicHooksPublishLinkedinRoute,
 }
