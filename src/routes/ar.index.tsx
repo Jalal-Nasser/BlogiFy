@@ -41,7 +41,7 @@ function ArabicHome() {
     <div className="mx-auto max-w-4xl px-4 py-16 lg:py-24">
       <p className="mb-4 font-mono text-xs uppercase tracking-widest text-brand">النسخة العربية</p>
       <h1 className="font-display text-4xl font-bold leading-tight md:text-5xl">
-        مدونة <span className="text-gradient">جلال ناصر</span> — تقنية بالعربية
+        <span className="text-gradient">بلوجيفاي</span> — تقنية بالعربية
       </h1>
       <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
         مساحة شخصية أشارك فيها ما أتعلمه وأبنيه في عالم التقنية الحديثة: من الذكاء الاصطناعي
