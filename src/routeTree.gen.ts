@@ -20,6 +20,7 @@ import { Route as ArRouteImport } from './routes/ar'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -95,6 +96,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ArIndexRoute = ArIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ArRoute,
 } as any)
 const MediaSplatRoute = MediaSplatRouteImport.update({
   id: '/media/$',
@@ -210,7 +216,7 @@ const AuthenticatedPostsIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/ar': typeof ArRoute
+  '/ar': typeof ArRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
+  '/ar/': typeof ArIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/posts/': typeof AuthenticatedPostsIndexRoute
@@ -243,7 +250,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/ar': typeof ArRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -267,6 +273,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
+  '/ar': typeof ArIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/posts': typeof AuthenticatedPostsIndexRoute
@@ -278,7 +285,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
-  '/ar': typeof ArRoute
+  '/ar': typeof ArRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -302,6 +309,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
+  '/ar/': typeof ArIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/posts/new': typeof AuthenticatedPostsNewRoute
   '/_authenticated/posts/': typeof AuthenticatedPostsIndexRoute
@@ -337,6 +345,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
+    | '/ar/'
     | '/.mcp/invoke-tool/$tool'
     | '/posts/new'
     | '/posts/'
@@ -346,7 +355,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/ar'
     | '/contact'
     | '/login'
     | '/mcp'
@@ -370,6 +378,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
+    | '/ar'
     | '/.mcp/invoke-tool/$tool'
     | '/posts/new'
     | '/posts'
@@ -404,6 +413,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
+    | '/ar/'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/posts/new'
     | '/_authenticated/posts/'
@@ -415,7 +425,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
-  ArRoute: typeof ArRoute
+  ArRoute: typeof ArRouteWithChildren
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
@@ -510,6 +520,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ar/': {
+      id: '/ar/'
+      path: '/'
+      fullPath: '/ar/'
+      preLoaderRoute: typeof ArIndexRouteImport
+      parentRoute: typeof ArRoute
     }
     '/media/$': {
       id: '/media/$'
@@ -698,11 +715,21 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ArRouteChildren {
+  ArIndexRoute: typeof ArIndexRoute
+}
+
+const ArRouteChildren: ArRouteChildren = {
+  ArIndexRoute: ArIndexRoute,
+}
+
+const ArRouteWithChildren = ArRoute._addFileChildren(ArRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
-  ArRoute: ArRoute,
+  ArRoute: ArRouteWithChildren,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
