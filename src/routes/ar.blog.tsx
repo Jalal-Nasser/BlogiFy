@@ -40,6 +40,11 @@ function ArabicBlog() {
         مجموعة مقالات مترجمة إلى العربية بلغة احترافية ومباشرة. كل مقال يعرض المفاهيم بأمثلة
         عملية وقسم أسئلة شائعة. النسخة الإنجليزية الأصلية متاحة لكل مقال عبر رابط في الأعلى.
       </p>
+      <div className="mt-6 max-w-3xl rounded-md border border-brand/30 bg-brand/5 p-4 text-sm leading-relaxed text-foreground/90">
+        <strong>ملاحظة:</strong> نضيف ترجمات عربية جديدة تدريجياً. تظهر هنا حالياً {" "}
+        <span className="font-mono">{ARABIC_ARTICLES.length}</span> مقالاً من أصل ٤٩ مقالاً منشوراً
+        باللغة الإنجليزية، وسيصلها المزيد قريباً.
+      </div>
 
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
         {ARABIC_ARTICLES.map((a) => (
