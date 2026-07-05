@@ -122,6 +122,7 @@ function PostPage() {
 
     return () => {
       document.getElementById("ld-article")?.remove();
+      document.querySelectorAll('link[rel="alternate"][data-hreflang="arabic-pair"]').forEach((el) => el.remove());
     };
   }, [post]);
 
