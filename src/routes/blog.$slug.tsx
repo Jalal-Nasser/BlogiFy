@@ -86,7 +86,7 @@ function PostPage() {
       "@type": "Article",
       "headline": post.title,
       "description": post.excerpt || fallbackDescription,
-      "image": post.featured_image_url || "",
+      "image": absImage,
       "datePublished": post.published_at,
       "author": { "@type": "Person", "name": post.author, "url": base },
       "publisher": {
