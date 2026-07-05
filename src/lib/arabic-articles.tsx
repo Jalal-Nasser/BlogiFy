@@ -328,8 +328,752 @@ function PromptArticle() {
   );
 }
 
+// ============ Article 4: Linux VPS Hardening 2026 ============
+function LinuxVpsHardeningArticle() {
+  return (
+    <>
+      <P>
+        تأمين خادم VPS يعمل بنظام لينكس لم يعد مهمة اختيارية. المهاجمون يفحصون الإنترنت العام باستمرار
+        بحثاً عن منافذ SSH مفتوحة، خدمات قديمة، وكلمات مرور ضعيفة. هذا الدليل يقدّم قائمة تحقق عملية
+        لتحصين خادمك في عام 2026 خطوة بخطوة.
+      </P>
+
+      <H2 id="updates">١. التحديثات أولاً</H2>
+      <P>
+        قبل أي شيء، حدّث النظام بالكامل: <code dir="ltr">apt update && apt full-upgrade -y</code>. فعّل
+        التحديثات الأمنية التلقائية عبر <code dir="ltr">unattended-upgrades</code> لتجنّب نسيان الترقيع.
+      </P>
+
+      <H2 id="ssh">٢. تحصين SSH</H2>
+      <UL>
+        <li>عطّل تسجيل الدخول بكلمة مرور واعتمد على مفاتيح SSH فقط.</li>
+        <li>غيّر المنفذ الافتراضي من ٢٢ إلى منفذ غير قياسي لتقليل الضجيج.</li>
+        <li>عطّل تسجيل دخول root مباشرة: <code dir="ltr">PermitRootLogin no</code>.</li>
+        <li>حدّد المستخدمين المسموح لهم عبر <code dir="ltr">AllowUsers</code>.</li>
+      </UL>
+
+      <H2 id="firewall">٣. الجدار الناري</H2>
+      <P>
+        استخدم UFW أو nftables. القاعدة الذهبية: أغلق كل شيء بشكل افتراضي، ثم افتح فقط ما تحتاجه (٨٠،
+        ٤٤٣، ومنفذ SSH الجديد).
+      </P>
+
+      <H2 id="fail2ban">٤. Fail2Ban</H2>
+      <P>
+        ثبّت Fail2Ban لحظر عناوين IP التي تحاول التخمين المتكرر. اضبطه لمراقبة SSH وnginx وأي خدمة
+        تعرّضها للإنترنت.
+      </P>
+
+      <H2 id="users">٥. إدارة المستخدمين</H2>
+      <UL>
+        <li>أنشئ مستخدماً عادياً بصلاحيات sudo للاستخدام اليومي.</li>
+        <li>راجع <code dir="ltr">/etc/passwd</code> دورياً لاكتشاف حسابات غير متوقعة.</li>
+        <li>فعّل <code dir="ltr">auditd</code> لتتبع الأوامر الحساسة.</li>
+      </UL>
+
+      <H2 id="kernel">٦. تحصين النواة</H2>
+      <P>
+        عدّل <code dir="ltr">/etc/sysctl.d/</code> لتفعيل حماية <code dir="ltr">rp_filter</code>،
+        وتعطيل توجيه الحزم، ومنع هجمات ICMP redirect.
+      </P>
+
+      <H2 id="monitoring">٧. المراقبة والتنبيه</H2>
+      <P>
+        ثبّت أدوات مثل Netdata أو Prometheus مع Grafana. راقب استهلاك المعالج، الذاكرة، الشبكة، وأي
+        نشاط شاذ في السجلّات.
+      </P>
+
+      <H2 id="backups">٨. النسخ الاحتياطية</H2>
+      <P>
+        قاعدة ٣-٢-١: ثلاث نسخ، على وسيطتين مختلفتين، واحدة خارج الموقع. استخدم restic أو borgbackup مع
+        تشفير كامل.
+      </P>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        الأمان ليس منتجاً بل عملية مستمرة. راجع هذه القائمة كل ثلاثة أشهر، وابقَ متابعاً لثغرات CVE
+        التي تخص التوزيعة التي تستخدمها.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل يكفي جدار Cloudflare عن الجدار الناري المحلي؟</H3>
+      <P>لا. Cloudflare يحمي طبقة التطبيق، لكن الجدار الناري المحلي يحميك من الفحص المباشر لعنوان IP.</P>
+      <H3>هل يجب تعطيل ping (ICMP)؟</H3>
+      <P>ليس ضرورياً. ICMP مفيد للتشخيص، ويمكن تقييده بمعدل بدلاً من تعطيله كلياً.</P>
+    </>
+  );
+}
+
+// ============ Article 5: Crypto Self-Custody ============
+function CryptoSelfCustodyArticle() {
+  return (
+    <>
+      <P>
+        الحفظ الذاتي للعملات المشفرة (Self-Custody) يعني أنك المالك الحقيقي لمفاتيحك الخاصة، دون
+        الاعتماد على منصات تداول قد تُفلس أو تُخترق. لكن أمام المستخدم خياران رئيسيان: محفظة أجهزة
+        (Hardware Wallet) أو محفظة متعددة التواقيع (Multi-Sig). أيهما يناسبك في ٢٠٢٦؟
+      </P>
+
+      <H2 id="hardware">محافظ الأجهزة</H2>
+      <P>
+        أجهزة مثل Ledger وTrezor وBitBox تحتفظ بالمفتاح الخاص داخل شريحة معزولة. عمليات التوقيع تحدث
+        داخل الجهاز، فلا يخرج المفتاح إلى الحاسوب أبداً.
+      </P>
+      <H3>المزايا</H3>
+      <UL>
+        <li>سهولة الاستخدام لمعظم الناس.</li>
+        <li>حماية قوية من البرمجيات الخبيثة على الحاسوب.</li>
+        <li>تكلفة منخفضة نسبياً (٥٠-٢٠٠ دولار).</li>
+      </UL>
+      <H3>المخاطر</H3>
+      <UL>
+        <li>نقطة فشل واحدة: إذا فُقد الجهاز والعبارة الاحتياطية معاً، تُفقد الأموال.</li>
+        <li>هجمات سلسلة التوريد (تلاعب بالجهاز قبل وصوله).</li>
+        <li>هجمات "المفتاح الفولاذي" — الإكراه الجسدي على مالك واحد.</li>
+      </UL>
+
+      <H2 id="multisig">التوقيع المتعدد (Multi-Sig)</H2>
+      <P>
+        Multi-Sig يتطلب موافقة عدة مفاتيح لإتمام أي تحويل. الأشهر: ٢ من ٣، أو ٣ من ٥. يمكن توزيع
+        المفاتيح جغرافياً أو بين أشخاص موثوقين.
+      </P>
+      <H3>المزايا</H3>
+      <UL>
+        <li>لا توجد نقطة فشل واحدة.</li>
+        <li>مقاومة عالية للإكراه والسرقة.</li>
+        <li>مناسب للشركات والعائلات والأصول الكبيرة.</li>
+      </UL>
+      <H3>العيوب</H3>
+      <UL>
+        <li>تعقيد أعلى في الإعداد والاستخدام.</li>
+        <li>تكلفة أكبر (عدة أجهزة).</li>
+        <li>عمليات أبطأ ورسوم شبكة أعلى.</li>
+      </UL>
+
+      <H2 id="which">أيهما تختار؟</H2>
+      <P>
+        إذا كانت أصولك أقل من ١٠ آلاف دولار، محفظة أجهزة واحدة مع نسخة احتياطية آمنة للعبارة كافية.
+        فوق ذلك، Multi-Sig يستحق التعقيد الإضافي.
+      </P>
+
+      <H2 id="tools">أدوات موصى بها ٢٠٢٦</H2>
+      <UL>
+        <li>Sparrow Wallet + Coldcard لبيتكوين.</li>
+        <li>Casa وUnchained كخدمات Multi-Sig مُدارة.</li>
+        <li>Nunchuk للمستخدمين المتقدمين.</li>
+      </UL>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        القاعدة الذهبية: «إن لم تكن مفاتيحك، ليست عملاتك». اختر النموذج المناسب لحجم أصولك ومستوى
+        راحتك التقني، وابدأ ببناء عادات نسخ احتياطي منتظمة.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل المحافظ الساخنة (Hot Wallets) آمنة؟</H3>
+      <P>مناسبة للمبالغ الصغيرة فقط. لا تحتفظ فيها بأكثر مما ترضى بخسارته.</P>
+      <H3>ماذا لو مات صاحب المفتاح؟</H3>
+      <P>Multi-Sig مع خطة وراثة موثّقة هو الحل الأنسب لضمان انتقال الأصول.</P>
+    </>
+  );
+}
+
+// ============ Article 6: Hardening Linux Server 2026 ============
+function HardeningLinuxServerArticle() {
+  return (
+    <>
+      <P>
+        تحصين خادم لينكس في ٢٠٢٦ يتطلب مقاربة طبقات — لا يكفي إجراء واحد. هذه القائمة العملية تغطي
+        الأساسيات التي يجب أن يطبّقها كل مدير نظام قبل تعريض أي خدمة للإنترنت.
+      </P>
+
+      <H2 id="baseline">١. الخط الأساسي</H2>
+      <UL>
+        <li>ثبّت آخر إصدار LTS من التوزيعة.</li>
+        <li>احذف الحزم غير المستخدمة: <code dir="ltr">apt autoremove --purge</code>.</li>
+        <li>عطّل الخدمات غير الضرورية عبر <code dir="ltr">systemctl disable</code>.</li>
+      </UL>
+
+      <H2 id="access">٢. التحكم بالوصول</H2>
+      <P>
+        اعتمد مبدأ أقل الامتيازات. كل مستخدم يحصل فقط على الصلاحيات اللازمة لعمله. راجع سجلات
+        <code dir="ltr"> /etc/sudoers.d/</code> بانتظام.
+      </P>
+
+      <H2 id="apparmor">٣. AppArmor أو SELinux</H2>
+      <P>
+        فعّل واحداً منهما لعزل التطبيقات. AppArmor أسهل، SELinux أقوى. لا تعطّلهما — بل اضبطهما.
+      </P>
+
+      <H2 id="logging">٤. التسجيل المركزي</H2>
+      <P>
+        أرسل السجلات إلى خادم مركزي (Loki, Graylog, أو ELK). المهاجم غالباً ما يمسح السجلات المحلية،
+        فالنسخة الخارجية هي دليلك.
+      </P>
+
+      <H2 id="rootkit">٥. كشف الجذور الخفية</H2>
+      <P>
+        أدوات مثل <code dir="ltr">rkhunter</code> و<code dir="ltr">chkrootkit</code> تُشغّل دورياً
+        عبر cron لكشف أي تلاعب في ثنائيات النظام.
+      </P>
+
+      <H2 id="services">٦. تحصين الخدمات</H2>
+      <UL>
+        <li>Nginx: أضف رؤوس أمنية (HSTS، CSP، X-Frame-Options).</li>
+        <li>MySQL/Postgres: لا تسمح بالاتصال من الإنترنت العام مطلقاً.</li>
+        <li>Docker: لا تشغّل حاويات كـ root.</li>
+      </UL>
+
+      <H2 id="scans">٧. الفحص الدوري</H2>
+      <P>
+        استخدم Lynis أو OpenVAS لفحص التكوين. شغّل الفحص شهرياً وأصلح الثغرات المكتشفة.
+      </P>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        الأمان طبقات: تحديث، عزل، مراقبة، ونسخ احتياطية. اجعل هذه القائمة جزءاً من روتينك الشهري لا
+        مهمة تُنفَّذ مرة واحدة.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل SELinux معقّد جداً للمبتدئين؟</H3>
+      <P>نعم إلى حدٍ ما. ابدأ بـ AppArmor على Ubuntu/Debian، وانتقل لاحقاً إلى SELinux على RHEL.</P>
+      <H3>هل تُغني الحاويات (Containers) عن التحصين؟</H3>
+      <P>لا. الحاويات تشارك نواة المضيف؛ ضعف المضيف يعني ضعف كل الحاويات.</P>
+    </>
+  );
+}
+
+// ============ Article 7: NAS TrueNAS 40TB ============
+function NasTrueNasArticle() {
+  return (
+    <>
+      <P>
+        بناء خادم تخزين منزلي بسعة ٤٠ تيرابايت باستخدام TrueNAS Scale أصبح متاحاً وبتكلفة معقولة في
+        ٢٠٢٦. هذا الدليل يشرح الأجهزة، التصميم، والإعداد خطوة بخطوة.
+      </P>
+
+      <H2 id="why">لماذا TrueNAS Scale؟</H2>
+      <P>
+        مبني على Debian مع ZFS ودعم كامل للحاويات وKubernetes. يوفّر واجهة ويب احترافية، سناب شوت
+        فوري، ومزامنة عبر الشبكة.
+      </P>
+
+      <H2 id="hardware">الأجهزة الموصى بها</H2>
+      <UL>
+        <li>معالج AMD Ryzen 5 أو Intel Xeon E-2300.</li>
+        <li>ذاكرة ECC بسعة ٣٢ جيجابايت (ZFS يحب الذاكرة).</li>
+        <li>٦ أقراص Seagate IronWolf أو WD Red Plus بسعة ٨ تيرابايت لكل قرص.</li>
+        <li>SSD منفصل لنظام التشغيل + آخر للتخزين المؤقت (L2ARC).</li>
+        <li>مصدر طاقة موثوق ٥٥٠ واط 80+ Gold.</li>
+      </UL>
+
+      <H2 id="pool">تصميم Pool</H2>
+      <P>
+        استخدم RAIDZ2 (يحتمل فقدان قرصين). ٦ أقراص × ٨ تيرابايت في RAIDZ2 = ~٣٢ تيرابايت مساحة قابلة
+        للاستخدام. يمكن التوسّع لاحقاً بإضافة vdev ثانٍ.
+      </P>
+
+      <H2 id="datasets">Datasets وSnapshots</H2>
+      <UL>
+        <li>أنشئ dataset منفصلاً لكل نوع بيانات (وسائط، وثائق، نسخ احتياطية).</li>
+        <li>فعّل snapshots تلقائية كل ساعة مع الاحتفاظ لأسبوعين.</li>
+        <li>استخدم replication إلى موقع خارجي كل ٢٤ ساعة.</li>
+      </UL>
+
+      <H2 id="apps">التطبيقات</H2>
+      <P>
+        TrueNAS Scale يدعم تشغيل تطبيقات مثل Nextcloud، Jellyfin، Immich، وHomeAssistant مباشرة كحاويات.
+      </P>
+
+      <H2 id="network">الشبكة</H2>
+      <P>
+        شبكة ٢.٥ جيجابت أو ١٠ جيجابت تُحدث فرقاً كبيراً في نقل الملفات الكبيرة. استخدم منفذاً منفصلاً
+        لحركة الإدارة عن حركة البيانات.
+      </P>
+
+      <H2 id="cost">التكلفة التقريبية</H2>
+      <P>
+        الأجهزة الكاملة تقارب ١٥٠٠-٢٠٠٠ دولار في ٢٠٢٦. أرخص بكثير من الاشتراك السنوي في تخزين سحابي
+        بنفس السعة، ومع تحكّم كامل ببياناتك.
+      </P>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        TrueNAS Scale خيار ممتاز للمستخدم التقني الذي يريد سحابته الخاصة. الاستثمار الأولي يُعوَّض
+        خلال سنتين مقارنةً بالخدمات السحابية.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل ECC ضروري؟</H3>
+      <P>موصى به بشدة مع ZFS لتجنّب فساد البيانات الصامت، لكن ليس إلزامياً.</P>
+      <H3>ما الفرق بين TrueNAS Scale وCore؟</H3>
+      <P>Scale على Linux ويدعم الحاويات؛ Core على FreeBSD وأكثر نضجاً لتخزين تقليدي.</P>
+    </>
+  );
+}
+
+// ============ Article 8: WordPress REST API Headless ============
+function WordpressHeadlessArticle() {
+  return (
+    <>
+      <P>
+        الاستخدام "الرأس المنفصل" (Headless) لـ WordPress يعني الاحتفاظ بـ WordPress كنظام إدارة محتوى
+        فقط، مع بناء الواجهة الأمامية بتقنية حديثة مثل Next.js أو TanStack Start. هذا يجمع بين
+        سهولة CMS الشهير وأداء الويب الحديث.
+      </P>
+
+      <H2 id="why">لماذا Headless؟</H2>
+      <UL>
+        <li>أداء أعلى بكثير (ثوانٍ إلى ملّي ثوانٍ في زمن الاستجابة).</li>
+        <li>أمان أفضل — WordPress محجوب عن الجمهور.</li>
+        <li>حرية كاملة في تصميم الواجهة.</li>
+        <li>إمكانية بناء تطبيقات جوال بنفس API.</li>
+      </UL>
+
+      <H2 id="rest">استخدام REST API</H2>
+      <P>
+        WordPress يوفّر <code dir="ltr">/wp-json/wp/v2/</code> افتراضياً. أشهر النقاط: posts، pages،
+        categories، media، وusers. مثال:
+      </P>
+      <P dir="ltr">
+        <code>GET /wp-json/wp/v2/posts?per_page=10&_embed</code>
+      </P>
+
+      <H2 id="auth">المصادقة</H2>
+      <P>
+        للقراءة العامة لا تحتاج مصادقة. للكتابة استخدم Application Passwords المدمج في WordPress منذ
+        الإصدار ٥.٦، أو JWT مع إضافة موثوقة.
+      </P>
+
+      <H2 id="acf">حقول مخصصة (ACF)</H2>
+      <P>
+        فعّل خيار "Show in REST API" في إعدادات كل حقل. ستظهر الحقول تحت <code dir="ltr">acf</code>
+        في استجابة JSON.
+      </P>
+
+      <H2 id="frontend">بناء الواجهة</H2>
+      <UL>
+        <li>Next.js مع SSG لصفحات المدونة (سرعة عالية + SEO ممتاز).</li>
+        <li>Astro لمواقع محتوى غالباً ثابتة.</li>
+        <li>TanStack Start لتطبيقات ديناميكية مع SSR.</li>
+      </UL>
+
+      <H2 id="revalidation">إعادة التوليد (Revalidation)</H2>
+      <P>
+        استخدم Webhooks من WordPress لتشغيل إعادة بناء الصفحات فور نشر محتوى جديد. Next.js يدعم
+        <code dir="ltr"> on-demand revalidation</code>.
+      </P>
+
+      <H2 id="seo">SEO</H2>
+      <P>
+        اقرأ Yoast SEO أو Rank Math عبر REST API واعرض العلامات الوصفية في &lt;head&gt; مباشرة.
+      </P>
+
+      <H2 id="hosting">الاستضافة</H2>
+      <P>
+        WordPress على استضافة رخيصة (Cloudways/DigitalOcean $12)، والواجهة على Vercel أو Cloudflare
+        Pages. التكلفة الإجمالية أقل من WordPress التقليدي على استضافة متميزة.
+      </P>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        Headless WordPress حل قوي عندما تحتاج مرونة تصميم متقدمة وأداء عالٍ، مع الاحتفاظ بتجربة تحرير
+        مألوفة لفريق المحتوى.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل تعمل إضافات WordPress كلها؟</H3>
+      <P>لا. إضافات الواجهة الأمامية (Forms، Sliders) لن تعمل. البحث عن بدائل React ضروري.</P>
+      <H3>ماذا عن التعليقات؟</H3>
+      <P>استخدم Disqus أو Giscus بدلاً من نظام التعليقات المدمج.</P>
+    </>
+  );
+}
+
+// ============ Article 9: Self-hosting Mail Server ============
+function MailServerArticle() {
+  return (
+    <>
+      <P>
+        استضافة خادم بريد ذاتياً في ٢٠٢٦ ممكنة تقنياً، لكنها معركة مستمرة ضد فلاتر السبام وسمعة عناوين
+        IP. السؤال: هل الجهد يستحق مقابل خدمات مثل Fastmail أو ProtonMail؟
+      </P>
+
+      <H2 id="reasons">لماذا يفكّر الناس بذلك؟</H2>
+      <UL>
+        <li>سيادة كاملة على البيانات.</li>
+        <li>عدد لا محدود من الحسابات والعناوين.</li>
+        <li>تكلفة ثابتة منخفضة لا ترتبط بعدد المستخدمين.</li>
+        <li>تعلّم عميق للبروتوكولات (SMTP، IMAP، DKIM، DMARC).</li>
+      </UL>
+
+      <H2 id="challenges">التحديات الحقيقية</H2>
+      <UL>
+        <li>Gmail وMicrosoft قد يرمون بريدك في السبام لأشهر حتى تبني سمعة.</li>
+        <li>يحتاج إعداد صحيح لـ SPF، DKIM، DMARC، وrDNS.</li>
+        <li>معظم مزوّدي VPS يحجبون منفذ ٢٥ افتراضياً.</li>
+        <li>صيانة يومية للفلاتر وترقيات الأمان.</li>
+      </UL>
+
+      <H2 id="stack">الحزمة الموصى بها</H2>
+      <P>
+        <strong>Mailcow</strong> أو <strong>Mail-in-a-Box</strong> — كلاهما يحزم Postfix + Dovecot +
+        Rspamd + SOGo في تثبيت واحد. Mailcow أكثر مرونة، Mail-in-a-Box أبسط.
+      </P>
+
+      <H2 id="ip">اختيار الاستضافة</H2>
+      <P>
+        اختر مزوّداً يسمح ببريد إلكتروني ويوفّر IP نظيفاً (Hetzner، OVH، Scaleway). تحقق من سجل IP في
+        قواعد بيانات RBL قبل الشراء.
+      </P>
+
+      <H2 id="dns">إعدادات DNS الأساسية</H2>
+      <UL>
+        <li>سجل MX يشير إلى خادمك.</li>
+        <li>SPF: <code dir="ltr">v=spf1 mx -all</code></li>
+        <li>DKIM: مفتاح عام مُوقّع من Rspamd.</li>
+        <li>DMARC: <code dir="ltr">v=DMARC1; p=quarantine; rua=mailto:...</code></li>
+        <li>rDNS يطابق اسم النطاق.</li>
+      </UL>
+
+      <H2 id="reputation">بناء السمعة</H2>
+      <P>
+        ابدأ بحجم منخفض جداً، سجّل النطاق في Google Postmaster وMicrosoft SNDS، وراقب معدل الرفض
+        أسبوعياً.
+      </P>
+
+      <H2 id="alternative">البديل الهجين</H2>
+      <P>
+        استخدم Mailcow لإدارة الحسابات محلياً، واستأجر خدمة تسليم SMTP مثل Amazon SES أو Postmark
+        (بضعة دولارات شهرياً) لضمان الوصول. أفضل حل عملي في ٢٠٢٦.
+      </P>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        استضافة البريد ذاتياً تجربة تعليمية رائعة، لكن للاستخدام الحرج للأعمال، الحل الهجين أو خدمة
+        مُدارة تبقى أكثر عملية.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل يمكنني تشغيل خادم بريد من المنزل؟</H3>
+      <P>عملياً لا. معظم مزوّدي الإنترنت المنزلي يحجبون منفذ ٢٥ ولا يوفّرون IP ثابتاً بسمعة نظيفة.</P>
+      <H3>كم ساعة أسبوعياً للصيانة؟</H3>
+      <P>٢-٥ ساعات في المتوسط بعد الإعداد الأولي المتقن.</P>
+    </>
+  );
+}
+
+// ============ Article 10: Cloudflare Tunnels ============
+function CloudflareTunnelsArticle() {
+  return (
+    <>
+      <P>
+        Cloudflare Tunnels تحل مشكلة قديمة: كيف تعرض خدمة تعمل على شبكتك المنزلية للإنترنت دون فتح
+        منافذ في الراوتر ودون IP عام؟ الجواب: نفق آمن يبدأ من داخل شبكتك.
+      </P>
+
+      <H2 id="how">كيف يعمل؟</H2>
+      <P>
+        يعمل عميل <code dir="ltr">cloudflared</code> على جهازك المحلي ويفتح اتصالاً صادراً إلى شبكة
+        Cloudflare. أي طلب يصل نطاقك يُمرَّر عبر هذا النفق إلى خدمتك المحلية.
+      </P>
+
+      <H2 id="benefits">المزايا</H2>
+      <UL>
+        <li>لا حاجة لفتح منافذ (Port Forwarding).</li>
+        <li>حماية DDoS مجانية من Cloudflare.</li>
+        <li>يعمل خلف CGNAT والشبكات المقيّدة.</li>
+        <li>شهادة SSL تلقائية.</li>
+        <li>مجاني للاستخدام الشخصي.</li>
+      </UL>
+
+      <H2 id="setup">الإعداد السريع</H2>
+      <UL>
+        <li>ثبّت <code dir="ltr">cloudflared</code> على خادمك المحلي.</li>
+        <li>سجّل الدخول: <code dir="ltr">cloudflared tunnel login</code>.</li>
+        <li>أنشئ نفقاً: <code dir="ltr">cloudflared tunnel create home</code>.</li>
+        <li>اربطه بنطاق فرعي في لوحة Cloudflare.</li>
+        <li>شغّل النفق كخدمة systemd.</li>
+      </UL>
+
+      <H2 id="usecases">حالات استخدام شائعة</H2>
+      <UL>
+        <li>الوصول إلى Home Assistant من الخارج.</li>
+        <li>نشر Jellyfin أو Plex عبر نطاق شخصي.</li>
+        <li>Nextcloud محلي بواجهة عامة.</li>
+        <li>خادم Git أو ملاحظات (Obsidian LiveSync).</li>
+      </UL>
+
+      <H2 id="zerotrust">Zero Trust للحماية</H2>
+      <P>
+        اجمع النفق مع Cloudflare Access لإضافة طبقة مصادقة (Google/GitHub SSO أو رمز عبر البريد) قبل
+        السماح بالوصول. مثالي لخدمات إدارية حساسة.
+      </P>
+
+      <H2 id="limits">القيود</H2>
+      <UL>
+        <li>الخطة المجانية لا تدعم TCP arbitrary (فقط HTTP/S وSSH).</li>
+        <li>يعتمد الاتصال على Cloudflare — إذا سقطت، سقطت خدمتك.</li>
+        <li>لا يناسب الأحمال العالية جداً (فيديو مباشر لعشرات الآلاف).</li>
+      </UL>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        Cloudflare Tunnels أداة رائعة لعشّاق الاستضافة الذاتية. تربط بيت الخادم الرقمي بالعالم بأمان
+        دون تعقيد شبكي.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل يستطيع Cloudflare قراءة بياناتي؟</H3>
+      <P>يمكنه فك تشفير TLS طرفياً لتوفير خدمات مثل الجدار الناري. للحساسية الشديدة استخدم mTLS.</P>
+      <H3>البديل مفتوح المصدر؟</H3>
+      <P>Tailscale Funnel وngrok وfrp من بدائل جيدة بمزايا مختلفة.</P>
+    </>
+  );
+}
+
+// ============ Article 11: AI Coding Assistants ============
+function AiCodingAssistantsArticle() {
+  return (
+    <>
+      <P>
+        مساعدو البرمجة بالذكاء الاصطناعي لم يعودوا أدواتٍ تجريبية. GitHub Copilot، Cursor، Claude
+        Code، وWindsurf أصبحوا جزءاً يومياً من تدفق عمل ملايين المطوّرين. كيف يُعيدون تشكيل صناعة
+        البرمجيات؟
+      </P>
+
+      <H2 id="autocomplete">من الإكمال إلى المشاركة</H2>
+      <P>
+        بدأت هذه الأدوات كإكمال ذكي للأسطر. اليوم تفهم مشروعك كاملاً، تقترح بنية معمارية، وتكتب ميزات
+        كاملة تعمل من أول تشغيل.
+      </P>
+
+      <H2 id="productivity">الإنتاجية</H2>
+      <P>
+        دراسات GitHub وMcKinsey تشير إلى زيادة ٥٥-٧٥٪ في سرعة إنجاز المهام الروتينية. المطوّر يقضي
+        وقتاً أطول في التفكير المعماري ومراجعة الجودة.
+      </P>
+
+      <H2 id="quality">جودة الكود</H2>
+      <UL>
+        <li>الكود المولّد أنظف عادةً من الكود المكتوب تحت ضغط الوقت.</li>
+        <li>لكنه قد يخفي أخطاء دقيقة تظهر في الإنتاج فقط.</li>
+        <li>الاختبارات والمراجعة البشرية تبقى ضرورية.</li>
+      </UL>
+
+      <H2 id="learning">تعلّم اللغات الجديدة</H2>
+      <P>
+        الانتقال بين لغة وأخرى (Python إلى Rust مثلاً) أصبح أسهل بكثير. المساعد يشرح الفروقات ويكتب
+        النمط الاصطلاحي للغة الجديدة.
+      </P>
+
+      <H2 id="junior">تأثير على المطوّرين المبتدئين</H2>
+      <P>
+        هناك قلق مشروع: هل يفوّت المبتدئ فرص التعلّم إذا اعتمد على المساعد؟ الجواب يعتمد على الاستخدام
+        — كأداة تعليمية تُسرّع، وكعكاز يُضعف الأساسيات.
+      </P>
+
+      <H2 id="teams">تأثير على الفرق</H2>
+      <UL>
+        <li>مراجعة PR أسرع مع تلخيص تلقائي للتغييرات.</li>
+        <li>توثيق الكود يتحوّل من مهمة ثانوية إلى ناتج تلقائي.</li>
+        <li>معايير الفريق يمكن فرضها عبر تعليمات مخصصة للمساعد.</li>
+      </UL>
+
+      <H2 id="future">المستقبل القريب</H2>
+      <P>
+        نتجه نحو "المطوّر مع الوكلاء" — أدوات تعمل بشكل شبه مستقل على مهام كاملة، بينما يشرف الإنسان
+        على التوجيه واتخاذ القرارات المعمارية.
+      </P>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        من لا يستخدم هذه الأدوات اليوم يتأخر عن أقرانه بشكل ملموس. لكن استخدامها بذكاء — لا كصندوق
+        أسود — هو ما يفصل المطوّر المتميّز عن المتوسّط.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>أي أداة تختار في ٢٠٢٦؟</H3>
+      <P>Cursor وClaude Code من الأقوى للمشاريع الجدية، Copilot أرخص وأكثر انتشاراً.</P>
+      <H3>هل الاعتماد عليها يقلل الإبداع؟</H3>
+      <P>لا إذا استخدمتها كمساعد، نعم إذا سلّمتها القرار كاملاً.</P>
+    </>
+  );
+}
+
+// ============ Article 12: Machine Learning for Beginners ============
+function MachineLearningBeginnersArticle() {
+  return (
+    <>
+      <P>
+        تعلّم الآلة (Machine Learning) قد يبدو معقّداً للوهلة الأولى، لكن مفاهيمه الأساسية بسيطة.
+        هذا المقال مدخل مباشر بلا حشو رياضي، للمطوّر الذي يريد فهم الأساسيات قبل الغوص في التفاصيل.
+      </P>
+
+      <H2 id="what">ما هو تعلّم الآلة؟</H2>
+      <P>
+        بدلاً من كتابة قواعد صريحة (if/else)، نعطي النموذج بيانات كثيرة وهو يستنبط الأنماط بنفسه.
+        النتيجة: نظام قادر على التنبؤ بمخرجات لبيانات جديدة لم يرها من قبل.
+      </P>
+
+      <H2 id="types">الأنواع الرئيسية</H2>
+      <H3>التعلّم المُشرَف (Supervised)</H3>
+      <P>البيانات معنونة (input + expected output). أمثلة: تصنيف بريد سبام، توقّع أسعار عقارات.</P>
+      <H3>التعلّم غير المُشرَف (Unsupervised)</H3>
+      <P>بلا عناوين — النموذج يكتشف مجموعات (Clusters) بنفسه. مثال: تجميع العملاء حسب السلوك.</P>
+      <H3>التعلّم المعزَّز (Reinforcement)</H3>
+      <P>النموذج يتعلّم بالمكافأة والعقاب. أشهر تطبيقاته: الألعاب والروبوتات.</P>
+
+      <H2 id="workflow">تدفق العمل النموذجي</H2>
+      <UL>
+        <li>جمع البيانات وتنظيفها.</li>
+        <li>تقسيمها إلى تدريب واختبار (٨٠/٢٠).</li>
+        <li>اختيار الخوارزمية المناسبة.</li>
+        <li>التدريب.</li>
+        <li>التقييم على بيانات الاختبار.</li>
+        <li>الضبط الدقيق (Hyperparameter tuning).</li>
+        <li>النشر والمراقبة.</li>
+      </UL>
+
+      <H2 id="algorithms">خوارزميات للبداية</H2>
+      <UL>
+        <li>Linear Regression للتنبؤ الرقمي.</li>
+        <li>Logistic Regression للتصنيف الثنائي.</li>
+        <li>Decision Trees وRandom Forest لبيانات جدولية.</li>
+        <li>KNN للتصنيف البسيط.</li>
+        <li>الشبكات العصبية للمهام المعقدة (الصور، النصوص).</li>
+      </UL>
+
+      <H2 id="tools">الأدوات</H2>
+      <P>
+        ابدأ بـ Python + scikit-learn لفهم الأساسيات. انتقل إلى PyTorch أو TensorFlow عند الحاجة
+        للتعلّم العميق.
+      </P>
+
+      <H2 id="pitfalls">أخطاء شائعة</H2>
+      <UL>
+        <li>Overfitting: النموذج يحفظ التدريب ويفشل في الواقع.</li>
+        <li>بيانات متحيّزة تنتج نموذجاً متحيّزاً.</li>
+        <li>تجاهل تنظيف البيانات — «قمامة داخلة، قمامة خارجة».</li>
+        <li>قياس بمقياس واحد فقط (Accuracy) بدل F1 وROC.</li>
+      </UL>
+
+      <H2 id="path">مسار التعلّم المقترح</H2>
+      <UL>
+        <li>كورس Andrew Ng على Coursera.</li>
+        <li>كتاب Hands-On ML للأورليان جيرون.</li>
+        <li>مسابقات Kaggle للتطبيق العملي.</li>
+        <li>مشروع شخصي بحل مشكلة تهتم بها.</li>
+      </UL>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        تعلّم الآلة رحلة طويلة لكن ممتعة. ركّز على الفهم لا الحفظ، وابدأ بمشاريع صغيرة لتراكم الخبرة.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>هل أحتاج رياضيات متقدمة؟</H3>
+      <P>الجبر الخطي والاحتمالات الأساسية كافية للبداية. الأعمق يأتي لاحقاً حسب الاختصاص.</P>
+      <H3>هل ML سيلغي وظائف المبرمجين؟</H3>
+      <P>سيغيّر شكلها لا يلغيها. المطوّر الذي يفهم ML يصبح أكثر قيمة.</P>
+    </>
+  );
+}
+
+// ============ Article 13: Windows Password Vault ============
+function WindowsPasswordVaultArticle() {
+  return (
+    <>
+      <P>
+        كلمات المرور القوية والمختلفة لكل موقع أصبحت ضرورة أمنية أساسية. تطبيقات إدارة كلمات المرور
+        (Password Vaults) هي الحل الوحيد العملي لهذه المهمة. أي منها الأفضل لمستخدم Windows في ٢٠٢٦؟
+      </P>
+
+      <H2 id="why">لماذا مدير كلمات مرور؟</H2>
+      <UL>
+        <li>كلمة مرور فريدة لكل حساب (يصعب على العقل البشري).</li>
+        <li>كلمات مرور طويلة ومعقّدة بلا حاجة للحفظ.</li>
+        <li>ملء تلقائي آمن يمنع Phishing.</li>
+        <li>مزامنة بين الأجهزة مع تشفير قوي.</li>
+      </UL>
+
+      <H2 id="bitwarden">Bitwarden</H2>
+      <P>
+        مفتوح المصدر، مجاني للاستخدام الشخصي مع كل الميزات الأساسية. يمكن استضافته ذاتياً عبر
+        <code dir="ltr"> vaultwarden</code>. الأفضل لمن يريد شفافية كاملة.
+      </P>
+
+      <H2 id="1password">1Password</H2>
+      <P>
+        الأناقة والاحترافية. مزايا فريدة مثل Travel Mode وWatchtower وSecrets Automation. مدفوع
+        ($٣-$٥ شهرياً)، لكنه يستحق للاستخدام الجاد.
+      </P>
+
+      <H2 id="keepass">KeePassXC</H2>
+      <P>
+        محلي بالكامل، ملف قاعدة بيانات مشفّر تتحكم به. للمستخدم التقني الذي يريد سيطرة مطلقة. يعمل
+        بجودة على Windows وLinux وmacOS.
+      </P>
+
+      <H2 id="proton">Proton Pass</H2>
+      <P>
+        من صانعي ProtonMail. يدمج ميزة إخفاء البريد (Aliases) بشكل ممتاز. مجاني بميزات جيدة، مدفوع
+        لأشياء أعمق.
+      </P>
+
+      <H2 id="dashlane">Dashlane</H2>
+      <P>
+        واجهة أنيقة ومراقبة Dark Web مدمجة. يشمل VPN في الخطة المدفوعة. مناسب للمستخدم غير التقني.
+      </P>
+
+      <H2 id="avoid">ما يجب تجنّبه</H2>
+      <UL>
+        <li>حفظ كلمات المرور في المتصفح بدون مفتاح رئيسي قوي.</li>
+        <li>خدمات لم تنشر تدقيقاً أمنياً مستقلاً.</li>
+        <li>تطبيقات "مجانية" غير معروفة المصدر.</li>
+        <li>ملفات Excel أو Notepad — لا يزال البعض يفعل ذلك!</li>
+      </UL>
+
+      <H2 id="setup">إعداد صحيح</H2>
+      <UL>
+        <li>مفتاح رئيسي طويل (٢٠+ حرفاً) لا يُستخدم في أي مكان آخر.</li>
+        <li>مصادقة ثنائية على حساب المدير نفسه.</li>
+        <li>نسخة احتياطية دورية للقبو (مصدّرة ومشفّرة).</li>
+        <li>مراجعة سنوية لكل الحسابات وحذف غير المستخدم.</li>
+      </UL>
+
+      <H2 id="conclusion">الخلاصة</H2>
+      <P>
+        اختياري الشخصي: Bitwarden للمستخدم العادي، 1Password للاستخدام المهني، KeePassXC للتقنيّين.
+        الأهم أن تستخدم أياً منها — البقاء بلا مدير كلمات مرور في ٢٠٢٦ خطر أمني كبير.
+      </P>
+
+      <H2 id="faq">أسئلة شائعة</H2>
+      <H3>ماذا لو نسيت المفتاح الرئيسي؟</H3>
+      <P>ستفقد الوصول لكل شيء. لذا اكتبه على ورقة وضعها في مكان آمن (خزنة).</P>
+      <H3>هل مدير كلمات المرور في المتصفح آمن؟</H3>
+      <P>أفضل من لا شيء، لكن مدير مخصّص يوفّر تشفيراً أقوى ومزايا أمان إضافية.</P>
+    </>
+  );
+}
+
+// ============ Registry ============
+
+function makeArticle(a: Omit<ArabicArticle, "sourceEnglishSlug" | "englishUrl" | "arabicUrl" | "translationStatus"> & {
+  translationStatus?: TranslationStatus;
+}): ArabicArticle {
+  return {
+    ...a,
+    sourceEnglishSlug: a.slug,
+    englishUrl: `${SITE}/blog/${a.slug}`,
+    arabicUrl: `${SITE}/ar/blog/${a.slug}`,
+    translationStatus: a.translationStatus ?? "published",
+  };
+}
+
 export const ARABIC_ARTICLES: ArabicArticle[] = [
-  {
+  makeArticle({
     slug: "how-large-language-models-are-changing-modern-software-development",
     title: "كيف تُغيّر النماذج اللغوية الكبيرة تطوير البرمجيات الحديث",
     seoTitle: "كيف تُغيّر النماذج اللغوية الكبيرة (LLMs) تطوير البرمجيات الحديث",
@@ -341,10 +1085,10 @@ export const ARABIC_ARTICLES: ArabicArticle[] = [
     imageAlt: "رسم توضيحي للنماذج اللغوية الكبيرة وتأثيرها على تطوير البرمجيات",
     readTime: 9,
     category: "الذكاء الاصطناعي والتقنية",
-    publishedAt: "2025-10-15",
+    publishedAt: "2026-07-05",
     Body: LlmArticle,
-  },
-  {
+  }),
+  makeArticle({
     slug: "the-future-of-ai-agents-in-everyday-business-workflows",
     title: "مستقبل وكلاء الذكاء الاصطناعي في تدفقات العمل اليومية",
     seoTitle: "مستقبل وكلاء الذكاء الاصطناعي (AI Agents) في تدفقات العمل اليومية",
@@ -356,10 +1100,10 @@ export const ARABIC_ARTICLES: ArabicArticle[] = [
     imageAlt: "وكلاء الذكاء الاصطناعي يعملون في بيئة عمل حديثة",
     readTime: 8,
     category: "الذكاء الاصطناعي والتقنية",
-    publishedAt: "2025-10-10",
+    publishedAt: "2026-07-05",
     Body: AgentsArticle,
-  },
-  {
+  }),
+  makeArticle({
     slug: "prompt-engineering-best-practices-for-better-ai-results",
     title: "أفضل ممارسات هندسة الأوامر للحصول على نتائج أفضل من الذكاء الاصطناعي",
     seoTitle: "أفضل ممارسات هندسة الأوامر (Prompt Engineering) للذكاء الاصطناعي",
@@ -371,9 +1115,159 @@ export const ARABIC_ARTICLES: ArabicArticle[] = [
     imageAlt: "توضيح لمبادئ هندسة الأوامر في الذكاء الاصطناعي",
     readTime: 8,
     category: "هندسة الأوامر",
-    publishedAt: "2025-10-05",
+    publishedAt: "2026-07-05",
     Body: PromptArticle,
-  },
+  }),
+  makeArticle({
+    slug: "linux-vps-security-hardening-checklist-2026",
+    title: "كيف تُحصّن خادم VPS بنظام لينكس: قائمة تحقق أمنية كاملة (٢٠٢٦)",
+    seoTitle: "تحصين خادم VPS لينكس: قائمة تحقق أمنية شاملة لعام ٢٠٢٦",
+    description:
+      "قائمة تحقق عملية لتحصين خادم VPS يعمل بلينكس: SSH، الجدار الناري، Fail2Ban، تحصين النواة، المراقبة، والنسخ الاحتياطية.",
+    excerpt:
+      "دليل خطوة بخطوة لتحصين خادم VPS يعمل بلينكس ضد الهجمات الشائعة في ٢٠٢٦.",
+    image: "/media/posts/linux-vps-hardening-2026-animated.svg",
+    imageAlt: "قائمة تحقق أمنية لتحصين خادم VPS يعمل بلينكس",
+    readTime: 12,
+    category: "لينكس والأمان",
+    publishedAt: "2026-06-27",
+    Body: LinuxVpsHardeningArticle,
+  }),
+  makeArticle({
+    slug: "crypto-self-custody-hardware-vs-multisig",
+    title: "الحفظ الذاتي للعملات المشفرة: محافظ الأجهزة مقابل التوقيع المتعدد في ٢٠٢٦",
+    seoTitle: "Self-Custody للعملات المشفرة: Hardware Wallets مقابل Multi-Sig ٢٠٢٦",
+    description:
+      "مقارنة عملية بين محافظ الأجهزة والتوقيع المتعدد للحفظ الذاتي للعملات المشفرة، مع توصيات الأدوات المناسبة لعام ٢٠٢٦.",
+    excerpt:
+      "أيهما يناسبك: محفظة أجهزة بسيطة أم إعداد Multi-Sig أكثر أماناً؟ مقارنة عملية شاملة.",
+    image: "/media/2026/06/crypto-self-custody-hardware-vs-multisig.jpg",
+    imageAlt: "محفظة أجهزة وأخرى بتوقيع متعدد للعملات المشفرة",
+    readTime: 8,
+    category: "العملات المشفرة",
+    publishedAt: "2026-06-27",
+    Body: CryptoSelfCustodyArticle,
+  }),
+  makeArticle({
+    slug: "hardening-linux-server-2026",
+    title: "تحصين خادم لينكس: قائمة تحقق عملية لعام ٢٠٢٦",
+    seoTitle: "تحصين خادم لينكس ٢٠٢٦ — قائمة تحقق عملية لمدراء الأنظمة",
+    description:
+      "قائمة تحقق عملية لتحصين خادم لينكس في ٢٠٢٦: التحكم بالوصول، AppArmor، التسجيل المركزي، وكشف الجذور الخفية.",
+    excerpt:
+      "قائمة تحقق شاملة لمدراء الأنظمة لبناء طبقات أمان قوية على خادم لينكس.",
+    image: "/media/2026/06/hardening-linux-server-2026.jpg",
+    imageAlt: "تحصين خادم لينكس مع قائمة تحقق شاملة",
+    readTime: 9,
+    category: "لينكس",
+    publishedAt: "2026-06-27",
+    Body: HardeningLinuxServerArticle,
+  }),
+  makeArticle({
+    slug: "nas-storage-truenas-scale-40tb-build",
+    title: "تخزين NAS: بناء خادم منزلي بسعة ٤٠ تيرابايت باستخدام TrueNAS Scale",
+    seoTitle: "بناء خادم NAS منزلي ٤٠ تيرابايت مع TrueNAS Scale في ٢٠٢٦",
+    description:
+      "دليل عملي لبناء خادم تخزين NAS منزلي بسعة ٤٠ تيرابايت باستخدام TrueNAS Scale: الأجهزة، الإعداد، والتطبيقات.",
+    excerpt:
+      "من اختيار العتاد إلى تصميم Pool وتشغيل التطبيقات — دليل كامل لبناء NAS منزلي احترافي.",
+    image: "/media/2026/06/nas-storage-truenas-scale-40tb-build.jpg",
+    imageAlt: "خادم تخزين NAS منزلي بسعة ٤٠ تيرابايت",
+    readTime: 12,
+    category: "تخزين NAS",
+    publishedAt: "2026-06-27",
+    Body: NasTrueNasArticle,
+  }),
+  makeArticle({
+    slug: "wordpress-rest-api-headless-frontend",
+    title: "WordPress REST API: بناء واجهة رأس منفصل (Headless) في ٢٠٢٦",
+    seoTitle: "WordPress Headless مع REST API — دليل بناء واجهة حديثة ٢٠٢٦",
+    description:
+      "كيفية استخدام WordPress كنظام إدارة محتوى وبناء واجهة أمامية حديثة مع Next.js أو TanStack Start عبر REST API.",
+    excerpt:
+      "اجمع بين قوة WordPress كـ CMS وأداء الأطر الأمامية الحديثة عبر REST API.",
+    image: "/media/2026/06/wordpress-rest-api-headless-frontend.jpg",
+    imageAlt: "معمارية WordPress Headless مع واجهة حديثة",
+    readTime: 11,
+    category: "ووردبريس",
+    publishedAt: "2026-06-27",
+    Body: WordpressHeadlessArticle,
+  }),
+  makeArticle({
+    slug: "self-hosting-mail-server-2026",
+    title: "استضافة خادم بريد ذاتياً في ٢٠٢٦: هل لا يزال يستحق العناء؟",
+    seoTitle: "خادم بريد ذاتي الاستضافة في ٢٠٢٦ — تحدياته ومتى يستحق",
+    description:
+      "تحليل واقعي لاستضافة خادم بريد إلكتروني ذاتياً في ٢٠٢٦: التحديات، الأدوات المناسبة، والحل الهجين الأكثر عملية.",
+    excerpt:
+      "من إعداد Mailcow إلى معركة السمعة مع Gmail — ما تحتاج معرفته قبل استضافة بريدك.",
+    image: "/media/2026/06/self-hosting-mail-server-2026.jpg",
+    imageAlt: "خادم بريد إلكتروني ذاتي الاستضافة",
+    readTime: 13,
+    category: "خادم البريد",
+    publishedAt: "2026-06-27",
+    Body: MailServerArticle,
+  }),
+  makeArticle({
+    slug: "cloudflare-tunnels-home-server",
+    title: "أنفاق Cloudflare: عرض الخوادم المنزلية دون فتح المنافذ",
+    seoTitle: "Cloudflare Tunnels — عرض خدمات المنزل بأمان دون Port Forwarding",
+    description:
+      "دليل استخدام Cloudflare Tunnels لعرض خدمات الشبكة المنزلية على الإنترنت بأمان دون الحاجة لفتح منافذ أو IP عام.",
+    excerpt:
+      "كيف تربط Home Assistant وJellyfin وNextcloud بالعالم عبر نفق آمن من Cloudflare.",
+    image: "/media/2026/06/cloudflare-tunnels-home-server.jpg",
+    imageAlt: "أنفاق Cloudflare تربط الخوادم المنزلية بالإنترنت",
+    readTime: 7,
+    category: "الأمان والشبكات",
+    publishedAt: "2026-06-27",
+    Body: CloudflareTunnelsArticle,
+  }),
+  makeArticle({
+    slug: "how-ai-coding-assistants-are-reshaping-software-development",
+    title: "كيف يُعيد مساعدو البرمجة بالذكاء الاصطناعي تشكيل تطوير البرمجيات",
+    seoTitle: "مساعدو البرمجة بالذكاء الاصطناعي في ٢٠٢٦ — أثرهم الحقيقي",
+    description:
+      "نظرة عميقة على أثر مساعدي البرمجة بالذكاء الاصطناعي مثل Copilot وCursor وClaude Code على إنتاجية المطوّرين وجودة الكود.",
+    excerpt:
+      "من الإكمال التلقائي إلى الوكلاء الأذكياء — كيف يُغيّر مساعدو الذكاء الاصطناعي شكل صناعة البرمجيات.",
+    image: "/media/2026/05/wadp-image-5230.jpg",
+    imageAlt: "مساعد برمجة بالذكاء الاصطناعي يُعين مطوّراً",
+    readTime: 6,
+    category: "الذكاء الاصطناعي والتقنية",
+    publishedAt: "2025-03-01",
+    Body: AiCodingAssistantsArticle,
+  }),
+  makeArticle({
+    slug: "machine-learning-for-beginners",
+    title: "تعلّم الآلة للمبتدئين: دليل مباشر بلا حشو",
+    seoTitle: "مقدمة عملية إلى تعلّم الآلة (Machine Learning) للمبتدئين",
+    description:
+      "مقدمة مبسّطة إلى تعلّم الآلة للمطوّرين: الأنواع الرئيسية، تدفق العمل، الخوارزميات، والأدوات، ومسار تعلّم مقترح.",
+    excerpt:
+      "المفاهيم الأساسية لتعلّم الآلة بأسلوب واضح للمطوّرين، بلا رياضيات مخيفة.",
+    image: "/media/2026/03/fNKknNxTRp-wt3tQ1eHxFA@2k.webp",
+    imageAlt: "مفاهيم تعلّم الآلة للمبتدئين",
+    readTime: 9,
+    category: "الذكاء الاصطناعي والتقنية",
+    publishedAt: "2025-02-01",
+    Body: MachineLearningBeginnersArticle,
+  }),
+  makeArticle({
+    slug: "windows-password-vault-apps",
+    title: "أفضل تطبيقات إدارة كلمات المرور لنظام Windows في ٢٠٢٦",
+    seoTitle: "تطبيقات إدارة كلمات المرور لـ Windows في ٢٠٢٦ — مقارنة عملية",
+    description:
+      "مقارنة عملية لأشهر تطبيقات إدارة كلمات المرور على Windows: Bitwarden، 1Password، KeePassXC، Proton Pass، وDashlane.",
+    excerpt:
+      "أيّ مدير كلمات مرور تختار لـ Windows في ٢٠٢٦؟ مقارنة صريحة بين الخيارات الأشهر.",
+    image: "/media/2026/02/PassGen-Vault-APP.png",
+    imageAlt: "تطبيقات إدارة كلمات المرور على Windows",
+    readTime: 7,
+    category: "البيانات والأمان",
+    publishedAt: "2025-01-10",
+    Body: WindowsPasswordVaultArticle,
+  }),
 ];
 
 export function getArabicArticle(slug: string): ArabicArticle | undefined {
@@ -387,3 +1281,4 @@ export function hasArabicVersion(slug: string): boolean {
 export function articleUrl(slug: string): string {
   return `${SITE}/ar/blog/${slug}`;
 }
+
