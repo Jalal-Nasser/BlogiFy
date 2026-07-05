@@ -1,16 +1,25 @@
 import type { ReactNode } from "react";
 
+export type TranslationStatus = "published" | "draft" | "in-progress";
+
 export interface ArabicArticle {
+  /** English source slug — used as the Arabic route slug too (/ar/blog/{slug}) */
   slug: string;
+  /** Same as `slug`; explicit alias for the English source post reference */
+  sourceEnglishSlug: string;
   title: string;
   seoTitle: string;
   description: string;
   excerpt: string;
+  /** Featured image reused from the English post (path or absolute URL) */
   image: string;
   imageAlt: string;
   readTime: number;
   category: string;
   publishedAt: string;
+  translationStatus: TranslationStatus;
+  englishUrl: string;
+  arabicUrl: string;
   Body: () => ReactNode;
 }
 
