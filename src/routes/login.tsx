@@ -78,7 +78,7 @@ function LoginPage() {
           <div>
             <div className="flex items-center gap-3">
               <img
-                src="https://gwynqitgepkfzzenlfyu.supabase.co/storage/v1/object/public/media/2023/09/cropped-Jblogify-1.png"
+                src="/media/2023/09/cropped-Jblogify-1.png"
                 alt="BlogiFy"
                 className="h-10 w-10 object-contain drop-shadow-[0_0_12px_rgba(0,212,255,0.6)]"
               />

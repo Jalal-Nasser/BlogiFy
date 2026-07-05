@@ -60,14 +60,19 @@ function PostPage() {
       el.setAttribute("content", val);
     };
     const fallbackDescription = "A hands-on tech tutorial from BlogiFy covering Linux, security, WordPress, self-hosting, and modern infrastructure.";
+    const absImage = post.featured_image_url
+      ? (post.featured_image_url.startsWith("/")
+          ? `${base}${post.featured_image_url}`
+          : post.featured_image_url)
+      : "";
     setMeta("og:url", url);
     setMeta("og:type", "article");
     setMeta("og:title", post.title);
     setMeta("og:description", post.excerpt || fallbackDescription);
-    if (post.featured_image_url) setMeta("og:image", post.featured_image_url);
+    if (absImage) setMeta("og:image", absImage);
     setMeta("twitter:title", post.title, "name");
     setMeta("twitter:description", post.excerpt || fallbackDescription, "name");
-    if (post.featured_image_url) setMeta("twitter:image", post.featured_image_url, "name");
+    if (absImage) setMeta("twitter:image", absImage, "name");
     document.title = `${post.title} — BlogiFy`;
 
     // JSON-LD Article
@@ -81,7 +86,7 @@ function PostPage() {
       "@type": "Article",
       "headline": post.title,
       "description": post.excerpt || fallbackDescription,
-      "image": post.featured_image_url || "",
+      "image": absImage,
       "datePublished": post.published_at,
       "author": { "@type": "Person", "name": post.author, "url": base },
       "publisher": {
