@@ -20,7 +20,12 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: "Hands-on tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing." },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5a66d952-8ed6-481a-8519-01913766574e" },
     ],
-    links: [{ rel: "canonical", href: "https://jalalnasser.com/" }],
+    links: [
+      { rel: "canonical", href: "https://jalalnasser.com/" },
+      { rel: "alternate", hrefLang: "en", href: "https://jalalnasser.com/" },
+      { rel: "alternate", hrefLang: "ar", href: "https://jalalnasser.com/ar" },
+      { rel: "alternate", hrefLang: "x-default", href: "https://jalalnasser.com/" },
+    ],
     scripts: [
       {
         type: "application/ld+json",
