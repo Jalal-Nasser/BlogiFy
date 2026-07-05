@@ -61,6 +61,7 @@ export function Header() {
           <nav className="ml-auto hidden lg:flex items-center gap-1">
             <Link to="/about" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
             <Link to="/contact" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            <LanguageSwitcher />
           </nav>
 
           <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Toggle menu" onClick={() => setOpen(!open)}>
