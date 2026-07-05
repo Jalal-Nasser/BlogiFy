@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { fetchPostBySlug, fetchRelatedPosts } from "@/lib/queries";
+import { hasArabicVersion } from "@/lib/arabic-articles";
 import { CategoryBadge } from "@/components/site/CategoryBadge";
 
 import { PostCard } from "@/components/site/PostCard";
@@ -53,6 +54,25 @@ function PostPage() {
     }
     canonical.href = url;
 
+    // hreflang alternates (only when an Arabic version exists)
+    document.querySelectorAll('link[rel="alternate"][data-hreflang="arabic-pair"]').forEach((el) => el.remove());
+    if (hasArabicVersion(post.slug)) {
+      const arUrl = `${base}/ar/blog/${post.slug}`;
+      const pairs: Array<[string, string]> = [
+        ["en", url],
+        ["ar", arUrl],
+        ["x-default", url],
+      ];
+      for (const [lang, href] of pairs) {
+        const el = document.createElement("link");
+        el.rel = "alternate";
+        el.hreflang = lang;
+        el.href = href;
+        el.setAttribute("data-hreflang", "arabic-pair");
+        document.head.appendChild(el);
+      }
+    }
+
     // OG tags
     const setMeta = (prop: string, val: string, attr = "property") => {
       let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${prop}"]`);
@@ -102,6 +122,7 @@ function PostPage() {
 
     return () => {
       document.getElementById("ld-article")?.remove();
+      document.querySelectorAll('link[rel="alternate"][data-hreflang="arabic-pair"]').forEach((el) => el.remove());
     };
   }, [post]);
 
@@ -112,7 +133,20 @@ function PostPage() {
 
   return (
     <article className="mx-auto max-w-7xl px-4 lg:px-6 pt-6 lg:pt-10">
-      <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"><ArrowLeft className="size-4" /> Back</Link>
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Back</Link>
+        {hasArabicVersion(post.slug) && (
+          <a
+            href={`/ar/blog/${post.slug}`}
+            className="inline-flex items-center gap-1 text-sm text-brand hover:underline"
+            hrefLang="ar"
+            lang="ar"
+            dir="rtl"
+          >
+            العربية
+          </a>
+        )}
+      </div>
 
       {/* Hero */}
       <header className="max-w-4xl">
