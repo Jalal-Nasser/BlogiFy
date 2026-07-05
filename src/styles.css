@@ -258,3 +258,14 @@
   font-style: italic;
   color: var(--color-muted-foreground);
 }
+
+/* Arabic (RTL) — Naskh font for readable Arabic body/headings while keeping
+   English technical terms rendered in the site's default UI font when placed
+   inside an inline element with dir="ltr". */
+@utility font-arabic {
+  font-family: 'Noto Naskh Arabic', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+[dir="rtl"] {
+  font-family: 'Noto Naskh Arabic', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
