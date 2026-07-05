@@ -54,6 +54,25 @@ function PostPage() {
     }
     canonical.href = url;
 
+    // hreflang alternates (only when an Arabic version exists)
+    document.querySelectorAll('link[rel="alternate"][data-hreflang="arabic-pair"]').forEach((el) => el.remove());
+    if (hasArabicVersion(post.slug)) {
+      const arUrl = `${base}/ar/blog/${post.slug}`;
+      const pairs: Array<[string, string]> = [
+        ["en", url],
+        ["ar", arUrl],
+        ["x-default", url],
+      ];
+      for (const [lang, href] of pairs) {
+        const el = document.createElement("link");
+        el.rel = "alternate";
+        el.hreflang = lang;
+        el.href = href;
+        el.setAttribute("data-hreflang", "arabic-pair");
+        document.head.appendChild(el);
+      }
+    }
+
     // OG tags
     const setMeta = (prop: string, val: string, attr = "property") => {
       let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${prop}"]`);
