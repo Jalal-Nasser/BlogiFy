@@ -102,10 +102,40 @@ export function Header() {
             <div className="flex flex-col">
               <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm">About</Link>
               <Link to="/contact" onClick={() => setOpen(false)} className="py-2 text-sm">Contact</Link>
+              <div className="pt-2"><LanguageSwitcher /></div>
             </div>
           </div>
         </div>
       )}
     </header>
+  );
+}
+
+function LanguageSwitcher() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isArabic = pathname === "/ar" || pathname.startsWith("/ar/");
+  if (isArabic) {
+    return (
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+        aria-label="Switch to English"
+      >
+        <Globe className="size-3.5" />
+        English
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to="/ar"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+      aria-label="التبديل إلى العربية"
+      lang="ar"
+      dir="rtl"
+    >
+      <Globe className="size-3.5" />
+      العربية
+    </Link>
   );
 }
