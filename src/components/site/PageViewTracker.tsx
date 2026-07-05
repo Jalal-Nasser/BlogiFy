@@ -28,6 +28,27 @@ export function PageViewTracker() {
     if (lastTracked.current === pathname) return;
     lastTracked.current = pathname;
 
+    // GA4 SPA page_view: fire on every client-side route change.
+    // gtag becomes available after cookie consent (loaded by CookieConsent).
+    try {
+      const host = window.location.hostname;
+      const isPreviewHost =
+        host.includes("id-preview--") ||
+        host.includes("lovableproject.com") ||
+        host === "localhost" ||
+        host === "127.0.0.1";
+      const gtag = (window as any).gtag;
+      if (!isPreviewHost && typeof gtag === "function") {
+        gtag("event", "page_view", {
+          page_path: pathname + window.location.search,
+          page_location: window.location.href,
+          page_title: document.title,
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+
     const run = async () => {
       try {
         // Skip preview/editor/local environments
