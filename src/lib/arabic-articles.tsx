@@ -636,9 +636,9 @@ function WordpressHeadlessArticle() {
         WordPress يوفّر <code dir="ltr">/wp-json/wp/v2/</code> افتراضياً. أشهر النقاط: posts، pages،
         categories، media، وusers. مثال:
       </P>
-      <P dir="ltr">
-        <code>GET /wp-json/wp/v2/posts?per_page=10&_embed</code>
-      </P>
+      <p dir="ltr" className="mt-4 text-base leading-loose text-foreground/90">
+        <code>GET /wp-json/wp/v2/posts?per_page=10&amp;_embed</code>
+      </p>
 
       <H2 id="auth">المصادقة</H2>
       <P>
