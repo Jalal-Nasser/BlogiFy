@@ -356,8 +356,13 @@ export type Database = {
           featured: boolean
           featured_image_url: string | null
           id: string
+          linkedin_post_id: string | null
+          linkedin_post_url: string | null
+          linkedin_publish_error: string | null
+          linkedin_published_at: string | null
           meta_description: string | null
           published_at: string
+          published_to_linkedin: boolean
           read_time_minutes: number
           seo_title: string | null
           slug: string
@@ -379,8 +384,13 @@ export type Database = {
           featured?: boolean
           featured_image_url?: string | null
           id?: string
+          linkedin_post_id?: string | null
+          linkedin_post_url?: string | null
+          linkedin_publish_error?: string | null
+          linkedin_published_at?: string | null
           meta_description?: string | null
           published_at?: string
+          published_to_linkedin?: boolean
           read_time_minutes?: number
           seo_title?: string | null
           slug: string
@@ -402,8 +412,13 @@ export type Database = {
           featured?: boolean
           featured_image_url?: string | null
           id?: string
+          linkedin_post_id?: string | null
+          linkedin_post_url?: string | null
+          linkedin_publish_error?: string | null
+          linkedin_published_at?: string | null
           meta_description?: string | null
           published_at?: string
+          published_to_linkedin?: boolean
           read_time_minutes?: number
           seo_title?: string | null
           slug?: string
