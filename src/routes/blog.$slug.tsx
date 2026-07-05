@@ -113,7 +113,20 @@ function PostPage() {
 
   return (
     <article className="mx-auto max-w-7xl px-4 lg:px-6 pt-6 lg:pt-10">
-      <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"><ArrowLeft className="size-4" /> Back</Link>
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Back</Link>
+        {hasArabicVersion(post.slug) && (
+          <a
+            href={`/ar/blog/${post.slug}`}
+            className="inline-flex items-center gap-1 text-sm text-brand hover:underline"
+            hrefLang="ar"
+            lang="ar"
+            dir="rtl"
+          >
+            العربية
+          </a>
+        )}
+      </div>
 
       {/* Hero */}
       <header className="max-w-4xl">
