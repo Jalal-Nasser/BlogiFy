@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { fetchPostBySlug, fetchRelatedPosts } from "@/lib/queries";
+import { hasArabicVersion } from "@/lib/arabic-articles";
 import { CategoryBadge } from "@/components/site/CategoryBadge";
 
 import { PostCard } from "@/components/site/PostCard";
