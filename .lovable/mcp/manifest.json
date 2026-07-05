@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "jalal-nasser-blog-mcp",
+      "version": "0.1.0",
+      "title": "Jalal Nasser Blog"
+    },
+    "tools": [
+      {
+        "name": "list_posts",
+        "title": "List blog posts",
+        "description": "List published blog posts from Jalal Nasser's blog, most recent first. Optionally filter by category slug.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max posts to return (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "category_slug": {
+              "description": "Filter by category slug.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_post",
+        "title": "Get blog post",
+        "description": "Fetch a single published blog post by slug, including its full HTML content.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The post slug, e.g. 'prompt-engineering-best-practices-for-better-ai-results'."
+            }
+          },
+          "required": [
+            "slug"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_posts",
+        "title": "Search blog posts",
+        "description": "Full-text ilike search across published post titles, excerpts, and content.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Search query."
+            },
+            "limit": {
+              "description": "Max results (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_categories",
+        "title": "List categories",
+        "description": "List all blog categories on Jalal Nasser's blog.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
