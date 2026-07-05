@@ -37,6 +37,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as AuthenticatedPostsIndexRouteImport } from './routes/_authenticated/posts.index'
 import { Route as AuthenticatedPostsNewRouteImport } from './routes/_authenticated/posts.new'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiPublicHooksPublishLinkedinRouteImport } from './routes/api/public/hooks/publish-linkedin'
 import { Route as AuthenticatedPostsIdEditRouteImport } from './routes/_authenticated/posts.$id.edit'
 
 const TermsRoute = TermsRouteImport.update({
@@ -181,6 +182,12 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksPublishLinkedinRoute =
+  ApiPublicHooksPublishLinkedinRouteImport.update({
+    id: '/api/public/hooks/publish-linkedin',
+    path: '/api/public/hooks/publish-linkedin',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPostsIdEditRoute =
   AuthenticatedPostsIdEditRouteImport.update({
     id: '/posts/$id/edit',
@@ -217,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/posts/': typeof AuthenticatedPostsIndexRoute
   '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
+  '/api/public/hooks/publish-linkedin': typeof ApiPublicHooksPublishLinkedinRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -247,6 +255,7 @@ export interface FileRoutesByTo {
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/posts': typeof AuthenticatedPostsIndexRoute
   '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
+  '/api/public/hooks/publish-linkedin': typeof ApiPublicHooksPublishLinkedinRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -279,6 +288,7 @@ export interface FileRoutesById {
   '/_authenticated/posts/new': typeof AuthenticatedPostsNewRoute
   '/_authenticated/posts/': typeof AuthenticatedPostsIndexRoute
   '/_authenticated/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
+  '/api/public/hooks/publish-linkedin': typeof ApiPublicHooksPublishLinkedinRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/posts/new'
     | '/posts/'
     | '/posts/$id/edit'
+    | '/api/public/hooks/publish-linkedin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/posts/new'
     | '/posts'
     | '/posts/$id/edit'
+    | '/api/public/hooks/publish-linkedin'
   id:
     | '__root__'
     | '/'
@@ -372,6 +384,7 @@ export interface FileRouteTypes {
     | '/_authenticated/posts/new'
     | '/_authenticated/posts/'
     | '/_authenticated/posts/$id/edit'
+    | '/api/public/hooks/publish-linkedin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -390,6 +403,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicHooksPublishLinkedinRoute: typeof ApiPublicHooksPublishLinkedinRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -590,6 +604,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/publish-linkedin': {
+      id: '/api/public/hooks/publish-linkedin'
+      path: '/api/public/hooks/publish-linkedin'
+      fullPath: '/api/public/hooks/publish-linkedin'
+      preLoaderRoute: typeof ApiPublicHooksPublishLinkedinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/posts/$id/edit': {
       id: '/_authenticated/posts/$id/edit'
       path: '/posts/$id/edit'
@@ -654,6 +675,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicHooksPublishLinkedinRoute: ApiPublicHooksPublishLinkedinRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
