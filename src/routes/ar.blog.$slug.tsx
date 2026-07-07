@@ -1,22 +1,25 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Clock, ExternalLink } from "lucide-react";
-import { getArabicArticle, ARABIC_ARTICLES } from "@/lib/arabic-articles";
+import { getArabicArticle, getArabicArticleBody, ARABIC_ARTICLES } from "@/lib/arabic-articles";
 
 const SITE = "https://jalalnasser.com";
+
 
 export const Route = createFileRoute("/ar/blog/$slug")({
   loader: ({ params }) => {
     const article = getArabicArticle(params.slug);
     if (!article) throw notFound();
-    return { article };
+    // Return serializable metadata only — never React components / functions.
+    return { slug: article.slug };
   },
-  head: ({ params, loaderData }) => {
-    const article = loaderData?.article;
+  head: ({ params }) => {
+    const article = getArabicArticle(params.slug);
     const arUrl = `${SITE}/ar/blog/${params.slug}`;
     const enUrl = `${SITE}/blog/${params.slug}`;
     if (!article) {
       return { meta: [{ title: "غير موجود" }, { name: "robots", content: "noindex" }] };
     }
+
     const image = `${SITE}${article.image}`;
     return {
       meta: [
@@ -73,9 +76,14 @@ export const Route = createFileRoute("/ar/blog/$slug")({
 
 function ArabicArticlePage() {
   const { slug } = Route.useParams();
-  const { article } = Route.useLoaderData();
-  const Body = article.Body;
+  const article = getArabicArticle(slug);
+  const Body = getArabicArticleBody(slug);
   const enUrl = `/blog/${slug}`;
+
+  if (!article) {
+    return <div className="p-20 text-center text-muted-foreground">المقال غير موجود.</div>;
+  }
+
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 lg:py-16">
@@ -122,8 +130,9 @@ function ArabicArticlePage() {
       </div>
 
       <div className="mt-8">
-        <Body />
+        {Body ? <Body /> : <p className="text-muted-foreground">المحتوى غير متوفر حالياً.</p>}
       </div>
+
 
       <div className="mt-14 rounded-lg border border-border bg-surface/40 p-6">
         <h3 className="font-display text-lg font-semibold">اقرأ أيضاً</h3>

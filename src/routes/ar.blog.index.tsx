@@ -7,7 +7,7 @@ const TITLE = "مقالات عربية عن الذكاء الاصطناعي وا
 const DESCRIPTION =
   "تصفح مقالات تقنية بالعربية حول الذكاء الاصطناعي، النماذج اللغوية الكبيرة، هندسة الأوامر، وتطبيقات الذكاء الاصطناعي في تطوير البرمجيات وأتمتة الأعمال.";
 
-export const Route = createFileRoute("/ar/blog")({
+export const Route = createFileRoute("/ar/blog/")({
   head: () => ({
     meta: [
       { title: TITLE },
