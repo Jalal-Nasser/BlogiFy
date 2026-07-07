@@ -1,8 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Clock, ExternalLink } from "lucide-react";
-import { getArabicArticle, ARABIC_ARTICLES } from "@/lib/arabic-articles";
+import { getArabicArticle, getArabicArticleBody, ARABIC_ARTICLES } from "@/lib/arabic-articles";
 
 const SITE = "https://jalalnasser.com";
+
 
 export const Route = createFileRoute("/ar/blog/$slug")({
   loader: ({ params }) => {
