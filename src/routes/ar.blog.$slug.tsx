@@ -130,8 +130,9 @@ function ArabicArticlePage() {
       </div>
 
       <div className="mt-8">
-        <Body />
+        {Body ? <Body /> : <p className="text-muted-foreground">المحتوى غير متوفر حالياً.</p>}
       </div>
+
 
       <div className="mt-14 rounded-lg border border-border bg-surface/40 p-6">
         <h3 className="font-display text-lg font-semibold">اقرأ أيضاً</h3>
