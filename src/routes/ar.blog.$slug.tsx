@@ -9,15 +9,17 @@ export const Route = createFileRoute("/ar/blog/$slug")({
   loader: ({ params }) => {
     const article = getArabicArticle(params.slug);
     if (!article) throw notFound();
-    return { article };
+    // Return serializable metadata only — never React components / functions.
+    return { slug: article.slug };
   },
-  head: ({ params, loaderData }) => {
-    const article = loaderData?.article;
+  head: ({ params }) => {
+    const article = getArabicArticle(params.slug);
     const arUrl = `${SITE}/ar/blog/${params.slug}`;
     const enUrl = `${SITE}/blog/${params.slug}`;
     if (!article) {
       return { meta: [{ title: "غير موجود" }, { name: "robots", content: "noindex" }] };
     }
+
     const image = `${SITE}${article.image}`;
     return {
       meta: [
