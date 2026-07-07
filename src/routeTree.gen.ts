@@ -24,7 +24,6 @@ import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as ArBlogRouteImport } from './routes/ar.blog'
 import { Route as AuthenticatedTagsRouteImport } from './routes/_authenticated/tags'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSeoRouteImport } from './routes/_authenticated/seo'
@@ -38,6 +37,7 @@ import { Route as AuthenticatedCategoriesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAuthorsRouteImport } from './routes/_authenticated/authors'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as ArBlogIndexRouteImport } from './routes/ar.blog.index'
 import { Route as AuthenticatedPostsIndexRouteImport } from './routes/_authenticated/posts.index'
 import { Route as ArBlogSlugRouteImport } from './routes/ar.blog.$slug'
 import { Route as AuthenticatedPostsNewRouteImport } from './routes/_authenticated/posts.new'
@@ -119,11 +119,6 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ArBlogRoute = ArBlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => ArRoute,
-} as any)
 const AuthenticatedTagsRoute = AuthenticatedTagsRouteImport.update({
   id: '/tags',
   path: '/tags',
@@ -191,15 +186,20 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ArBlogIndexRoute = ArBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => ArRoute,
+} as any)
 const AuthenticatedPostsIndexRoute = AuthenticatedPostsIndexRouteImport.update({
   id: '/posts/',
   path: '/posts/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ArBlogSlugRoute = ArBlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ArBlogRoute,
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => ArRoute,
 } as any)
 const AuthenticatedPostsNewRoute = AuthenticatedPostsNewRouteImport.update({
   id: '/posts/new',
@@ -249,7 +249,6 @@ export interface FileRoutesByFullPath {
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tags': typeof AuthenticatedTagsRoute
-  '/ar/blog': typeof ArBlogRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
@@ -258,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/ar/blog/$slug': typeof ArBlogSlugRoute
   '/posts/': typeof AuthenticatedPostsIndexRoute
+  '/ar/blog/': typeof ArBlogIndexRoute
   '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
   '/api/public/hooks/publish-linkedin': typeof ApiPublicHooksPublishLinkedinRoute
 }
@@ -284,7 +284,6 @@ export interface FileRoutesByTo {
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tags': typeof AuthenticatedTagsRoute
-  '/ar/blog': typeof ArBlogRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
@@ -293,6 +292,7 @@ export interface FileRoutesByTo {
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/ar/blog/$slug': typeof ArBlogSlugRoute
   '/posts': typeof AuthenticatedPostsIndexRoute
+  '/ar/blog': typeof ArBlogIndexRoute
   '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
   '/api/public/hooks/publish-linkedin': typeof ApiPublicHooksPublishLinkedinRoute
 }
@@ -322,7 +322,6 @@ export interface FileRoutesById {
   '/_authenticated/seo': typeof AuthenticatedSeoRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/tags': typeof AuthenticatedTagsRoute
-  '/ar/blog': typeof ArBlogRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
@@ -331,6 +330,7 @@ export interface FileRoutesById {
   '/_authenticated/posts/new': typeof AuthenticatedPostsNewRoute
   '/ar/blog/$slug': typeof ArBlogSlugRoute
   '/_authenticated/posts/': typeof AuthenticatedPostsIndexRoute
+  '/ar/blog/': typeof ArBlogIndexRoute
   '/_authenticated/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
   '/api/public/hooks/publish-linkedin': typeof ApiPublicHooksPublishLinkedinRoute
 }
@@ -360,7 +360,6 @@ export interface FileRouteTypes {
     | '/seo'
     | '/settings'
     | '/tags'
-    | '/ar/blog'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
@@ -369,6 +368,7 @@ export interface FileRouteTypes {
     | '/posts/new'
     | '/ar/blog/$slug'
     | '/posts/'
+    | '/ar/blog/'
     | '/posts/$id/edit'
     | '/api/public/hooks/publish-linkedin'
   fileRoutesByTo: FileRoutesByTo
@@ -395,7 +395,6 @@ export interface FileRouteTypes {
     | '/seo'
     | '/settings'
     | '/tags'
-    | '/ar/blog'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
@@ -404,6 +403,7 @@ export interface FileRouteTypes {
     | '/posts/new'
     | '/ar/blog/$slug'
     | '/posts'
+    | '/ar/blog'
     | '/posts/$id/edit'
     | '/api/public/hooks/publish-linkedin'
   id:
@@ -432,7 +432,6 @@ export interface FileRouteTypes {
     | '/_authenticated/seo'
     | '/_authenticated/settings'
     | '/_authenticated/tags'
-    | '/ar/blog'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
@@ -441,6 +440,7 @@ export interface FileRouteTypes {
     | '/_authenticated/posts/new'
     | '/ar/blog/$slug'
     | '/_authenticated/posts/'
+    | '/ar/blog/'
     | '/_authenticated/posts/$id/edit'
     | '/api/public/hooks/publish-linkedin'
   fileRoutesById: FileRoutesById
@@ -573,13 +573,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ar/blog': {
-      id: '/ar/blog'
-      path: '/blog'
-      fullPath: '/ar/blog'
-      preLoaderRoute: typeof ArBlogRouteImport
-      parentRoute: typeof ArRoute
-    }
     '/_authenticated/tags': {
       id: '/_authenticated/tags'
       path: '/tags'
@@ -671,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ar/blog/': {
+      id: '/ar/blog/'
+      path: '/blog'
+      fullPath: '/ar/blog/'
+      preLoaderRoute: typeof ArBlogIndexRouteImport
+      parentRoute: typeof ArRoute
+    }
     '/_authenticated/posts/': {
       id: '/_authenticated/posts/'
       path: '/posts'
@@ -680,10 +680,10 @@ declare module '@tanstack/react-router' {
     }
     '/ar/blog/$slug': {
       id: '/ar/blog/$slug'
-      path: '/$slug'
+      path: '/blog/$slug'
       fullPath: '/ar/blog/$slug'
       preLoaderRoute: typeof ArBlogSlugRouteImport
-      parentRoute: typeof ArBlogRoute
+      parentRoute: typeof ArRoute
     }
     '/_authenticated/posts/new': {
       id: '/_authenticated/posts/new'
@@ -753,25 +753,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface ArBlogRouteChildren {
-  ArBlogSlugRoute: typeof ArBlogSlugRoute
-}
-
-const ArBlogRouteChildren: ArBlogRouteChildren = {
-  ArBlogSlugRoute: ArBlogSlugRoute,
-}
-
-const ArBlogRouteWithChildren =
-  ArBlogRoute._addFileChildren(ArBlogRouteChildren)
-
 interface ArRouteChildren {
-  ArBlogRoute: typeof ArBlogRouteWithChildren
   ArIndexRoute: typeof ArIndexRoute
+  ArBlogSlugRoute: typeof ArBlogSlugRoute
+  ArBlogIndexRoute: typeof ArBlogIndexRoute
 }
 
 const ArRouteChildren: ArRouteChildren = {
-  ArBlogRoute: ArBlogRouteWithChildren,
   ArIndexRoute: ArIndexRoute,
+  ArBlogSlugRoute: ArBlogSlugRoute,
+  ArBlogIndexRoute: ArBlogIndexRoute,
 }
 
 const ArRouteWithChildren = ArRoute._addFileChildren(ArRouteChildren)
@@ -800,13 +791,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
