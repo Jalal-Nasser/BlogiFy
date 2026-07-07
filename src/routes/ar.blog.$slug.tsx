@@ -76,9 +76,14 @@ export const Route = createFileRoute("/ar/blog/$slug")({
 
 function ArabicArticlePage() {
   const { slug } = Route.useParams();
-  const { article } = Route.useLoaderData();
-  const Body = article.Body;
+  const article = getArabicArticle(slug);
+  const Body = getArabicArticleBody(slug);
   const enUrl = `/blog/${slug}`;
+
+  if (!article) {
+    return <div className="p-20 text-center text-muted-foreground">المقال غير موجود.</div>;
+  }
+
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 lg:py-16">
