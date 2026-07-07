@@ -20,8 +20,14 @@ export interface ArabicArticle {
   translationStatus: TranslationStatus;
   englishUrl: string;
   arabicUrl: string;
+}
+
+/** Internal input shape used to build the registry — Body is stripped out into a separate map. */
+interface ArabicArticleInput extends Omit<ArabicArticle, "sourceEnglishSlug" | "englishUrl" | "arabicUrl" | "translationStatus"> {
+  translationStatus?: TranslationStatus;
   Body: () => ReactNode;
 }
+
 
 const SITE = "https://jalalnasser.com";
 
