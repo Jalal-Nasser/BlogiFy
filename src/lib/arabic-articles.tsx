@@ -1066,17 +1066,25 @@ function WindowsPasswordVaultArticle() {
 
 // ============ Registry ============
 
-function makeArticle(a: Omit<ArabicArticle, "sourceEnglishSlug" | "englishUrl" | "arabicUrl" | "translationStatus"> & {
-  translationStatus?: TranslationStatus;
-}): ArabicArticle {
+/** Populated as a side-effect of makeArticle so the serializable metadata array stays JSON-safe. */
+export const ARABIC_ARTICLE_BODIES: Record<string, () => ReactNode> = {};
+
+function makeArticle(a: ArabicArticleInput): ArabicArticle {
+  const { Body, ...meta } = a;
+  ARABIC_ARTICLE_BODIES[a.slug] = Body;
   return {
-    ...a,
+    ...meta,
     sourceEnglishSlug: a.slug,
     englishUrl: `${SITE}/blog/${a.slug}`,
     arabicUrl: `${SITE}/ar/blog/${a.slug}`,
     translationStatus: a.translationStatus ?? "published",
   };
 }
+
+export function getArabicArticleBody(slug: string): (() => ReactNode) | undefined {
+  return ARABIC_ARTICLE_BODIES[slug];
+}
+
 
 export const ARABIC_ARTICLES: ArabicArticle[] = [
   makeArticle({
