@@ -14,7 +14,13 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    plugins: [mcpPlugin()],
+    plugins: [
+      // We author the MCP route files ourselves (they wrap the handlers with
+      // bearer-token auth). Point the plugin at a non-existent entry so it
+      // skips its route-file generation but the manifest tooling still works.
+      mcpPlugin({ mcpEntry: "src/lib/mcp/__generated_entry_disabled.ts" }),
+    ],
   },
 });
+
 
