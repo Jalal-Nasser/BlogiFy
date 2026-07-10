@@ -35,10 +35,11 @@ const plusDays = (d: string, n: number) => {
   return dt.toISOString().slice(0, 10);
 };
 
+const generateInvoiceNo = () =>
+  `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
 function InvoicePage() {
-  const [invoiceNo, setInvoiceNo] = useState(
-    `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
-  );
+  const [invoiceNo, setInvoiceNo] = useState<string>(() => generateInvoiceNo());
   const [issueDate, setIssueDate] = useState(todayISO());
   const [dueDate, setDueDate] = useState(plusDays(todayISO(), 14));
   const [currency, setCurrency] = useState("GBP");
