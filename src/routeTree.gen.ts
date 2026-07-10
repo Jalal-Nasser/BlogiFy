@@ -30,6 +30,7 @@ import { Route as AuthenticatedSeoRouteImport } from './routes/_authenticated/se
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPublishedRouteImport } from './routes/_authenticated/published'
 import { Route as AuthenticatedMediaRouteImport } from './routes/_authenticated/media'
+import { Route as AuthenticatedInvoiceRouteImport } from './routes/_authenticated/invoice'
 import { Route as AuthenticatedFeaturedRouteImport } from './routes/_authenticated/featured'
 import { Route as AuthenticatedDraftsRouteImport } from './routes/_authenticated/drafts'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -148,6 +149,11 @@ const AuthenticatedMediaRoute = AuthenticatedMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInvoiceRoute = AuthenticatedInvoiceRouteImport.update({
+  id: '/invoice',
+  path: '/invoice',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFeaturedRoute = AuthenticatedFeaturedRouteImport.update({
   id: '/featured',
   path: '/featured',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/drafts': typeof AuthenticatedDraftsRoute
   '/featured': typeof AuthenticatedFeaturedRoute
+  '/invoice': typeof AuthenticatedInvoiceRoute
   '/media': typeof AuthenticatedMediaRoute
   '/published': typeof AuthenticatedPublishedRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/drafts': typeof AuthenticatedDraftsRoute
   '/featured': typeof AuthenticatedFeaturedRoute
+  '/invoice': typeof AuthenticatedInvoiceRoute
   '/media': typeof AuthenticatedMediaRoute
   '/published': typeof AuthenticatedPublishedRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/drafts': typeof AuthenticatedDraftsRoute
   '/_authenticated/featured': typeof AuthenticatedFeaturedRoute
+  '/_authenticated/invoice': typeof AuthenticatedInvoiceRoute
   '/_authenticated/media': typeof AuthenticatedMediaRoute
   '/_authenticated/published': typeof AuthenticatedPublishedRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/drafts'
     | '/featured'
+    | '/invoice'
     | '/media'
     | '/published'
     | '/reports'
@@ -377,6 +387,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/drafts'
     | '/featured'
+    | '/invoice'
     | '/media'
     | '/published'
     | '/reports'
@@ -413,6 +424,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/drafts'
     | '/_authenticated/featured'
+    | '/_authenticated/invoice'
     | '/_authenticated/media'
     | '/_authenticated/published'
     | '/_authenticated/reports'
@@ -601,6 +613,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMediaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/invoice': {
+      id: '/_authenticated/invoice'
+      path: '/invoice'
+      fullPath: '/invoice'
+      preLoaderRoute: typeof AuthenticatedInvoiceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/featured': {
       id: '/_authenticated/featured'
       path: '/featured'
@@ -701,6 +720,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDraftsRoute: typeof AuthenticatedDraftsRoute
   AuthenticatedFeaturedRoute: typeof AuthenticatedFeaturedRoute
+  AuthenticatedInvoiceRoute: typeof AuthenticatedInvoiceRoute
   AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
   AuthenticatedPublishedRoute: typeof AuthenticatedPublishedRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
@@ -718,6 +738,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDraftsRoute: AuthenticatedDraftsRoute,
   AuthenticatedFeaturedRoute: AuthenticatedFeaturedRoute,
+  AuthenticatedInvoiceRoute: AuthenticatedInvoiceRoute,
   AuthenticatedMediaRoute: AuthenticatedMediaRoute,
   AuthenticatedPublishedRoute: AuthenticatedPublishedRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
