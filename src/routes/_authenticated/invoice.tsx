@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Trash2, Download, FileText } from "lucide-react";
+import { Plus, Trash2, Download, FileText, RefreshCw } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 
 export const Route = createFileRoute("/_authenticated/invoice")({
@@ -35,10 +35,11 @@ const plusDays = (d: string, n: number) => {
   return dt.toISOString().slice(0, 10);
 };
 
+const generateInvoiceNo = () =>
+  `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
 function InvoicePage() {
-  const [invoiceNo, setInvoiceNo] = useState(
-    `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
-  );
+  const [invoiceNo, setInvoiceNo] = useState<string>(() => generateInvoiceNo());
   const [issueDate, setIssueDate] = useState(todayISO());
   const [dueDate, setDueDate] = useState(plusDays(todayISO(), 14));
   const [currency, setCurrency] = useState("GBP");
@@ -282,7 +283,25 @@ function InvoicePage() {
               <FileText className="size-4 text-brand" /> Invoice details
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Invoice #" value={invoiceNo} onChange={setInvoiceNo} />
+              <div>
+                <Label>Invoice #</Label>
+                <div className="flex gap-2">
+                  <input
+                    value={invoiceNo}
+                    onChange={(e) => setInvoiceNo(e.target.value)}
+                    className={inputCls}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceNo(generateInvoiceNo())}
+                    className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-brand hover:border-brand transition-colors"
+                    title="Generate new invoice number"
+                  >
+                    <RefreshCw className="size-3.5" />
+                    New
+                  </button>
+                </div>
+              </div>
               <div>
                 <Label>Currency</Label>
                 <select
