@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { getSettings, saveSettings, listAuthors } from "@/lib/cms.functions";
-import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }, { title: "Settings" }] }),
