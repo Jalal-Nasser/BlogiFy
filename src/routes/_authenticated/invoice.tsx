@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Trash2, Download, FileText } from "lucide-react";
+import { Plus, Trash2, Download, FileText, RefreshCw } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 
 export const Route = createFileRoute("/_authenticated/invoice")({
