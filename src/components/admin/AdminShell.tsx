@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   Star,
   BarChart3,
+  Receipt,
   Settings as SettingsIcon,
   LogOut,
   Menu,
@@ -31,6 +32,7 @@ const navItems = [
   { to: "/published", label: "Published", icon: CheckCircle2 },
   { to: "/featured", label: "Featured", icon: Star },
   { to: "/reports", label: "Reports", icon: BarChart3 },
+  { to: "/invoice", label: "Invoice", icon: Receipt },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 
