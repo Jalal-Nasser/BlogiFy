@@ -58,7 +58,59 @@ function SettingsPage() {
           {mut.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Save settings
         </button>
       </div>
+
+      <ChangePasswordCard />
     </AdminShell>
+  );
+}
+
+function ChangePasswordCard() {
+  const [pw, setPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (pw.length < 8) return toast.error("Password must be at least 8 characters");
+    if (pw !== confirm) return toast.error("Passwords do not match");
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pw });
+      if (error) throw error;
+      toast.success("Password updated");
+      setPw("");
+      setConfirm("");
+    } catch (err: any) {
+      toast.error(err.message ?? "Failed to update password");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-2xl bg-white rounded-lg border border-slate-200 p-5 space-y-4 mt-6"
+    >
+      <div className="flex items-center gap-2 text-slate-900">
+        <KeyRound className="h-4 w-4" />
+        <h2 className="font-semibold text-sm">Change password</h2>
+      </div>
+      <F label="New password">
+        <input type="password" autoComplete="new-password" className={inp} value={pw} onChange={(e) => setPw(e.target.value)} minLength={8} required />
+      </F>
+      <F label="Confirm new password">
+        <input type="password" autoComplete="new-password" className={inp} value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={8} required />
+      </F>
+      <button
+        type="submit"
+        disabled={loading}
+        className="inline-flex items-center gap-1.5 bg-slate-900 text-white text-sm px-4 py-2 rounded-md hover:bg-slate-800 disabled:opacity-60"
+      >
+        {loading && <Loader2 className="h-4 w-4 animate-spin" />} Update password
+      </button>
+      <p className="text-xs text-slate-500">Minimum 8 characters. You'll stay signed in after updating.</p>
+    </form>
   );
 }
 function F({ label, children }: { label: string; children: React.ReactNode }) {
