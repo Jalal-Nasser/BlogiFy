@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { fetchPostBySlug, fetchRelatedPosts } from "@/lib/queries";
 import { hasArabicVersion } from "@/lib/arabic-articles";
+import { getPostSeoOverride } from "@/lib/post-seo";
 import { CategoryBadge } from "@/components/site/CategoryBadge";
 
 import { PostCard } from "@/components/site/PostCard";
@@ -10,8 +11,150 @@ import { Sidebar } from "@/components/site/Sidebar";
 import { Clock, Eye, User, Calendar, Twitter, Linkedin, Link2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
+const SITE_BASE = "https://jalalnasser.com";
+const FALLBACK_DESCRIPTION =
+  "A hands-on tech tutorial from BlogiFy covering Linux, security, WordPress, self-hosting, and modern infrastructure.";
+
+type PostHeadMeta = {
+  found: boolean;
+  slug: string;
+  title: string;
+  seoTitle: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  publishedAt: string | null;
+  author: string;
+  tags: string[];
+  hasArabic: boolean;
+};
+
+function toAbsoluteUrl(path: string): string {
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${SITE_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
 export const Route = createFileRoute("/blog/$slug")({
   component: PostPage,
+  loader: async ({ params }): Promise<PostHeadMeta> => {
+    const post = await fetchPostBySlug(params.slug);
+    if (!post) {
+      return {
+        found: false,
+        slug: params.slug,
+        title: "Post not found",
+        seoTitle: "Post not found",
+        description: FALLBACK_DESCRIPTION,
+        image: "",
+        imageAlt: "",
+        publishedAt: null,
+        author: "Jalal Nasser",
+        tags: [],
+        hasArabic: false,
+      };
+    }
+    const override = getPostSeoOverride(post.slug);
+    return {
+      found: true,
+      slug: post.slug,
+      title: post.title,
+      seoTitle: override?.seoTitle ?? post.title,
+      description: override?.metaDescription ?? post.excerpt ?? FALLBACK_DESCRIPTION,
+      image: toAbsoluteUrl(post.featured_image_url ?? ""),
+      imageAlt: override?.imageAlt ?? post.title,
+      publishedAt: post.published_at ?? null,
+      author: post.author ?? "Jalal Nasser",
+      tags: Array.isArray(post.tags) ? post.tags : [],
+      hasArabic: hasArabicVersion(post.slug),
+    };
+  },
+  head: ({ params, loaderData }) => {
+    const data: PostHeadMeta =
+      loaderData ?? {
+        found: false,
+        slug: params.slug,
+        title: "Loading…",
+        seoTitle: "Loading…",
+        description: FALLBACK_DESCRIPTION,
+        image: "",
+        imageAlt: "",
+        publishedAt: null,
+        author: "Jalal Nasser",
+        tags: [],
+        hasArabic: false,
+      };
+    const url = `${SITE_BASE}/blog/${data.slug}`;
+    const meta: Array<Record<string, string>> = [
+      { title: data.seoTitle },
+      { name: "description", content: data.description },
+      {
+        name: "robots",
+        content: data.found ? "index,follow,max-image-preview:large" : "noindex,follow",
+      },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: url },
+      { property: "og:site_name", content: "BlogiFy" },
+      { property: "og:title", content: data.seoTitle },
+      { property: "og:description", content: data.description },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: data.seoTitle },
+      { name: "twitter:description", content: data.description },
+    ];
+    if (data.image) {
+      meta.push({ property: "og:image", content: data.image });
+      meta.push({ property: "og:image:alt", content: data.imageAlt });
+      meta.push({ name: "twitter:image", content: data.image });
+      meta.push({ name: "twitter:image:alt", content: data.imageAlt });
+    }
+    if (data.publishedAt) {
+      meta.push({ property: "article:published_time", content: data.publishedAt });
+    }
+    meta.push({ property: "article:author", content: data.author });
+    for (const tag of data.tags) {
+      meta.push({ property: "article:tag", content: tag });
+    }
+    if (data.tags.length > 0) {
+      meta.push({ name: "keywords", content: data.tags.join(", ") });
+    }
+
+    const links: Array<Record<string, string>> = [
+      { rel: "canonical", href: url },
+    ];
+    if (data.hasArabic) {
+      const arUrl = `${SITE_BASE}/ar/blog/${data.slug}`;
+      links.push({ rel: "alternate", hrefLang: "en", href: url });
+      links.push({ rel: "alternate", hrefLang: "ar", href: arUrl });
+      links.push({ rel: "alternate", hrefLang: "x-default", href: url });
+    }
+
+    const scripts = data.found
+      ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: data.seoTitle,
+              description: data.description,
+              image: data.image ? [data.image] : undefined,
+              datePublished: data.publishedAt,
+              author: { "@type": "Person", name: data.author, url: SITE_BASE },
+              publisher: {
+                "@type": "Organization",
+                name: "BlogiFy",
+                url: SITE_BASE,
+                logo: { "@type": "ImageObject", url: `${SITE_BASE}/logo.png` },
+              },
+              url,
+              mainEntityOfPage: { "@type": "WebPage", "@id": url },
+            }),
+          },
+        ]
+      : [];
+
+    return { meta, links, scripts };
+  },
   notFoundComponent: () => <div className="p-20 text-center text-muted-foreground">Post not found.</div>,
   errorComponent: ({ error }) => <div className="p-20 text-center text-destructive">{String(error)}</div>,
 });
