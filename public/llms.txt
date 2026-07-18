@@ -13,3 +13,12 @@
 
 - [Blog](/blog/linux-server-hardening-guide): Practical tutorials covering Linux, security, WordPress, self-hosting, crypto, and digital marketing.
 - [Categories](/category/linux): Browse articles by topic — Linux, security, WordPress, self-hosting, crypto, marketing, and more.
+
+## AI & Tech (July 2026)
+
+- [ChatGPT vs Gemini vs Claude in 2026](/blog/chatgpt-vs-gemini-vs-claude-2026): Which AI assistant is best for coding, research, writing, and business.
+- [GPT-5.6 Explained](/blog/gpt-5-6-explained): What changed, cost and latency, and who should upgrade.
+- [AI Video Generation in 2026](/blog/ai-video-generation-guide-2026): Tools, production workflows, provenance and deepfake risks.
+- [AI Search Engines vs Google](/blog/ai-search-engines-vs-google-2026): When to use AI answers, when to use classic search, and a verification workflow.
+- [Will AI Replace Jobs? US & UK 2026](/blog/will-ai-replace-jobs-us-uk-2026): Exposed tasks, rising skills, and a 90-day reskilling plan.
+
