@@ -44,11 +44,6 @@ export function Sidebar() {
       </div>
 
       <DonationWidget />
-
-      <PphHireWidget />
-
-
-
     </aside>
   );
 }
