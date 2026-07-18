@@ -5,7 +5,6 @@ import { PostCard } from "./PostCard";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { DonationWidget } from "./DonationWidget";
-import { PphHireWidget } from "./PphHireWidget";
 
 export function Sidebar() {
   const { data: recent = [] } = useQuery({ queryKey: ["posts", "recent"], queryFn: () => fetchPosts(8) });
@@ -45,11 +44,6 @@ export function Sidebar() {
       </div>
 
       <DonationWidget />
-
-      <PphHireWidget />
-
-
-
     </aside>
   );
 }
