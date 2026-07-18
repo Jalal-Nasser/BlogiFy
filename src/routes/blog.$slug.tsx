@@ -222,7 +222,7 @@ function PostPage() {
 
       {post.featured_image_url && (
         <div className="mt-8 overflow-hidden rounded-2xl border border-border">
-          <img src={post.featured_image_url} alt={post.title} className="w-full aspect-[21/9] object-cover" />
+          <img src={post.featured_image_url} alt={getPostSeoOverride(post.slug)?.imageAlt ?? post.title} className="w-full aspect-[21/9] object-cover" />
         </div>
       )}
 
