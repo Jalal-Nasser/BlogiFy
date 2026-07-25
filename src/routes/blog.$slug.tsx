@@ -89,38 +89,6 @@ export const Route = createFileRoute("/blog/$slug")({
         author: "Jalal Nasser",
         tags: [],
         keywords: [],
-        hasArabic: false,
-      };
-    }
-    const override = getPostSeoOverride(post.slug);
-    return {
-      found: true,
-      slug: post.slug,
-      title: post.title,
-      seoTitle: override?.seoTitle ?? post.title,
-      description: override?.metaDescription ?? post.excerpt ?? FALLBACK_DESCRIPTION,
-      image: toAbsoluteUrl(post.featured_image_url ?? ""),
-      imageAlt: override?.imageAlt ?? post.title,
-      publishedAt: post.published_at ?? null,
-      author: post.author ?? "Jalal Nasser",
-      tags: Array.isArray(post.tags) ? post.tags : [],
-      hasArabic: hasArabicVersion(post.slug),
-    };
-  },
-  head: ({ params, loaderData }) => {
-    const data: PostHeadMeta =
-      loaderData ?? {
-        found: false,
-        slug: params.slug,
-        title: "Loading…",
-        seoTitle: "Loading…",
-        description: FALLBACK_DESCRIPTION,
-        image: "",
-        imageAlt: "",
-        publishedAt: null,
-        author: "Jalal Nasser",
-        tags: [],
-        hasArabic: false,
       };
     const url = `${SITE_BASE}/blog/${data.slug}`;
     const meta: Array<Record<string, string>> = [
