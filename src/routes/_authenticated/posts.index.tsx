@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { AdminShell, StatusBadge } from "@/components/admin/AdminShell";
-import { listPosts, listCategories, listAuthors, archivePost, togglePostFeatured } from "@/lib/cms.functions";
-import { Plus, Edit, Archive, Star, StarOff, Search } from "lucide-react";
+import { listPosts, listCategories, listAuthors, archivePost, togglePostFeatured, listUncategorizedWithSuggestions, bulkFixCategoriesAndTags } from "@/lib/cms.functions";
+import { Plus, Edit, Archive, Star, StarOff, Search, Wrench, Loader2, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/posts/")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }, { title: "Posts" }] }),
