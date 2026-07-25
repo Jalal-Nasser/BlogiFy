@@ -3,9 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AdminShell } from "./AdminShell";
-import { savePost, getPost, listCategories, listAuthors, listTags } from "@/lib/cms.functions";
+import { savePost, getPost, listCategories, listAuthors, listTags, suggestForPost } from "@/lib/cms.functions";
 import { slugify } from "@/lib/slug";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles, Wand2 } from "lucide-react";
 
 type Tab = "content" | "seo" | "publishing";
 const STATUSES = ["Draft", "In review", "Scheduled", "Published", "Archived"];
@@ -26,10 +26,11 @@ export default function PostEditor({ postId }: { postId?: string }) {
 
   const [form, setForm] = useState<any>({
     title: "", slug: "", excerpt: "", content: "", featured_image_url: "", featured: false,
-    seo_title: "", meta_description: "", canonical_url: "",
+    seo_title: "", meta_description: "", canonical_url: "", focus_keywords: [] as string[],
     author_id: "", category_id: "", status: "Draft", published_at: "",
     tag_ids: [] as string[],
   });
+  const [focusInput, setFocusInput] = useState("");
   const [touchedSlug, setTouchedSlug] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function PostEditor({ postId }: { postId?: string }) {
         title: p.title ?? "", slug: p.slug ?? "", excerpt: p.excerpt ?? "", content: p.content ?? "",
         featured_image_url: p.featured_image_url ?? "", featured: !!p.featured,
         seo_title: p.seo_title ?? "", meta_description: p.meta_description ?? "", canonical_url: p.canonical_url ?? "",
+        focus_keywords: Array.isArray(p.focus_keywords) ? p.focus_keywords : [],
         author_id: p.author_id ?? "", category_id: p.category_id ?? "",
         status: p.status ?? "Draft",
         published_at: p.published_at ? new Date(p.published_at).toISOString().slice(0, 16) : "",
@@ -66,6 +68,7 @@ export default function PostEditor({ postId }: { postId?: string }) {
         canonical_url: form.canonical_url || null,
         published_at: form.published_at ? new Date(form.published_at).toISOString() : null,
         tag_ids: form.tag_ids,
+        focus_keywords: form.focus_keywords,
       },
     }),
     onSuccess: (res) => {
@@ -78,8 +81,43 @@ export default function PostEditor({ postId }: { postId?: string }) {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const suggestMut = useMutation({
+    mutationFn: () => suggestForPost({ data: { title: form.title, content: form.content, excerpt: form.excerpt } }),
+    onSuccess: (s: any) => {
+      const patches: any = {};
+      if (!form.meta_description && s.meta_description) patches.meta_description = s.meta_description;
+      if (s.suggested_tag_ids?.length) {
+        const merged = Array.from(new Set([...(form.tag_ids ?? []), ...s.suggested_tag_ids]));
+        patches.tag_ids = merged;
+      }
+      if (!form.category_id && s.suggested_category_id) patches.category_id = s.suggested_category_id;
+      setForm((f: any) => ({ ...f, ...patches }));
+      toast.success(`Suggested ${s.suggested_tag_names?.length ?? 0} tags · category: ${s.suggested_category_name ?? "—"}`);
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   function setField(k: string, v: any) {
     setForm((f: any) => ({ ...f, [k]: v }));
+  }
+  function addKeyword() {
+    const v = focusInput.trim();
+    if (!v) return;
+    if (form.focus_keywords.includes(v)) { setFocusInput(""); return; }
+    setField("focus_keywords", [...form.focus_keywords, v]);
+    setFocusInput("");
+  }
+  function removeKeyword(k: string) {
+    setField("focus_keywords", form.focus_keywords.filter((x: string) => x !== k));
+  }
+  function autoMeta() {
+    const strip = (form.excerpt || form.content || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (!strip) { toast.error("Add excerpt or content first"); return; }
+    const cut = strip.slice(0, 155);
+    const lastSpace = cut.lastIndexOf(" ");
+    const meta = (lastSpace > 100 ? cut.slice(0, lastSpace) : cut).replace(/[,;:.\-–]+$/, "") + (strip.length > 155 ? "…" : "");
+    setField("meta_description", meta);
+    toast.success("Meta description generated");
   }
 
   return (
@@ -120,13 +158,40 @@ export default function PostEditor({ postId }: { postId?: string }) {
           )}
           {tab === "seo" && (
             <>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={autoMeta} className="inline-flex items-center gap-1.5 border border-slate-300 text-slate-700 text-sm px-3 py-1.5 rounded-md hover:bg-slate-50">
+                  <Wand2 className="h-4 w-4" /> Auto-generate meta
+                </button>
+                <button type="button" disabled={suggestMut.isPending} onClick={() => suggestMut.mutate()} className="inline-flex items-center gap-1.5 border border-slate-300 text-slate-700 text-sm px-3 py-1.5 rounded-md hover:bg-slate-50 disabled:opacity-60">
+                  {suggestMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Suggest tags &amp; category
+                </button>
+              </div>
               <Field label="SEO Title"><input className={inp} value={form.seo_title} onChange={(e) => setField("seo_title", e.target.value)} /></Field>
-              <Field label="Meta Description"><textarea rows={3} className={inp} value={form.meta_description} onChange={(e) => setField("meta_description", e.target.value)} /></Field>
+              <Field label={`Meta Description (${(form.meta_description ?? "").length}/160)`}>
+                <textarea rows={3} className={inp} value={form.meta_description} onChange={(e) => setField("meta_description", e.target.value)} />
+              </Field>
+              <Field label="Focus Keywords">
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {form.focus_keywords.map((k: string) => (
+                    <span key={k} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md px-2 py-0.5 text-xs">
+                      {k}
+                      <button type="button" onClick={() => removeKeyword(k)} className="text-blue-500 hover:text-red-600">×</button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input className={inp} placeholder="Add a keyword and press Enter"
+                    value={focusInput}
+                    onChange={(e) => setFocusInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addKeyword(); } }} />
+                  <button type="button" onClick={addKeyword} className="text-sm px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50">Add</button>
+                </div>
+              </Field>
               <Field label="Canonical URL"><input className={inp} value={form.canonical_url} onChange={(e) => setField("canonical_url", e.target.value)} /></Field>
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4">
                 <div className="text-xs uppercase text-slate-500 mb-2">Search preview</div>
                 <div className="text-blue-700 text-base truncate">{form.seo_title || form.title || "Untitled"}</div>
-                <div className="text-green-700 text-xs truncate">{form.canonical_url || `https://example.com/blog/${form.slug || "slug"}`}</div>
+                <div className="text-green-700 text-xs truncate">{form.canonical_url || `https://jalalnasser.com/blog/${form.slug || "slug"}`}</div>
                 <div className="text-slate-600 text-sm mt-1 line-clamp-2">{form.meta_description || form.excerpt || "No meta description set."}</div>
               </div>
             </>
