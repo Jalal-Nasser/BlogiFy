@@ -141,11 +141,12 @@ export const Route = createFileRoute("/blog/$slug")({
             type: "application/ld+json",
             children: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Article",
+              "@type": "BlogPosting",
               headline: data.seoTitle,
               description: data.description,
               image: data.image ? [data.image] : undefined,
               datePublished: data.publishedAt,
+              dateModified: data.publishedAt,
               author: { "@type": "Person", name: data.author, url: SITE_BASE },
               publisher: {
                 "@type": "Organization",
@@ -155,6 +156,8 @@ export const Route = createFileRoute("/blog/$slug")({
               },
               url,
               mainEntityOfPage: { "@type": "WebPage", "@id": url },
+              keywords: data.keywords.length > 0 ? data.keywords.join(", ") : undefined,
+              articleSection: undefined,
             }),
           },
         ]
