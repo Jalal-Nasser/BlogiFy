@@ -89,6 +89,7 @@ export const Route = createFileRoute("/blog/$slug")({
         author: "Jalal Nasser",
         tags: [],
         keywords: [],
+        hasArabic: false,
       };
     const url = `${SITE_BASE}/blog/${data.slug}`;
     const meta: Array<Record<string, string>> = [
