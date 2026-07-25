@@ -65,7 +65,10 @@ function PostsPage() {
             <option value="">All authors</option>
             {(authors.data ?? []).map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
-          <button onClick={() => navigate({ to: "/posts/new" })} className="ml-auto inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-2 rounded-md hover:bg-blue-700">
+          <button onClick={() => setFixOpen(true)} className="ml-auto inline-flex items-center gap-1.5 border border-slate-300 text-slate-700 text-sm px-3 py-2 rounded-md hover:bg-slate-50">
+            <Wrench className="h-4 w-4" /> Fix Missing Categories &amp; Tags
+          </button>
+          <button onClick={() => navigate({ to: "/posts/new" })} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-2 rounded-md hover:bg-blue-700">
             <Plus className="h-4 w-4" /> New Post
           </button>
         </div>
