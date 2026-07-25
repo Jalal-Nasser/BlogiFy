@@ -26,6 +26,7 @@ type PostHeadMeta = {
   publishedAt: string | null;
   author: string;
   tags: string[];
+  keywords: string[];
   hasArabic: boolean;
 };
 
@@ -51,6 +52,43 @@ export const Route = createFileRoute("/blog/$slug")({
         publishedAt: null,
         author: "Jalal Nasser",
         tags: [],
+        keywords: [],
+        hasArabic: false,
+      };
+    }
+    const override = getPostSeoOverride(post.slug);
+    const tags = Array.isArray(post.tags) ? post.tags : [];
+    const focus = Array.isArray(post.focus_keywords) ? post.focus_keywords : [];
+    const keywords = Array.from(new Set([...(override?.keywords ?? []), ...focus, ...tags]));
+    return {
+      found: true,
+      slug: post.slug,
+      title: post.title,
+      seoTitle: override?.seoTitle ?? post.title,
+      description: override?.metaDescription ?? post.meta_description ?? post.excerpt ?? FALLBACK_DESCRIPTION,
+      image: toAbsoluteUrl(post.featured_image_url ?? ""),
+      imageAlt: override?.imageAlt ?? post.title,
+      publishedAt: post.published_at ?? null,
+      author: post.author ?? "Jalal Nasser",
+      tags,
+      keywords,
+      hasArabic: hasArabicVersion(post.slug),
+    };
+  },
+  head: ({ params, loaderData }) => {
+    const data: PostHeadMeta =
+      loaderData ?? {
+        found: false,
+        slug: params.slug,
+        title: "Loading…",
+        seoTitle: "Loading…",
+        description: FALLBACK_DESCRIPTION,
+        image: "",
+        imageAlt: "",
+        publishedAt: null,
+        author: "Jalal Nasser",
+        tags: [],
+        keywords: [],
         hasArabic: false,
       };
     }
