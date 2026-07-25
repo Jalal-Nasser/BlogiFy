@@ -111,31 +111,57 @@ export function Header() {
   );
 }
 
+const LANGS = [
+  { code: "en", label: "English", href: "/" },
+  { code: "ko", label: "한국어", href: "/ko" },
+  { code: "fr", label: "Français", href: "/fr" },
+  { code: "ar", label: "العربية", href: "/ar", rtl: true },
+] as const;
+
 function LanguageSwitcher() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isArabic = pathname === "/ar" || pathname.startsWith("/ar/");
-  if (isArabic) {
-    return (
-      <Link
-        to="/"
+  const [open, setOpen] = useState(false);
+  const current =
+    LANGS.find((l) => l.code !== "en" && (pathname === l.href || pathname.startsWith(l.href + "/"))) ??
+    LANGS[0];
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [open]);
+  return (
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-        aria-label="Switch to English"
+        aria-haspopup="listbox"
+        aria-expanded={open}
       >
         <Globe className="size-3.5" />
-        English
-      </Link>
-    );
-  }
-  return (
-    <Link
-      to="/ar"
-      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-      aria-label="التبديل إلى العربية"
-      lang="ar"
-      dir="rtl"
-    >
-      <Globe className="size-3.5" />
-      العربية
-    </Link>
+        <span>{current.label}</span>
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute right-0 rtl:right-auto rtl:left-0 mt-2 min-w-[10rem] rounded-md border border-border bg-background/95 backdrop-blur shadow-lg z-50 py-1"
+        >
+          {LANGS.map((l) => (
+            <li key={l.code}>
+              <a
+                href={l.href}
+                lang={l.code}
+                dir={"rtl" in l && l.rtl ? "rtl" : "ltr"}
+                className={`block px-3 py-1.5 text-sm hover:bg-surface ${current.code === l.code ? "text-brand" : "text-foreground"}`}
+                onClick={() => setOpen(false)}
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

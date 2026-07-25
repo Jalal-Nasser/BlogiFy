@@ -14,6 +14,7 @@ import {
   BarChart3,
   Receipt,
   Settings as SettingsIcon,
+  Globe,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -32,6 +33,7 @@ const navItems = [
   { to: "/published", label: "Published", icon: CheckCircle2 },
   { to: "/featured", label: "Featured", icon: Star },
   { to: "/reports", label: "Reports", icon: BarChart3 },
+  { to: "/research", label: "Research", icon: Globe },
   { to: "/invoice", label: "Invoice", icon: Receipt },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;

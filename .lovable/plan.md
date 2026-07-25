@@ -1,102 +1,117 @@
+# Plan: Firecrawl improvements + Multi-language (EN/KO/FR/AR)
 
-# Consolidate BlogiFy → Lovable Cloud
+Two independent workstreams. I'll ship them in this order so #1 is done before I start rewriting routes for #2.
 
-## Findings
+---
 
-### Two databases today
-- **Public client** (`src/lib/supabase.ts`) is hardcoded to BlogiFy (`kejgjwvesmlaorviofyl.supabase.co`). All public reads in `src/lib/queries.ts` go there.
-- **Lovable Cloud** holds auth, admin CMS (`cms.functions.ts`), `page_views`, and an existing copy of the posts.
+## Part A — Firecrawl improvements
 
-### Schema diff — `posts`
+Existing state: `FIRECRAWL_API_KEY` is linked as a **direct-API** connection (`fc-…`), but no code uses it yet.
 
-| Column | BlogiFy | Lovable Cloud |
-|---|---|---|
-| `id` | **integer** | **uuid** |
-| `category_id` | absent | `uuid` (FK categories.id) |
-| `category_slug` | `text` | **absent** |
-| `featured_image` | `text` | **absent** |
-| Everything else (title, slug, content, excerpt, featured_image_url, author, author_id, tags, status, published_at, read_time_minutes, views, featured, seo_title, meta_description, canonical_url, updated_at, created_at) | present | present |
+**A1. Server helper** — `src/lib/firecrawl.functions.ts` (`createServerFn`, admin-only via `has_role`):
+- `firecrawlSearchEN({ query, limit })` and `firecrawlScrapeEN({ url })`
+- Rotates `location.country` across **US, GB, CA, AU, IE, NZ** (round-robin per call)
+- Sets `location.languages: ["en"]` and forwards `Accept-Language: en-US,en-GB,en;q=0.9`
+- English filter (both helpers):
+  - Trust `metadata.language` when present and starts with `en`
+  - Otherwise run a small heuristic on the returned markdown (common-word ratio + ASCII share; no new npm dep — keeps the Worker bundle clean)
+  - **Discard** non-English results (your stated intent); returns `{ kept, dropped }` counts so the UI can show what was filtered
+- Direct-API auth against `https://api.firecrawl.dev/v2/{scrape,search}` (no gateway, no `X-Connection-Api-Key`)
 
-### Schema diff — `categories`
+**A2. Admin UI** — new tab in the admin dashboard: **Research** (`/_authenticated/research`)
+- Two panels: Search and Scrape
+- Shows kept results as cards (title, URL, description, markdown preview) and a count of dropped non-English results
+- Reuses existing admin shell / auth gate
 
-| Column | BlogiFy | Lovable Cloud |
-|---|---|---|
-| `id` | int | `uuid` |
-| `wp_id` | present | absent |
-| `parent_slug` | `text` | absent (LC uses `parent_id uuid`) |
-| name, slug, color, description, status, updated_at | present | present |
+Nothing runs on a schedule for now; you can trigger from the dashboard on demand.
 
-### Row counts
+---
 
-| | BlogiFy | Lovable Cloud |
-|---|---|---|
-| posts (total) | 40 | 46 |
-| posts (published) | 40 | 46 |
-| categories | 22 | 22 (slugs match) |
-| pages / tags / post_tags / media_assets / authors / contact_submissions / newsletter_subscribers | empty/absent in BlogiFy | pages=4, rest empty |
+## Part B — Multi-language site (EN default, +KO, +FR, +AR-RTL)
 
-LC's 46 posts are a **superset**: all 40 BlogiFy slugs are present, plus 6 newer ones (`cloudflare-tunnels-home-server`, `crypto-self-custody-hardware-vs-multisig`, `hardening-linux-server-2026`, `nas-storage-truenas-scale-40tb-build`, `self-hosting-mail-server-2026`, `wordpress-rest-api-headless-frontend`). Categories overlap 1:1 by slug.
+### B1. Routing
 
-### Tables actually used by the public site
-From `src/lib/queries.ts`: `posts`, `categories`, `contact_submissions`, plus newsletter via `cms.functions` (already LC). `pages`, `tags`, `post_tags`, `media_assets`, `authors` are not read by the public site.
+Add a locale segment in front of public content routes:
 
-### Media references in BlogiFy posts
-- `featured_image_url` hosts: BlogiFy storage **37**, dropskey.net 2, unsplash 1.
-- Inline `<img>` URLs in `content`: BlogiFy storage **61**, plus 8 external hosts (mango-wp, androidcure, technuovo, jeumobi, spca, logosdownload, wikimedia, worldvectorlogo, jalalnasser) at 1 each.
-- ~100 unique media URLs total; ~98 unique BlogiFy-hosted files (already-migrated featured images overlap; inline images mostly NOT yet migrated).
+```text
+src/routes/
+  index.tsx                  -> /            (EN, canonical)
+  blog.index.tsx             -> /blog        (EN)
+  blog.$slug.tsx             -> /blog/$slug  (EN)
+  $lang.tsx                  -> layout: validates lang ∈ {ko, fr, ar}, sets <html lang dir>
+  $lang.index.tsx            -> /ko, /fr, /ar
+  $lang.blog.index.tsx       -> /ko/blog, /fr/blog, /ar/blog
+  $lang.blog.$slug.tsx       -> /ko/blog/:slug, /fr/blog/:slug, /ar/blog/:slug
+```
 
-### Critical mismatches that would break the public site if we just repointed today
-1. LC `posts` has **no `category_slug`** — every `queries.ts` call (list, by-slug, by-category, related) filters/selects on it → all queries 500.
-2. LC `posts.category_id` is set on only 6 of 46 rows — even after adding `category_slug`, most posts would have no category.
-3. LC `categories` lacks `wp_id` and `parent_slug` — `fetchCategories`/`fetchCategoryBySlug` select these columns → 400.
-4. `media_assets` table is empty on LC; `contact_submissions` table doesn't exist on LC (LC has `contact_messages` instead) — `submitContact` would 404.
-5. Inline images in `content` still point to BlogiFy storage on the 40 imported LC rows (only `featured_image_url` was rewritten in the prior media migration).
+- EN stays at the root (no `/en/` prefix) so existing URLs, sitemaps, GSC data, and LinkedIn shares stay valid.
+- The existing hand-built `src/routes/ar.*` and `src/lib/arabic-articles.tsx` get **replaced** by the generic `$lang` routes (13 hand-translated AR articles are migrated into the new `post_translations` table so nothing is lost).
+- `hreflang` alternates emitted in `head()` for every language that has a translation, plus `x-default` → EN canonical.
+- `dir="rtl"` and Arabic font applied only under `/ar/*`.
 
-## Proposed migration plan (safe, staged, reversible)
+### B2. Database — translation table (not columns on `posts`)
 
-### Phase 1 — Reconcile LC schema (additive, no breakage)
-Migration:
-- `ALTER TABLE posts ADD COLUMN category_slug text` (computed/backfilled, then keep in sync).
-- `ALTER TABLE posts ADD COLUMN featured_image text` (optional — only if we want parity; queries.ts doesn't read it, can skip).
-- `ALTER TABLE categories ADD COLUMN wp_id int`, `ADD COLUMN parent_slug text`.
-- Backfill `categories.parent_slug` from existing `parent_id` join; backfill `wp_id` from BlogiFy export.
-- Backfill `posts.category_slug` for the 6 already-linked rows from `categories.slug`.
-- Add a `contact_submissions` view or table mirroring `contact_messages` (or change `queries.ts` to use `contact_messages` in a separate frontend-only edit).
+New table (clean, scales to any number of languages, cheap to query):
 
-### Phase 2 — Import the 40 BlogiFy posts into LC (data only)
-- For each BlogiFy slug **not already in LC**: skip (LC is the source of truth — it's the superset; we only need missing rows). After diff: every BlogiFy slug is already present in LC, so nothing to insert. Verify each LC row against BlogiFy for `content`, `excerpt`, `featured_image_url`, `seo_title`, `meta_description`, `category_slug`, `tags`, `published_at`. Where LC values are empty/null and BlogiFy has them, backfill via `UPDATE … FROM (VALUES …)`. This protects the 6 newer LC-only posts and any admin edits.
-- Resolve `category_id` from `category_slug` for all rows (set FK).
+```sql
+public.post_translations (
+  post_id uuid references posts on delete cascade,
+  lang text check (lang in ('ko','fr','ar')),  -- EN stays on posts.*
+  title text not null,
+  excerpt text,
+  content text not null,
+  seo_title text,
+  meta_description text,
+  focus_keywords text[],
+  status text default 'auto',  -- 'auto' | 'edited' | 'approved'
+  translated_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  primary key (post_id, lang)
+)
+```
 
-### Phase 3 — Media consolidation (inline images)
-- Script (service role) scans LC `posts.content` for every `kejgjwvesmlaorviofyl.supabase.co/storage/v1/object/public/media/<path>` occurrence (~61 references, fewer unique paths).
-- For each unique path not already in this project's `media` bucket: download from BlogiFy public URL, upload to LC `media` with `x-upsert: true`.
-- Rewrite `content` in LC: replace `kejgjwvesmlaorviofyl.supabase.co` with `gwynqitgepkfzzenlfyu.supabase.co`, keeping the `/storage/v1/object/public/media/...` path identical. Do **not** touch the 8 external hosts.
-- Verify HTTP 200 on a sample of new URLs.
+- Public SELECT policy: only rows whose parent post is `published`.
+- Admin write via `has_role('admin')`.
+- Tags: translated at render time from a `tag_translations` table with the same shape (`tag_id`, `lang`, `name`) — new tags stay usable in EN immediately even if translation is pending.
 
-### Phase 4 — Repoint the public client
-- Replace `SUPABASE_URL`/`SUPABASE_ANON_KEY` in `src/lib/supabase.ts` with the LC project (`gwynqitgepkfzzenlfyu`) values. Better: switch to `import { supabase } from "@/integrations/supabase/client"` (the managed LC client) and delete `src/lib/supabase.ts` — single client across the app.
-- Fix `queries.ts` `contact_submissions` → `contact_messages` (or add the view in Phase 1).
-- Build + typecheck.
+### B3. Auto-translation (Lovable AI Gateway, no extra key)
 
-### Phase 5 — Verify parity, then pause BlogiFy
-- Diff homepage post list, a sample post page, a category page, and search results between current published site (BlogiFy-backed) and the preview (LC-backed). Confirm titles, slugs, images, categories, related posts all render.
-- Only after parity: pause BlogiFy.
+Server function `translatePost({ postId, langs? })`:
+- Uses `google/gemini-2.5-flash` via `LOVABLE_API_KEY` (fast + cheap + strong on KO/FR/AR).
+- Translates title, excerpt, meta description, focus keywords, and **HTML content** (prompt instructs the model to preserve tags, attributes, code blocks, and image URLs verbatim).
+- Called automatically on post create/update in the admin (fire-and-forget with a toast; failures logged and retriable from the post editor).
+- Manual "Retranslate" button per language in the post editor SEO tab.
+- Locale-specific SEO defaults (currency, date format) handled by `Intl` in the render layer, not the model.
 
-## Risks & flags
-- **ID type change**: BlogiFy `posts.id` is `int`, LC is `uuid`. The public site uses `id` only as `excludeId` in related posts — no external links break. Bookmarks/analytics keyed on slug, which is preserved.
-- **Existing media migration was DB-rewrite only on LC**: rewriting hosts in `content` will succeed only after Phase 3 actually copies the inline-referenced files (the prior turn copied 37 files; inline images may reference different paths).
-- **6 newer LC posts** must be preserved — Phase 2 only backfills NULL columns, never overwrites.
-- **`contact_messages` vs `contact_submissions`**: silently broken today on the LC schema; flagged for fix in Phase 1/4.
-- **Drafts**: none in BlogiFy (all 40 published), no risk.
-- **Duplicate slugs**: none between BlogiFy and LC after the superset check.
-- **`category_id` NULL on 40 LC posts** is the most invasive backfill — must run after `categories.wp_id`/`parent_slug` exist and slug→uuid mapping is verified.
-- `src/lib/queries.ts` references `wp_id` and `parent_slug` on categories — those columns must exist before repointing or fetchCategories returns 400.
+Backfill: **on-demand only.** I'll add a "Translate all published posts" button in Settings that runs in batches; I won't auto-translate 49 posts during the migration.
 
-## Deliverables when you say "go"
-1. One SQL migration for Phase 1 schema additions + category backfill.
-2. One data migration (insert tool) for Phase 2 post backfills + category_id resolution.
-3. One Node/Python script (service role) for Phase 3 inline-image copy + content rewrite, run once.
-4. Code edits for Phase 4 (`src/lib/supabase.ts` switch + `contact_submissions` fix).
-5. Verification report (counts, sample URLs HTTP 200, parity screenshots).
+### B4. Language switcher
 
-No edits will happen until you approve.
+- Small dropdown in the site header (EN / 한국어 / Français / العربية), preserving the current path when a translation exists, otherwise linking to that language's homepage.
+- Choice persisted in `localStorage` for return visits (only affects the switcher's default target — doesn't auto-redirect, so shared links stay canonical).
+
+### B5. SEO
+
+- Per-locale `<title>`, meta description, canonical (`https://jalalnasser.com/{lang}/blog/{slug}`), `og:locale`, `og:locale:alternate`, and full `hreflang` set (including `x-default`).
+- Sitemap updated to include translated URLs.
+- BlogPosting JSON-LD gets `inLanguage`.
+
+---
+
+## Technical notes
+
+- **No new npm packages.** Language detection heuristic + Lovable AI translation cover everything; no `franc`, `i18next`, etc.
+- **Content strategy:** posts store EN in `posts.*`; translations live in `post_translations`. Renderer picks EN when no row exists, so partial coverage is safe.
+- **AR route migration:** existing `src/routes/ar.tsx`, `ar.index.tsx`, `ar.blog.index.tsx`, `ar.blog.$slug.tsx`, and `src/lib/arabic-articles.tsx` are removed; the 13 curated AR articles are inserted into `post_translations` with `status='approved'` so they win over any future auto-translation.
+- **Firecrawl:** direct-API mode (your connection), so no gateway URL, no `X-Connection-Api-Key`.
+
+## Deliverable order
+
+1. Firecrawl helper + Research admin tab (Part A).
+2. DB migration: `post_translations`, `tag_translations`, policies, grants.
+3. `translatePost` server fn + wire into post create/update.
+4. `$lang` routes, hreflang, language switcher, RTL for `/ar/*`.
+5. Migrate hand-written AR content into `post_translations`, remove old `ar.*` files.
+6. Sitemap update + "Translate all" backfill button.
+
+**Confirm and I'll start with Part A, then move to Part B.** If you'd rather I skip the AR migration step (leave the current `ar.*` routes untouched and only auto-translate for KO/FR), say so — that saves ~1 step.

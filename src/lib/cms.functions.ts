@@ -98,6 +98,18 @@ export const savePost = createServerFn({ method: "POST" })
           .insert(tag_ids.map((tag_id) => ({ post_id: postId!, tag_id })));
       }
     }
+    // Auto-translate on publish (fire-and-forget; failures logged, never block save).
+    if (postId && fields.status === "Published") {
+      const targetId = postId;
+      (async () => {
+        try {
+          const { runTranslateForPost } = await import("./translations.functions");
+          await runTranslateForPost(context.supabase, targetId, ["ko", "fr", "ar"], false);
+        } catch (e: any) {
+          console.error("auto-translate failed", e?.message ?? e);
+        }
+      })();
+    }
     return { id: postId };
   });
 

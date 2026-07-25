@@ -18,15 +18,18 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ArRouteImport } from './routes/ar'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as LangRouteImport } from './routes/$lang'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArIndexRouteImport } from './routes/ar.index'
+import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedTagsRouteImport } from './routes/_authenticated/tags'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSeoRouteImport } from './routes/_authenticated/seo'
+import { Route as AuthenticatedResearchRouteImport } from './routes/_authenticated/research'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPublishedRouteImport } from './routes/_authenticated/published'
 import { Route as AuthenticatedMediaRouteImport } from './routes/_authenticated/media'
@@ -39,9 +42,11 @@ import { Route as AuthenticatedAuthorsRouteImport } from './routes/_authenticate
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as ArBlogIndexRouteImport } from './routes/ar.blog.index'
 import { Route as AuthenticatedPostsIndexRouteImport } from './routes/_authenticated/posts.index'
+import { Route as LangBlogIndexRouteImport } from './routes/$lang.blog.index'
 import { Route as ArBlogSlugRouteImport } from './routes/ar.blog.$slug'
 import { Route as AuthenticatedPostsNewRouteImport } from './routes/_authenticated/posts.new'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as LangBlogSlugRouteImport } from './routes/$lang.blog.$slug'
 import { Route as ApiPublicHooksPublishLinkedinRouteImport } from './routes/api/public/hooks/publish-linkedin'
 import { Route as AuthenticatedPostsIdEditRouteImport } from './routes/_authenticated/posts.$id.edit'
 
@@ -90,6 +95,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LangRoute = LangRouteImport.update({
+  id: '/$lang',
+  path: '/$lang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -103,6 +113,11 @@ const ArIndexRoute = ArIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ArRoute,
+} as any)
+const LangIndexRoute = LangIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LangRoute,
 } as any)
 const MediaSplatRoute = MediaSplatRouteImport.update({
   id: '/media/$',
@@ -132,6 +147,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedSeoRoute = AuthenticatedSeoRouteImport.update({
   id: '/seo',
   path: '/seo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedResearchRoute = AuthenticatedResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
@@ -195,6 +215,11 @@ const AuthenticatedPostsIndexRoute = AuthenticatedPostsIndexRouteImport.update({
   path: '/posts/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const LangBlogIndexRoute = LangBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => LangRoute,
+} as any)
 const ArBlogSlugRoute = ArBlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -211,6 +236,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LangBlogSlugRoute = LangBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => LangRoute,
+} as any)
 const ApiPublicHooksPublishLinkedinRoute =
   ApiPublicHooksPublishLinkedinRouteImport.update({
     id: '/api/public/hooks/publish-linkedin',
@@ -226,6 +256,7 @@ const AuthenticatedPostsIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$lang': typeof LangRouteWithChildren
   '/about': typeof AboutRoute
   '/ar': typeof ArRouteWithChildren
   '/contact': typeof ContactRoute
@@ -245,16 +276,20 @@ export interface FileRoutesByFullPath {
   '/media': typeof AuthenticatedMediaRoute
   '/published': typeof AuthenticatedPublishedRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/research': typeof AuthenticatedResearchRoute
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tags': typeof AuthenticatedTagsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
+  '/$lang/': typeof LangIndexRoute
   '/ar/': typeof ArIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/ar/blog/$slug': typeof ArBlogSlugRoute
+  '/$lang/blog/': typeof LangBlogIndexRoute
   '/posts/': typeof AuthenticatedPostsIndexRoute
   '/ar/blog/': typeof ArBlogIndexRoute
   '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
@@ -280,16 +315,20 @@ export interface FileRoutesByTo {
   '/media': typeof AuthenticatedMediaRoute
   '/published': typeof AuthenticatedPublishedRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/research': typeof AuthenticatedResearchRoute
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tags': typeof AuthenticatedTagsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
+  '/$lang': typeof LangIndexRoute
   '/ar': typeof ArIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/posts/new': typeof AuthenticatedPostsNewRoute
   '/ar/blog/$slug': typeof ArBlogSlugRoute
+  '/$lang/blog': typeof LangBlogIndexRoute
   '/posts': typeof AuthenticatedPostsIndexRoute
   '/ar/blog': typeof ArBlogIndexRoute
   '/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
@@ -299,6 +338,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/$lang': typeof LangRouteWithChildren
   '/about': typeof AboutRoute
   '/ar': typeof ArRouteWithChildren
   '/contact': typeof ContactRoute
@@ -318,16 +358,20 @@ export interface FileRoutesById {
   '/_authenticated/media': typeof AuthenticatedMediaRoute
   '/_authenticated/published': typeof AuthenticatedPublishedRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/research': typeof AuthenticatedResearchRoute
   '/_authenticated/seo': typeof AuthenticatedSeoRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/tags': typeof AuthenticatedTagsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
+  '/$lang/': typeof LangIndexRoute
   '/ar/': typeof ArIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/posts/new': typeof AuthenticatedPostsNewRoute
   '/ar/blog/$slug': typeof ArBlogSlugRoute
+  '/$lang/blog/': typeof LangBlogIndexRoute
   '/_authenticated/posts/': typeof AuthenticatedPostsIndexRoute
   '/ar/blog/': typeof ArBlogIndexRoute
   '/_authenticated/posts/$id/edit': typeof AuthenticatedPostsIdEditRoute
@@ -337,6 +381,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$lang'
     | '/about'
     | '/ar'
     | '/contact'
@@ -356,16 +401,20 @@ export interface FileRouteTypes {
     | '/media'
     | '/published'
     | '/reports'
+    | '/research'
     | '/seo'
     | '/settings'
     | '/tags'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
+    | '/$lang/'
     | '/ar/'
+    | '/$lang/blog/$slug'
     | '/.mcp/invoke-tool/$tool'
     | '/posts/new'
     | '/ar/blog/$slug'
+    | '/$lang/blog/'
     | '/posts/'
     | '/ar/blog/'
     | '/posts/$id/edit'
@@ -391,16 +440,20 @@ export interface FileRouteTypes {
     | '/media'
     | '/published'
     | '/reports'
+    | '/research'
     | '/seo'
     | '/settings'
     | '/tags'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
+    | '/$lang'
     | '/ar'
+    | '/$lang/blog/$slug'
     | '/.mcp/invoke-tool/$tool'
     | '/posts/new'
     | '/ar/blog/$slug'
+    | '/$lang/blog'
     | '/posts'
     | '/ar/blog'
     | '/posts/$id/edit'
@@ -409,6 +462,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/$lang'
     | '/about'
     | '/ar'
     | '/contact'
@@ -428,16 +482,20 @@ export interface FileRouteTypes {
     | '/_authenticated/media'
     | '/_authenticated/published'
     | '/_authenticated/reports'
+    | '/_authenticated/research'
     | '/_authenticated/seo'
     | '/_authenticated/settings'
     | '/_authenticated/tags'
     | '/blog/$slug'
     | '/category/$slug'
     | '/media/$'
+    | '/$lang/'
     | '/ar/'
+    | '/$lang/blog/$slug'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/posts/new'
     | '/ar/blog/$slug'
+    | '/$lang/blog/'
     | '/_authenticated/posts/'
     | '/ar/blog/'
     | '/_authenticated/posts/$id/edit'
@@ -447,6 +505,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  LangRoute: typeof LangRouteWithChildren
   AboutRoute: typeof AboutRoute
   ArRoute: typeof ArRouteWithChildren
   ContactRoute: typeof ContactRoute
@@ -529,6 +588,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$lang': {
+      id: '/$lang'
+      path: '/$lang'
+      fullPath: '/$lang'
+      preLoaderRoute: typeof LangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -549,6 +615,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ar/'
       preLoaderRoute: typeof ArIndexRouteImport
       parentRoute: typeof ArRoute
+    }
+    '/$lang/': {
+      id: '/$lang/'
+      path: '/'
+      fullPath: '/$lang/'
+      preLoaderRoute: typeof LangIndexRouteImport
+      parentRoute: typeof LangRoute
     }
     '/media/$': {
       id: '/media/$'
@@ -590,6 +663,13 @@ declare module '@tanstack/react-router' {
       path: '/seo'
       fullPath: '/seo'
       preLoaderRoute: typeof AuthenticatedSeoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/research': {
+      id: '/_authenticated/research'
+      path: '/research'
+      fullPath: '/research'
+      preLoaderRoute: typeof AuthenticatedResearchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reports': {
@@ -676,6 +756,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPostsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/$lang/blog/': {
+      id: '/$lang/blog/'
+      path: '/blog'
+      fullPath: '/$lang/blog/'
+      preLoaderRoute: typeof LangBlogIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
     '/ar/blog/$slug': {
       id: '/ar/blog/$slug'
       path: '/blog/$slug'
@@ -696,6 +783,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$lang/blog/$slug': {
+      id: '/$lang/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/$lang/blog/$slug'
+      preLoaderRoute: typeof LangBlogSlugRouteImport
+      parentRoute: typeof LangRoute
     }
     '/api/public/hooks/publish-linkedin': {
       id: '/api/public/hooks/publish-linkedin'
@@ -724,6 +818,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
   AuthenticatedPublishedRoute: typeof AuthenticatedPublishedRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedResearchRoute: typeof AuthenticatedResearchRoute
   AuthenticatedSeoRoute: typeof AuthenticatedSeoRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTagsRoute: typeof AuthenticatedTagsRoute
@@ -742,6 +837,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMediaRoute: AuthenticatedMediaRoute,
   AuthenticatedPublishedRoute: AuthenticatedPublishedRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedResearchRoute: AuthenticatedResearchRoute,
   AuthenticatedSeoRoute: AuthenticatedSeoRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTagsRoute: AuthenticatedTagsRoute,
@@ -752,6 +848,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface LangRouteChildren {
+  LangIndexRoute: typeof LangIndexRoute
+  LangBlogSlugRoute: typeof LangBlogSlugRoute
+  LangBlogIndexRoute: typeof LangBlogIndexRoute
+}
+
+const LangRouteChildren: LangRouteChildren = {
+  LangIndexRoute: LangIndexRoute,
+  LangBlogSlugRoute: LangBlogSlugRoute,
+  LangBlogIndexRoute: LangBlogIndexRoute,
+}
+
+const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 
 interface ArRouteChildren {
   ArIndexRoute: typeof ArIndexRoute
@@ -770,6 +880,7 @@ const ArRouteWithChildren = ArRoute._addFileChildren(ArRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  LangRoute: LangRouteWithChildren,
   AboutRoute: AboutRoute,
   ArRoute: ArRouteWithChildren,
   ContactRoute: ContactRoute,

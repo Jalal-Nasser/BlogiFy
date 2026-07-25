@@ -343,6 +343,56 @@ export type Database = {
           },
         ]
       }
+      post_translations: {
+        Row: {
+          content: string
+          excerpt: string | null
+          focus_keywords: string[] | null
+          lang: string
+          meta_description: string | null
+          post_id: string
+          seo_title: string | null
+          status: string
+          title: string
+          translated_at: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          excerpt?: string | null
+          focus_keywords?: string[] | null
+          lang: string
+          meta_description?: string | null
+          post_id: string
+          seo_title?: string | null
+          status?: string
+          title: string
+          translated_at?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          excerpt?: string | null
+          focus_keywords?: string[] | null
+          lang?: string
+          meta_description?: string | null
+          post_id?: string
+          seo_title?: string | null
+          status?: string
+          title?: string
+          translated_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_translations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author: string
@@ -539,6 +589,35 @@ export type Database = {
             columns: ["keyword_id"]
             isOneToOne: false
             referencedRelation: "seo_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tag_translations: {
+        Row: {
+          lang: string
+          name: string
+          tag_id: string
+          updated_at: string
+        }
+        Insert: {
+          lang: string
+          name: string
+          tag_id: string
+          updated_at?: string
+        }
+        Update: {
+          lang?: string
+          name?: string
+          tag_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_translations_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
             referencedColumns: ["id"]
           },
         ]
