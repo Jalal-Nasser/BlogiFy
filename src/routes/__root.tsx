@@ -115,7 +115,9 @@ function RootShell({ children }: { children: ReactNode }) {
 
 const ADMIN_PATHS = [
   "/login",
+  "/admin",
   "/dashboard",
+  "/invoice",
   "/posts",
   "/categories",
   "/tags",
@@ -133,6 +135,20 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = ADMIN_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
+  // Ensure AdSense never runs on admin views, even if it was loaded earlier
+  // during the same client session on a public route.
+  useEffect(() => {
+    if (!isAdmin || typeof document === "undefined") return;
+    document.getElementById("adsense-script")?.remove();
+    document
+      .querySelectorAll<HTMLScriptElement>('script[src*="pagead2.googlesyndication.com"]')
+      .forEach((s) => s.remove());
+    document.querySelectorAll("ins.adsbygoogle").forEach((el) => el.remove());
+    // Neutralize the queue so any late push is a no-op
+    (window as any).adsbygoogle = { loaded: true, push: () => {} };
+  }, [isAdmin]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className={isAdmin ? "min-h-screen" : "flex min-h-screen flex-col"}>
@@ -146,3 +162,4 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
