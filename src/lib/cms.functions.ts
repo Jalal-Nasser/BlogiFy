@@ -98,6 +98,18 @@ export const savePost = createServerFn({ method: "POST" })
           .insert(tag_ids.map((tag_id) => ({ post_id: postId!, tag_id })));
       }
     }
+    // Auto-translate on publish (fire-and-forget; failures are logged, never block save).
+    if (postId && fields.status === "Published") {
+      try {
+        const { translatePost } = await import("./translations.functions");
+        // Invoke handler directly with the current auth context — server-side, no bearer needed.
+        (translatePost as any)({ data: { postId, langs: ["ko", "fr", "ar"], force: false } }).catch((e: any) => {
+          console.error("translatePost failed", e?.message ?? e);
+        });
+      } catch (e) {
+        console.error("translation dispatch failed", e);
+      }
+    }
     return { id: postId };
   });
 
