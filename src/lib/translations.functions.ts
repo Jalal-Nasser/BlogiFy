@@ -159,6 +159,59 @@ async function translateOne(source: {
   };
 }
 
+// Shared runner. Accepts any Supabase client (the caller must be authorized).
+export async function runTranslateForPost(sb: any, postId: string, langs: Lang[] = [...LANGS], force = false) {
+  const { data: post, error } = await sb
+    .from("posts")
+    .select("id,title,excerpt,content,seo_title,meta_description,focus_keywords")
+    .eq("id", postId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!post) throw new Error("Post not found");
+
+  const source = {
+    title: post.title,
+    excerpt: post.excerpt,
+    content: post.content ?? "",
+    seo_title: post.seo_title,
+    meta_description: post.meta_description,
+    focus_keywords: Array.isArray(post.focus_keywords) ? post.focus_keywords : [],
+  };
+
+  const results: { lang: Lang; ok: boolean; error?: string }[] = [];
+  for (const lang of langs) {
+    try {
+      if (!force) {
+        const { data: existing } = await sb
+          .from("post_translations")
+          .select("status")
+          .eq("post_id", postId)
+          .eq("lang", lang)
+          .maybeSingle();
+        if (existing && existing.status !== "auto") {
+          results.push({ lang, ok: true });
+          continue;
+        }
+      }
+      const t = await translateOne(source, lang);
+      const { error: upErr } = await sb
+        .from("post_translations")
+        .upsert({
+          post_id: postId,
+          lang,
+          ...t,
+          status: "auto",
+          translated_at: new Date().toISOString(),
+        });
+      if (upErr) throw new Error(upErr.message);
+      results.push({ lang, ok: true });
+    } catch (e: any) {
+      results.push({ lang, ok: false, error: e?.message ?? String(e) });
+    }
+  }
+  return { results };
+}
+
 export const translatePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
@@ -174,54 +227,6 @@ export const translatePost = createServerFn({ method: "POST" })
       _role: "admin",
     });
     if (!isAdmin) throw new Error("Forbidden");
-
-    const { data: post, error } = await context.supabase
-      .from("posts")
-      .select("id,title,excerpt,content,seo_title,meta_description,focus_keywords")
-      .eq("id", data.postId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!post) throw new Error("Post not found");
-
-    const source = {
-      title: post.title,
-      excerpt: post.excerpt,
-      content: post.content ?? "",
-      seo_title: post.seo_title,
-      meta_description: post.meta_description,
-      focus_keywords: Array.isArray(post.focus_keywords) ? post.focus_keywords : [],
-    };
-
-    const results: { lang: Lang; ok: boolean; error?: string }[] = [];
-    for (const lang of data.langs) {
-      try {
-        if (!data.force) {
-          const { data: existing } = await context.supabase
-            .from("post_translations")
-            .select("status")
-            .eq("post_id", data.postId)
-            .eq("lang", lang)
-            .maybeSingle();
-          if (existing && existing.status !== "auto") {
-            results.push({ lang, ok: true });
-            continue;
-          }
-        }
-        const t = await translateOne(source, lang);
-        const { error: upErr } = await context.supabase
-          .from("post_translations")
-          .upsert({
-            post_id: data.postId,
-            lang,
-            ...t,
-            status: "auto",
-            translated_at: new Date().toISOString(),
-          });
-        if (upErr) throw new Error(upErr.message);
-        results.push({ lang, ok: true });
-      } catch (e: any) {
-        results.push({ lang, ok: false, error: e?.message ?? String(e) });
-      }
-    }
-    return { results };
+    return runTranslateForPost(context.supabase, data.postId, data.langs, data.force);
   });
+
