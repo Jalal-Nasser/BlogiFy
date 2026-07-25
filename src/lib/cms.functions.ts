@@ -24,7 +24,7 @@ export const listPosts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("posts")
-      .select("id, title, slug, status, featured, published_at, updated_at, category_id, author_id, featured_image_url, seo_title, meta_description, canonical_url, excerpt")
+      .select("id, title, slug, status, featured, published_at, updated_at, category_id, author_id, featured_image_url, seo_title, meta_description, canonical_url, excerpt, focus_keywords, tags")
       .order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -63,6 +63,7 @@ const postInput = z.object({
   canonical_url: z.string().nullable().optional(),
   published_at: z.string().nullable().optional(),
   tag_ids: z.array(z.string()).optional(),
+  focus_keywords: z.array(z.string()).optional(),
 });
 
 export const savePost = createServerFn({ method: "POST" })
@@ -73,7 +74,7 @@ export const savePost = createServerFn({ method: "POST" })
     const row: any = {
       ...fields,
       content: fields.content ?? "",
-      author: "Admin", // legacy non-null column on existing posts table
+      author: "Admin",
     };
     let postId = id;
     if (id) {
@@ -99,6 +100,157 @@ export const savePost = createServerFn({ method: "POST" })
     }
     return { id: postId };
   });
+
+// ============ TAXONOMY HELPERS ============
+
+function stripHtml(html: string): string {
+  return (html || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+}
+
+export function generateMetaFromContent(title: string, content: string, excerpt?: string | null): string {
+  const src = (excerpt && excerpt.trim()) || stripHtml(content) || title;
+  const clean = src.replace(/\s+/g, " ").trim();
+  if (clean.length <= 155) return clean;
+  const cut = clean.slice(0, 155);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut).replace(/[,;:.\-–]+$/, "") + "…";
+}
+
+function tokenize(text: string): string[] {
+  return (text || "")
+    .toLowerCase()
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[^a-z0-9\s\-]+/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length > 2);
+}
+
+function scoreMatch(needle: string, haystackTokens: Set<string>, fullText: string): number {
+  const parts = needle.toLowerCase().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 0;
+  // Full phrase match wins
+  if (parts.length > 1 && fullText.includes(needle.toLowerCase())) return parts.length * 3;
+  let hits = 0;
+  for (const p of parts) if (haystackTokens.has(p)) hits++;
+  return hits === parts.length ? hits * 2 : hits;
+}
+
+async function computeSuggestions(
+  sb: any,
+  post: { id: string; title: string; content: string | null; excerpt: string | null; category_id: string | null },
+  categories: { id: string; name: string; slug: string }[],
+  tags: { id: string; name: string; slug: string }[],
+  uncategorizedId: string,
+) {
+  const text = `${post.title} ${post.excerpt ?? ""} ${stripHtml(post.content ?? "")}`.toLowerCase();
+  const tokens = new Set(tokenize(text));
+
+  let bestCat = { id: uncategorizedId, score: 0, name: "Uncategorized" };
+  if (!post.category_id) {
+    for (const c of categories) {
+      if (c.slug === "uncategorized" || c.slug === "featured") continue;
+      const s = Math.max(
+        scoreMatch(c.name, tokens, text),
+        scoreMatch(c.slug.replace(/-/g, " "), tokens, text),
+      );
+      if (s > bestCat.score) bestCat = { id: c.id, score: s, name: c.name };
+    }
+  }
+
+  const tagScored = tags
+    .map((t) => ({
+      id: t.id,
+      name: t.name,
+      score: Math.max(scoreMatch(t.name, tokens, text), scoreMatch(t.slug.replace(/-/g, " "), tokens, text)),
+    }))
+    .filter((t) => t.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+
+  return {
+    suggested_category_id: post.category_id ? null : (bestCat.score > 0 ? bestCat.id : uncategorizedId),
+    suggested_category_name: post.category_id ? null : (bestCat.score > 0 ? bestCat.name : "Uncategorized"),
+    suggested_tag_ids: tagScored.map((t) => t.id),
+    suggested_tag_names: tagScored.map((t) => t.name),
+  };
+}
+
+const UNCATEGORIZED_ID = "11111111-0000-0000-0000-0000000000ff";
+
+export const listUncategorizedWithSuggestions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase;
+    const [{ data: posts }, { data: cats }, { data: tags }] = await Promise.all([
+      sb.from("posts").select("id, title, slug, excerpt, content, category_id, status").is("category_id", null),
+      sb.from("categories").select("id, name, slug").eq("status", "Active"),
+      sb.from("tags").select("id, name, slug"),
+    ]);
+    const list = posts ?? [];
+    const result = [] as any[];
+    for (const p of list) {
+      const s = await computeSuggestions(sb, p, cats ?? [], tags ?? [], UNCATEGORIZED_ID);
+      result.push({ id: p.id, title: p.title, slug: p.slug, status: p.status, ...s });
+    }
+    return result;
+  });
+
+export const suggestForPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    title: z.string(),
+    content: z.string().optional().nullable(),
+    excerpt: z.string().optional().nullable(),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase;
+    const [{ data: cats }, { data: tags }] = await Promise.all([
+      sb.from("categories").select("id, name, slug").eq("status", "Active"),
+      sb.from("tags").select("id, name, slug"),
+    ]);
+    const s = await computeSuggestions(
+      sb,
+      { id: "", title: data.title, content: data.content ?? "", excerpt: data.excerpt ?? "", category_id: null },
+      cats ?? [],
+      tags ?? [],
+      UNCATEGORIZED_ID,
+    );
+    const meta = generateMetaFromContent(data.title, data.content ?? "", data.excerpt);
+    return { ...s, meta_description: meta };
+  });
+
+export const bulkFixCategoriesAndTags = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    changes: z.array(z.object({
+      id: z.string(),
+      category_id: z.string().nullable(),
+      tag_ids: z.array(z.string()),
+    })),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase;
+    let updated = 0;
+    for (const c of data.changes) {
+      if (c.category_id) {
+        const { error } = await sb.from("posts").update({ category_id: c.category_id }).eq("id", c.id);
+        if (error) throw new Error(error.message);
+      }
+      if (c.tag_ids.length > 0) {
+        // Merge with existing
+        const { data: existing } = await sb.from("post_tags").select("tag_id").eq("post_id", c.id);
+        const have = new Set((existing ?? []).map((r: any) => r.tag_id));
+        const toAdd = c.tag_ids.filter((t) => !have.has(t));
+        if (toAdd.length > 0) {
+          await sb.from("post_tags").insert(toAdd.map((tag_id) => ({ post_id: c.id, tag_id })));
+        }
+      }
+      updated++;
+    }
+    await logActivity(context.supabase, "bulk_taxonomy_fix", `Fixed categories/tags on ${updated} posts`, "post", null);
+    return { updated };
+  });
+
 
 export const archivePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

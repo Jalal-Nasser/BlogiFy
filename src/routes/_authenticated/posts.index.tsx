@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { AdminShell, StatusBadge } from "@/components/admin/AdminShell";
-import { listPosts, listCategories, listAuthors, archivePost, togglePostFeatured } from "@/lib/cms.functions";
-import { Plus, Edit, Archive, Star, StarOff, Search } from "lucide-react";
+import { listPosts, listCategories, listAuthors, archivePost, togglePostFeatured, listUncategorizedWithSuggestions, bulkFixCategoriesAndTags } from "@/lib/cms.functions";
+import { Plus, Edit, Archive, Star, StarOff, Search, Wrench, Loader2, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/posts/")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }, { title: "Posts" }] }),
@@ -22,6 +22,7 @@ function PostsPage() {
   const [status, setStatus] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [authorId, setAuthorId] = useState("");
+  const [fixOpen, setFixOpen] = useState(false);
 
   const catMap = useMemo(() => new Map((cats.data ?? []).map((c: any) => [c.id, c.name])), [cats.data]);
   const authMap = useMemo(() => new Map((authors.data ?? []).map((a: any) => [a.id, a.name])), [authors.data]);
@@ -65,7 +66,10 @@ function PostsPage() {
             <option value="">All authors</option>
             {(authors.data ?? []).map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
-          <button onClick={() => navigate({ to: "/posts/new" })} className="ml-auto inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-2 rounded-md hover:bg-blue-700">
+          <button onClick={() => setFixOpen(true)} className="ml-auto inline-flex items-center gap-1.5 border border-slate-300 text-slate-700 text-sm px-3 py-2 rounded-md hover:bg-slate-50">
+            <Wrench className="h-4 w-4" /> Fix Missing Categories &amp; Tags
+          </button>
+          <button onClick={() => navigate({ to: "/posts/new" })} className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-3 py-2 rounded-md hover:bg-blue-700">
             <Plus className="h-4 w-4" /> New Post
           </button>
         </div>
@@ -104,9 +108,82 @@ function PostsPage() {
           </table>
         </div>
       </div>
+      {fixOpen && <FixTaxonomyModal onClose={() => setFixOpen(false)} onDone={() => { qc.invalidateQueries({ queryKey: ["posts"] }); setFixOpen(false); }} />}
     </AdminShell>
   );
 }
+
+function FixTaxonomyModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
+  const suggestions = useQuery({ queryKey: ["uncategorized-suggestions"], queryFn: () => listUncategorizedWithSuggestions() });
+  const [selections, setSelections] = useState<Record<string, { category_id: string | null; tag_ids: string[] }>>({});
+
+  useMemo(() => {
+    if (!suggestions.data) return;
+    const init: Record<string, any> = {};
+    for (const s of suggestions.data as any[]) {
+      init[s.id] = { category_id: s.suggested_category_id, tag_ids: s.suggested_tag_ids ?? [] };
+    }
+    setSelections(init);
+  }, [suggestions.data]);
+
+  const applyMut = useMutation({
+    mutationFn: () => bulkFixCategoriesAndTags({
+      data: { changes: Object.entries(selections).map(([id, v]) => ({ id, ...v })) },
+    }),
+    onSuccess: (r: any) => { toast.success(`Updated ${r.updated} posts`); onDone(); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const toggleTag = (id: string, tagId: string) => {
+    setSelections((s) => {
+      const cur = s[id] ?? { category_id: null, tag_ids: [] };
+      const has = cur.tag_ids.includes(tagId);
+      return { ...s, [id]: { ...cur, tag_ids: has ? cur.tag_ids.filter((t) => t !== tagId) : [...cur.tag_ids, tagId] } };
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg border border-slate-200 w-full max-w-3xl max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200">
+          <h2 className="font-semibold">Review taxonomy fixes</h2>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-900"><X className="h-4 w-4" /></button>
+        </div>
+        <div className="p-5 overflow-y-auto space-y-3">
+          {suggestions.isLoading && <div className="text-slate-500 text-sm">Analyzing posts…</div>}
+          {!suggestions.isLoading && (suggestions.data ?? []).length === 0 && <div className="text-slate-500 text-sm">All posts have categories.</div>}
+          {(suggestions.data ?? []).map((s: any) => (
+            <div key={s.id} className="border border-slate-200 rounded-md p-3">
+              <div className="font-medium text-sm text-slate-900">{s.title}</div>
+              <div className="text-xs text-slate-500 mt-0.5">Suggested category: <span className="font-medium text-slate-700">{s.suggested_category_name ?? "Uncategorized"}</span></div>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {(s.suggested_tag_ids ?? []).length === 0 && <span className="text-xs text-slate-400">No tag suggestions</span>}
+                {s.suggested_tag_ids?.map((tid: string, i: number) => {
+                  const active = selections[s.id]?.tag_ids?.includes(tid);
+                  return (
+                    <button key={tid} type="button" onClick={() => toggleTag(s.id, tid)}
+                      className={`text-xs px-2 py-0.5 rounded-md border ${active ? "bg-blue-50 border-blue-300 text-blue-700" : "bg-slate-50 border-slate-200 text-slate-600"}`}>
+                      {s.suggested_tag_names?.[i] ?? tid}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-slate-200 px-5 py-3 flex justify-end gap-2">
+          <button onClick={onClose} className="text-sm px-4 py-2 rounded-md border border-slate-300">Cancel</button>
+          <button disabled={applyMut.isPending || (suggestions.data ?? []).length === 0}
+            onClick={() => applyMut.mutate()}
+            className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-60">
+            {applyMut.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Apply fixes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 const Th = ({ children }: { children: React.ReactNode }) => <th className="text-left font-medium px-4 py-2.5">{children}</th>;
 const Td = ({ children }: { children: React.ReactNode }) => <td className="px-4 py-2.5 align-middle">{children}</td>;

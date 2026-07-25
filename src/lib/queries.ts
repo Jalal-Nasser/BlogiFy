@@ -2,7 +2,7 @@ import { supabase } from "./supabase";
 import type { Category, Post, Page } from "./types";
 
 const POST_COLUMNS =
-  "id,title,slug,content,excerpt,featured_image_url,author,category_slug,tags,status,published_at,read_time_minutes,views";
+  "id,title,slug,content,excerpt,featured_image_url,author,category_slug,tags,status,published_at,read_time_minutes,views,meta_description,focus_keywords";
 
 let categoryCache: Promise<Category[]> | null = null;
 function getCategoryMap(): Promise<Map<string, Category>> {

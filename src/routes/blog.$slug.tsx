@@ -26,6 +26,7 @@ type PostHeadMeta = {
   publishedAt: string | null;
   author: string;
   tags: string[];
+  keywords: string[];
   hasArabic: boolean;
 };
 
@@ -51,21 +52,26 @@ export const Route = createFileRoute("/blog/$slug")({
         publishedAt: null,
         author: "Jalal Nasser",
         tags: [],
+        keywords: [],
         hasArabic: false,
       };
     }
     const override = getPostSeoOverride(post.slug);
+    const tags = Array.isArray(post.tags) ? post.tags : [];
+    const focus = Array.isArray(post.focus_keywords) ? post.focus_keywords : [];
+    const keywords = Array.from(new Set([...(override?.keywords ?? []), ...focus, ...tags]));
     return {
       found: true,
       slug: post.slug,
       title: post.title,
       seoTitle: override?.seoTitle ?? post.title,
-      description: override?.metaDescription ?? post.excerpt ?? FALLBACK_DESCRIPTION,
+      description: override?.metaDescription ?? post.meta_description ?? post.excerpt ?? FALLBACK_DESCRIPTION,
       image: toAbsoluteUrl(post.featured_image_url ?? ""),
       imageAlt: override?.imageAlt ?? post.title,
       publishedAt: post.published_at ?? null,
       author: post.author ?? "Jalal Nasser",
-      tags: Array.isArray(post.tags) ? post.tags : [],
+      tags,
+      keywords,
       hasArabic: hasArabicVersion(post.slug),
     };
   },
@@ -82,6 +88,7 @@ export const Route = createFileRoute("/blog/$slug")({
         publishedAt: null,
         author: "Jalal Nasser",
         tags: [],
+        keywords: [],
         hasArabic: false,
       };
     const url = `${SITE_BASE}/blog/${data.slug}`;
@@ -114,8 +121,8 @@ export const Route = createFileRoute("/blog/$slug")({
     for (const tag of data.tags) {
       meta.push({ property: "article:tag", content: tag });
     }
-    if (data.tags.length > 0) {
-      meta.push({ name: "keywords", content: data.tags.join(", ") });
+    if (data.keywords.length > 0) {
+      meta.push({ name: "keywords", content: data.keywords.join(", ") });
     }
 
     const links: Array<Record<string, string>> = [
@@ -134,11 +141,12 @@ export const Route = createFileRoute("/blog/$slug")({
             type: "application/ld+json",
             children: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Article",
+              "@type": "BlogPosting",
               headline: data.seoTitle,
               description: data.description,
               image: data.image ? [data.image] : undefined,
               datePublished: data.publishedAt,
+              dateModified: data.publishedAt,
               author: { "@type": "Person", name: data.author, url: SITE_BASE },
               publisher: {
                 "@type": "Organization",
@@ -148,6 +156,8 @@ export const Route = createFileRoute("/blog/$slug")({
               },
               url,
               mainEntityOfPage: { "@type": "WebPage", "@id": url },
+              keywords: data.keywords.length > 0 ? data.keywords.join(", ") : undefined,
+              articleSection: undefined,
             }),
           },
         ]

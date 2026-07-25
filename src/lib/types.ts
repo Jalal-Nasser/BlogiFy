@@ -22,6 +22,8 @@ export interface Post {
   published_at: string;
   read_time_minutes: number;
   views: number;
+  meta_description?: string | null;
+  focus_keywords?: string[];
   // Convenience: hydrated from categories lookup
   categories?: Category | null;
   // Back-compat shim — some callers still read category_id
