@@ -5,13 +5,52 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/lib/queries";
 
+type Locale = "en" | "ko" | "fr" | "ar";
 
+const UI: Record<Locale, {
+  about: string; contact: string; search: string; menu: string;
+}> = {
+  en: { about: "About", contact: "Contact", search: "Search tutorials, tools, topics…", menu: "Menu" },
+  ko: { about: "소개", contact: "문의", search: "튜토리얼, 도구, 주제 검색…", menu: "메뉴" },
+  fr: { about: "À propos", contact: "Contact", search: "Rechercher tutoriels, outils, sujets…", menu: "Menu" },
+  ar: { about: "حول", contact: "تواصل", search: "ابحث في الدروس والأدوات والمواضيع…", menu: "القائمة" },
+};
+
+// Best-effort translation for common category names. Falls back to original DB name.
+const CATEGORY_I18N: Record<string, Partial<Record<Locale, string>>> = {
+  "AI & Tech": { ko: "AI 및 기술", fr: "IA & Tech", ar: "الذكاء الاصطناعي والتقنية" },
+  "City Story": { ko: "도시 이야기", fr: "Histoires de villes", ar: "قصص المدن" },
+  "Crypto": { ko: "암호화폐", fr: "Crypto", ar: "العملات المشفرة" },
+  "Featured": { ko: "추천", fr: "À la une", ar: "مميّز" },
+  "Games": { ko: "게임", fr: "Jeux", ar: "الألعاب" },
+  "Google": { ko: "구글", fr: "Google", ar: "جوجل" },
+  "Infrastructure": { ko: "인프라", fr: "Infrastructure", ar: "البنية التحتية" },
+  "IT Projects": { ko: "IT 프로젝트", fr: "Projets IT", ar: "مشاريع تقنية" },
+  "Linux": { ko: "리눅스", fr: "Linux", ar: "لينكس" },
+  "Mail Server": { ko: "메일 서버", fr: "Serveur mail", ar: "خادم البريد" },
+  "Marketing": { ko: "마케팅", fr: "Marketing", ar: "التسويق" },
+  "Security": { ko: "보안", fr: "Sécurité", ar: "الأمان" },
+};
+
+function detectLocale(pathname: string): Locale {
+  const seg = pathname.split("/")[1];
+  if (seg === "ko" || seg === "fr" || seg === "ar") return seg;
+  return "en";
+}
+
+function tCategory(name: string, locale: Locale): string {
+  if (locale === "en") return name;
+  return CATEGORY_I18N[name]?.[locale] ?? name;
+}
 
 export function Header() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const locale = detectLocale(pathname);
+  const t = UI[locale];
 
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
 
@@ -34,17 +73,19 @@ export function Header() {
     setOpen(false);
   }
 
+  const homeHref = locale === "en" ? "/" : `/${locale}`;
+
   return (
     <header className={`sticky top-0 z-40 border-b border-border/50 backdrop-blur-xl transition-colors ${scrolled ? "bg-background/85" : "bg-background/40"}`}>
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
         <div className="flex h-16 items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 shrink-0 group">
+          <a href={homeHref} className="flex items-center gap-2 shrink-0 group">
             <img src="/media/2023/09/cropped-Jblogify-1.png" alt="BlogiFy" className="h-10 w-10 object-contain drop-shadow-[0_0_12px_rgba(0,212,255,0.6)]" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             <div className="leading-none">
               <span className="font-display text-lg font-bold tracking-tight text-white text-glow">Blogi<span className="text-gradient">Fy</span></span>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">jalalnasser.com</div>
             </div>
-          </Link>
+          </a>
 
           <form onSubmit={onSearch} className="ml-auto hidden md:flex items-center w-full max-w-sm">
             <div className="relative w-full">
@@ -52,19 +93,19 @@ export function Header() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search tutorials, tools, topics…"
+                placeholder={t.search}
                 className="w-full rounded-full border border-border bg-input/60 py-2 pl-9 pr-4 text-sm outline-none focus:border-brand focus:ring-1 focus:ring-brand"
               />
             </div>
           </form>
 
           <nav className="ml-auto hidden lg:flex items-center gap-1">
-            <Link to="/about" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
-            <Link to="/contact" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            <Link to="/about" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">{t.about}</Link>
+            <Link to="/contact" className="nav-underline px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">{t.contact}</Link>
             <LanguageSwitcher />
           </nav>
 
-          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Toggle menu" onClick={() => setOpen(!open)}>
+          <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t.menu} onClick={() => setOpen(!open)}>
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
         </div>
@@ -79,7 +120,7 @@ export function Header() {
               className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
               activeProps={{ className: "shrink-0 rounded-full px-3 py-1 text-xs font-medium text-brand bg-brand/10" }}
             >
-              {c.name}
+              {tCategory(c.name, locale)}
             </Link>
           ))}
         </div>
@@ -94,14 +135,14 @@ export function Header() {
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search…"
+                  placeholder={t.search}
                   className="w-full rounded-full border border-border bg-input py-2 pl-9 pr-4 text-sm outline-none focus:border-brand"
                 />
               </div>
             </form>
             <div className="flex flex-col">
-              <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm">About</Link>
-              <Link to="/contact" onClick={() => setOpen(false)} className="py-2 text-sm">Contact</Link>
+              <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm">{t.about}</Link>
+              <Link to="/contact" onClick={() => setOpen(false)} className="py-2 text-sm">{t.contact}</Link>
               <div className="pt-2"><LanguageSwitcher /></div>
             </div>
           </div>

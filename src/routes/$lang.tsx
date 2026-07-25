@@ -1,7 +1,5 @@
 import { createFileRoute, Outlet, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Header } from "@/components/site/Header";
-import { Footer } from "@/components/site/Footer";
 
 const LANGS = new Set(["ko", "fr", "ar"]);
 
@@ -28,9 +26,7 @@ function LangLayout() {
   }, [lang, dir]);
   return (
     <div dir={dir} lang={lang} className={lang === "ar" ? "font-arabic" : undefined}>
-      <Header />
       <Outlet />
-      <Footer />
     </div>
   );
 }
