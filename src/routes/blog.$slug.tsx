@@ -121,8 +121,8 @@ export const Route = createFileRoute("/blog/$slug")({
     for (const tag of data.tags) {
       meta.push({ property: "article:tag", content: tag });
     }
-    if (data.tags.length > 0) {
-      meta.push({ name: "keywords", content: data.tags.join(", ") });
+    if (data.keywords.length > 0) {
+      meta.push({ name: "keywords", content: data.keywords.join(", ") });
     }
 
     const links: Array<Record<string, string>> = [
