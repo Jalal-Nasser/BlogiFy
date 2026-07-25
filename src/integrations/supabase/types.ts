@@ -355,6 +355,7 @@ export type Database = {
           excerpt: string | null
           featured: boolean
           featured_image_url: string | null
+          focus_keywords: string[]
           id: string
           linkedin_post_id: string | null
           linkedin_post_url: string | null
@@ -383,6 +384,7 @@ export type Database = {
           excerpt?: string | null
           featured?: boolean
           featured_image_url?: string | null
+          focus_keywords?: string[]
           id?: string
           linkedin_post_id?: string | null
           linkedin_post_url?: string | null
@@ -411,6 +413,7 @@ export type Database = {
           excerpt?: string | null
           featured?: boolean
           featured_image_url?: string | null
+          focus_keywords?: string[]
           id?: string
           linkedin_post_id?: string | null
           linkedin_post_url?: string | null
