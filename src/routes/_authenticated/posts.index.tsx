@@ -22,6 +22,7 @@ function PostsPage() {
   const [status, setStatus] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [authorId, setAuthorId] = useState("");
+  const [fixOpen, setFixOpen] = useState(false);
 
   const catMap = useMemo(() => new Map((cats.data ?? []).map((c: any) => [c.id, c.name])), [cats.data]);
   const authMap = useMemo(() => new Map((authors.data ?? []).map((a: any) => [a.id, a.name])), [authors.data]);
