@@ -1,5 +1,5 @@
 ---
-name: BlogiFy Lovable Workspace Skill
+name: blogify-lovable-workspace-skill
 description: Safe collaboration guardrails and project context for BlogiFy.
 ---
 
