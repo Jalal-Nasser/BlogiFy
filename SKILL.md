@@ -1,3 +1,8 @@
+---
+name: BlogiFy Lovable Workspace Skill
+description: Safe collaboration guardrails and project context for BlogiFy.
+---
+
 # BlogiFy — Lovable Workspace Skill
 
 This repository is connected to [Lovable](https://lovable.dev) and can be imported from GitHub.
