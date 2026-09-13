@@ -14,16 +14,6 @@ function loadGA4() {
   document.head.appendChild(i);
 }
 
-function loadAdSense() {
-  if (document.getElementById("adsense-script")) return;
-  const s = document.createElement("script");
-  s.id = "adsense-script";
-  s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4702782931000986";
-  s.async = true;
-  s.crossOrigin = "anonymous";
-  document.head.appendChild(s);
-}
-
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
@@ -31,7 +21,6 @@ export function CookieConsent() {
     const consent = localStorage.getItem("cookie_consent");
     if (consent === "accepted") {
       loadGA4();
-      loadAdSense();
     } else if (consent === "declined") {
       // do nothing
     } else {
@@ -42,7 +31,6 @@ export function CookieConsent() {
   function accept() {
     localStorage.setItem("cookie_consent", "accepted");
     loadGA4();
-    loadAdSense();
     setVisible(false);
   }
 
@@ -61,7 +49,7 @@ export function CookieConsent() {
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">We use cookies</p>
             <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
-              We use Google Analytics and Google AdSense to improve your experience and serve relevant ads. By clicking Accept, you consent to our use of cookies.{" "}
+              We use Google AdSense and Google Analytics to improve your experience and serve relevant ads. By clicking Accept, you consent to our use of cookies.{" "}
               <a href="/privacy-policy" className="underline underline-offset-2 hover:text-brand transition-colors">
                 Privacy Policy
               </a>

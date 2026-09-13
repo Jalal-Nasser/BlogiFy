@@ -68,6 +68,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@jalalnasser" },
       { name: "google-site-verification", content: "QIyS7uSZxjFVmk2uIA92R0ZpIW4_-T-AiOPb8jAxHx0" },
+      { name: "google-adsense-account", content: "ca-pub-4702782931000986" },
       { property: "og:title", content: "BlogiFy — IT, Security & Tech Tutorials" },
       { name: "twitter:title", content: "BlogiFy — IT, Security & Tech Tutorials" },
       { property: "og:description", content: "Hands-on tutorials and analysis on Linux, cybersecurity, WordPress, self-hosting, crypto, and digital marketing." },
@@ -84,6 +85,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       {
         children: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KTL9JBSX');`,
+      } as any,
+      {
+        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4702782931000986",
+        async: true,
+        crossOrigin: "anonymous",
       } as any,
     ],
   }),
