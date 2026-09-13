@@ -5,6 +5,8 @@ import { fetchPostBySlug, fetchRelatedPosts } from "@/lib/queries";
 import { hasArabicVersion } from "@/lib/arabic-articles";
 import { getPostSeoOverride } from "@/lib/post-seo";
 import { CategoryBadge } from "@/components/site/CategoryBadge";
+import { AdSlot } from "@/components/site/AdSlot";
+import { AD_SLOTS } from "@/lib/ads";
 
 import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
@@ -179,15 +181,31 @@ function PostPage() {
   });
 
   // Auto-generate TOC and inject heading IDs
-  const { contentWithIds, toc } = useMemo(() => {
-    if (!post) return { contentWithIds: "", toc: [] as { id: string; text: string }[] };
+  const { contentTop, contentBottom, toc } = useMemo(() => {
+    if (!post) return { contentTop: "", contentBottom: "", toc: [] as { id: string; text: string }[] };
     const toc: { id: string; text: string }[] = [];
     const content = post.content.replace(/<h2[^>]*>(.*?)<\/h2>/gi, (_m, text) => {
       const id = String(text).toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       toc.push({ id, text: String(text).replace(/<[^>]+>/g, "") });
       return `<h2 id="${id}">${text}</h2>`;
     });
-    return { contentWithIds: content, toc };
+    // Split after roughly the 3rd paragraph (fallback: after the first H2)
+    // so an in-article ad can be inserted mid-content.
+    let splitAt = -1;
+    let idx = -1;
+    for (let i = 0; i < 3; i++) {
+      idx = content.indexOf("</p>", idx + 1);
+      if (idx === -1) break;
+      splitAt = idx + 4;
+    }
+    if (splitAt === -1) {
+      const h2 = content.search(/<\/h2>/i);
+      if (h2 !== -1) splitAt = h2 + 5;
+    }
+    if (splitAt === -1 || splitAt >= content.length) {
+      return { contentTop: content, contentBottom: "", toc };
+    }
+    return { contentTop: content.slice(0, splitAt), contentBottom: content.slice(splitAt), toc };
   }, [post]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [slug]);
@@ -256,7 +274,19 @@ function PostPage() {
           )}
 
           {/* Article */}
-          <div className="prose-article max-w-none" dangerouslySetInnerHTML={{ __html: contentWithIds }} />
+          <div className="prose-article max-w-none" dangerouslySetInnerHTML={{ __html: contentTop }} />
+          <AdSlot
+            key={`mid-${post.slug}`}
+            slot={AD_SLOTS.midArticle}
+            format="fluid"
+            layout="in-article"
+            className="my-8"
+          />
+          {contentBottom && (
+            <div className="prose-article max-w-none" dangerouslySetInnerHTML={{ __html: contentBottom }} />
+          )}
+
+          <AdSlot key={`after-${post.slug}`} slot={AD_SLOTS.afterArticle} className="mt-10" />
 
 
           {/* Tags */}
