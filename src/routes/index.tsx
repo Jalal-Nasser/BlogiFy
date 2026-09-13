@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPosts } from "@/lib/queries";
 import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
+import { AdSlot } from "@/components/site/AdSlot";
+import { AD_SLOTS } from "@/lib/ads";
 import { Sparkles, TrendingUp } from "lucide-react";
 
 const BASE = "https://jalalnasser.com";
@@ -93,6 +95,8 @@ function Home() {
           Practical guides on Linux, security, WordPress, self-hosting, crypto, and digital marketing — written by Jalal Nasser.
         </p>
       </section>
+
+      <AdSlot slot={AD_SLOTS.belowHero} className="mb-6" />
 
       {/* Full-width featured hero */}
       {isLoading && <div className="h-96 animate-pulse rounded-2xl bg-surface mb-6" />}

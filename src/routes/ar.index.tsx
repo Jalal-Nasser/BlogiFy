@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpen } from "lucide-react";
+import { AdSlot } from "@/components/site/AdSlot";
+import { AD_SLOTS } from "@/lib/ads";
 
 const CANONICAL = "https://jalalnasser.com/ar";
 const TITLE = "المدونة العربية | الذكاء الاصطناعي وتطوير البرمجيات";
@@ -48,6 +50,8 @@ function ArabicHome() {
         والنماذج اللغوية الكبيرة، إلى تطوير البرمجيات، وأتمتة الأعمال، وهندسة الأوامر.
         هدفي هو تقريب هذه المفاهيم للقارئ العربي بأسلوب عملي ومباشر.
       </p>
+
+      <AdSlot slot={AD_SLOTS.belowHero} className="mt-8" />
 
       <div className="mt-10">
         <h2 className="font-display text-xl font-semibold">المواضيع الرئيسية</h2>
