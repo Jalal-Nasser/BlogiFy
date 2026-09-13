@@ -1,5 +1,24 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { getPublishedPostTranslation } from "@/lib/translations.functions";
+import { AdSlot } from "@/components/site/AdSlot";
+import { AD_SLOTS } from "@/lib/ads";
+
+function splitForAd(html: string): [string, string] {
+  let splitAt = -1;
+  let idx = -1;
+  for (let i = 0; i < 3; i++) {
+    idx = html.indexOf("</p>", idx + 1);
+    if (idx === -1) break;
+    splitAt = idx + 4;
+  }
+  if (splitAt === -1) {
+    const h2 = html.search(/<\/h2>/i);
+    if (h2 !== -1) splitAt = h2 + 5;
+  }
+  if (splitAt === -1 || splitAt >= html.length) return [html, ""];
+  return [html.slice(0, splitAt), html.slice(splitAt)];
+}
 
 const SITE_BASE = "https://jalalnasser.com";
 
@@ -107,6 +126,7 @@ export const Route = createFileRoute("/$lang/blog/$slug")({
 function LangPost() {
   const d = Route.useLoaderData();
   const dir = d.lang === "ar" ? "rtl" : "ltr";
+  const [contentTop, contentBottom] = useMemo(() => splitForAd(d.content), [d.content]);
   return (
     <main className="mx-auto max-w-3xl px-4 lg:px-6 py-10" dir={dir}>
       <Link to="/$lang/blog" params={{ lang: d.lang }} className="text-sm text-muted-foreground hover:text-foreground">
@@ -124,8 +144,22 @@ function LangPost() {
       )}
       <article
         className="prose prose-invert mt-8 max-w-none prose-headings:text-white prose-a:text-brand"
-        dangerouslySetInnerHTML={{ __html: d.content }}
+        dangerouslySetInnerHTML={{ __html: contentTop }}
       />
+      <AdSlot
+        key={`mid-${d.lang}-${d.slug}`}
+        slot={AD_SLOTS.midArticle}
+        format="fluid"
+        layout="in-article"
+        className="my-8"
+      />
+      {contentBottom && (
+        <article
+          className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-brand"
+          dangerouslySetInnerHTML={{ __html: contentBottom }}
+        />
+      )}
+      <AdSlot key={`after-${d.lang}-${d.slug}`} slot={AD_SLOTS.afterArticle} className="mt-10" />
     </main>
   );
 }

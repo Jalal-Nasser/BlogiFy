@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { listPublishedTranslated } from "@/lib/translations.functions";
+import { AdSlot } from "@/components/site/AdSlot";
+import { AD_SLOTS } from "@/lib/ads";
 
 const SITE_BASE = "https://jalalnasser.com";
 
@@ -54,6 +56,7 @@ function LangHome() {
         <h1 className="text-4xl font-bold text-white">{t.title}</h1>
         <p className="mt-2 text-muted-foreground">{t.subtitle}</p>
       </header>
+      <AdSlot slot={AD_SLOTS.belowHero} className="mb-8" />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((p) => (
           <article key={p.id} className="rounded-lg border border-border/50 bg-surface/30 overflow-hidden">

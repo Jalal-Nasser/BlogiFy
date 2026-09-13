@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCategoryBySlug, fetchPostsByCategory } from "@/lib/queries";
 import { PostCard } from "@/components/site/PostCard";
 import { Sidebar } from "@/components/site/Sidebar";
+import { AdSlot } from "@/components/site/AdSlot";
+import { AD_SLOTS } from "@/lib/ads";
 
 export const Route = createFileRoute("/category/$slug")({
   head: ({ params }) => {
@@ -44,6 +46,8 @@ function CategoryPage() {
         {category?.description && <p className="mt-3 text-muted-foreground max-w-2xl">{category.description}</p>}
         <div className="mt-4 text-sm text-muted-foreground">{posts.length} {posts.length === 1 ? "article" : "articles"}</div>
       </header>
+
+      <AdSlot slot={AD_SLOTS.belowHero} className="mb-8" />
 
       <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
         <div>
